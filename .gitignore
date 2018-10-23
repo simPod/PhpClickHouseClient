@@ -1,0 +1,6 @@
+/.phpcs.xml
+/.phpunit.xml
+/.phpcs-cache
+/phpstan.neon
+/composer.lock
+/vendor/

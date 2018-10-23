@@ -1,0 +1,157 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+    tags:
+  pull_request:
+
+jobs:
+  coding-standard:
+    runs-on: ubuntu-18.04
+    name: Coding Standard
+
+    steps:
+      -   uses: actions/checkout@v2
+
+      -   name: Install PHP
+          uses: shivammathur/setup-php@1.7.0
+          with:
+            php-version: 7.3
+            coverage: none
+            extensions: json, mbstring
+
+      -   name: Get Composer Cache Directory
+          id: composer-cache
+          run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      -   name: Cache dependencies
+          uses: actions/cache@v1
+          with:
+            path: ${{ steps.composer-cache.outputs.dir }}
+            key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            restore-keys: ${{ runner.os }}-composer-
+
+      -   name: Install Dependencies
+          run: composer install ${DEPENDENCIES}
+
+      -   name: Coding Standard
+          run: vendor/bin/phpcs
+
+  phpstan:
+    runs-on: ubuntu-18.04
+    name: PHPStan
+
+    steps:
+      -   uses: actions/checkout@v2
+
+      -   name: Install PHP
+          uses: shivammathur/setup-php@1.7.0
+          with:
+            php-version: 7.3
+            coverage: none
+            extensions: json, mbstring
+
+      -   name: Get Composer Cache Directory
+          id: composer-cache
+          run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      -   name: Cache dependencies
+          uses: actions/cache@v1
+          with:
+            path: ${{ steps.composer-cache.outputs.dir }}
+            key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            restore-keys: ${{ runner.os }}-composer-
+
+      -   name: Install Dependencies
+          run: composer install ${DEPENDENCIES}
+
+      -   name: PHPStan
+          run: vendor/bin/phpstan analyse
+
+  coverage:
+    runs-on: ubuntu-18.04
+    name: Code Coverage
+
+    steps:
+      -   uses: actions/checkout@v2
+          with:
+            ref: ${{ github.ref }}
+
+      -   name: Build the docker-compose stack
+          run: docker-compose -f tests/docker-compose.yaml up -d
+
+      -   name: Install PHP
+          uses: shivammathur/setup-php@1.7.0
+          with:
+            php-version: 7.3
+            coverage: pcov
+            extensions: json, mbstring
+
+      -   name: Get Composer Cache Directory
+          id: composer-cache
+          run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      -   name: Cache dependencies
+          uses: actions/cache@v1
+          with:
+            path: ${{ steps.composer-cache.outputs.dir }}
+            key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            restore-keys: ${{ runner.os }}-composer-
+
+      -   name: Install Dependencies
+          run: composer install ${DEPENDENCIES}
+
+      -   name: Code coverage
+          run: |
+            ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover.xml
+
+      -   name: Report to Coveralls
+          env:
+            COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            COVERALLS_RUN_LOCALLY: 1
+          run: vendor/bin/php-coveralls --verbose
+
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        php: [7.3, 7.4]
+        env: [
+          'DEPENDENCIES=--prefer-lowest',
+          '',
+        ]
+    name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build the docker-compose stack
+      run: docker-compose -f tests/docker-compose.yaml up -d
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@1.7.0
+      with:
+        php-version: ${{ matrix.php  }}
+        coverage: none
+        extensions: json, mbstring
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
+    - name: Run unit tests
+      run: |
+        export $ENV
+        ./vendor/bin/phpunit --group default,ReactPromise
+      env:
+        ENV: ${{ matrix.env}}

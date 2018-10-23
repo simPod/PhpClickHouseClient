@@ -1,0 +1,59 @@
+{
+    "name": "simpod/clickhouse-client",
+    "type": "library",
+    "description": "PHP ClickHouse Client",
+    "keywords": [
+        "clickhouse",
+        "client",
+        "php",
+        "http",
+        "HTTP client"
+    ],
+    "homepage": "https://github.com/simPod/ClickHouseClient",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Simon Podlipsky",
+            "email": "simon@podlipsky.net"
+        }
+    ],
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "require": {
+        "php-64bit": "^7.3",
+        "guzzlehttp/promises": "^1.3",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.0",
+        "psr/log": "^1.1",
+        "thecodingmachine/safe": "^1.0"
+    },
+    "require-dev": {
+        "cdn77/coding-standard": "^3.0",
+        "nyholm/psr7": "^1.2",
+        "php-http/curl-client": "^2.1",
+        "phpstan/extension-installer": "^1.0",
+        "phpstan/phpstan": "0.12.11",
+        "phpstan/phpstan-phpunit": "0.12.6",
+        "phpstan/phpstan-strict-rules": "0.12.2",
+        "phpunit/phpunit": "^8.5",
+        "psalm/plugin-phpunit": "^0.9.0",
+        "simpod/php-coveralls-mirror": "^3.0",
+        "thecodingmachine/phpstan-safe-rule": "^1.0",
+        "vimeo/psalm": "^3.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "SimPod\\ClickHouseClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SimPod\\ClickHouseClient\\Tests\\": "tests/"
+        }
+    }
+}

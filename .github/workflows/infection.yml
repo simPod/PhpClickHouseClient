@@ -1,0 +1,26 @@
+name: Run Infection
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build the docker-compose stack
+        run: docker-compose -f tests/docker-compose.yaml up -d
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@1.7.0
+        with:
+          php-version: 7.3
+          coverage: xdebug
+          extensions: json, mbstring
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run Infection
+        run: vendor/bin/infection --min-msi=84 --min-covered-msi=90 --log-verbosity=none -s

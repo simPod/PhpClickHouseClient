@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         beStrictAboutChangesToGlobalState="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         verbose="true"
+>
+    <testsuites>
+        <testsuite name="Tests">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+
+    <php>
+        <env name="CLICKHOUSE_HOST" value="http://127.0.0.1:28123" />
+        <env name="CLICKHOUSE_USER" value="default" />
+        <env name="CLICKHOUSE_PASSWORD" value="" />
+        <env name="CLICKHOUSE_DATABASE" value="default" />
+    </php>
+</phpunit>

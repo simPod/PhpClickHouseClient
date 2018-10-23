@@ -1,0 +1,9 @@
+/.phpunit.result.cache
+/.phpunit.xml
+/.phpcs-cache
+/infection.json
+/infection-log.txt
+/phpcs.xml
+/phpstan.neon
+/composer.lock
+/vendor/

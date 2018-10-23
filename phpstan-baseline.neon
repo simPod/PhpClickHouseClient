@@ -1,0 +1,17 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Function preg_replace is unsafe to use\\. It can return FALSE instead of throwing an exception\\. Please add 'use function Safe\\\\preg_replace;' at the beginning of the file to use the variant provided by the 'thecodingmachine/safe' library\\.$#"
+			count: 1
+			path: src/Sql/SqlFactory.php
+
+		-
+			message: "#^Parameter \\#3 \\$subject of function preg_replace expects array\\|string, string\\|null given\\.$#"
+			count: 1
+			path: src/Sql/SqlFactory.php
+
+		-
+			message: "#^Method SimPod\\\\ClickHouseClient\\\\Sql\\\\SqlFactory\\:\\:createWithParameters\\(\\) should return string but returns string\\|null\\.$#"
+			count: 1
+			path: src/Sql/SqlFactory.php
+

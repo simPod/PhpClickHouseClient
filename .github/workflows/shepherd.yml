@@ -1,0 +1,16 @@
+name: Run Shepherd
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run Psalm
+        run: vendor/bin/psalm --threads=4 --output-format=github --shepherd

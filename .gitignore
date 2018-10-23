@@ -1,0 +1,7 @@
+/.phpcs.xml
+/.phpunit.result.cache
+/.phpunit.xml
+/.phpcs-cache
+/phpstan.neon
+/composer.lock
+/vendor/

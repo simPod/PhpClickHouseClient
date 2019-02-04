@@ -40,7 +40,7 @@
         "phpstan/phpstan": "^0.10.5",
         "phpstan/phpstan-phpunit": "^0.10.0",
         "phpstan/phpstan-strict-rules": "^0.10.1",
-        "phpunit/phpunit": "^7",
+        "phpunit/phpunit": "^7 || ^8",
         "thecodingmachine/phpstan-safe-rule": "^0.1.0"
     },
     "autoload": {

@@ -86,18 +86,6 @@ CLICKHOUSE,
         );
     }
 
-    /** @return array<string, float|int|string> */
-    public function getDefaultParameters() : array
-    {
-        return $this->defaultParameters;
-    }
-
-    /** @param array<string, float|int|string> $defaultParameters */
-    public function setDefaultParameters(array $defaultParameters) : void
-    {
-        $this->defaultParameters = $defaultParameters;
-    }
-
     /**
      * @param array<string, float|int|string> $requestParameters
      * @param callable(ResponseInterface):mixed|null $processResponse

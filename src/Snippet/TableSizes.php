@@ -32,7 +32,7 @@ ANY LEFT JOIN (
     FROM system.parts 
     WHERE active AND database = :database
     GROUP BY table,database
-) USING ( table, database )
+) parts USING ( table, database )
 WHERE database = :database AND storage_policy <> ''
 GROUP BY table, database
 CLICKHOUSE,

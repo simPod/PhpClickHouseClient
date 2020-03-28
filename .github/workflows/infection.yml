@@ -11,6 +11,8 @@ jobs:
 
       - name: Build the docker-compose stack
         run: docker-compose -f tests/docker-compose.yaml up -d
+        env:
+          CLICKHOUSE_VERSION: 20
 
       - name: Install PHP
         uses: shivammathur/setup-php@1.7.0

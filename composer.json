@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "cdn77/coding-standard": "^3.0",
-        "infection/infection": "^0.15.3",
+        "infection/infection": "^0.16.0",
         "nyholm/psr7": "^1.2",
         "php-http/curl-client": "^2.1",
         "phpstan/extension-installer": "^1.0",

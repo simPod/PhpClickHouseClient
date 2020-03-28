@@ -1,12 +1,13 @@
 # PHP ClickHouse Client
 
-[![Build Status](https://github.com/simPod/PhpClickHouseClient/workflows/Continuous%20Integration/badge.svg?branch=master)](https://github.com/simPod/PhpClickHouseClient/actions)
+[![Build Status](https://github.com/simPod/PhpClickHouseClient/workflows/CI/badge.svg?branch=master)](https://github.com/simPod/PhpClickHouseClient/actions)
 [![Coverage Status](https://coveralls.io/repos/github/simPod/PhpClickHouseClient/badge.svg?branch=master)](https://coveralls.io/github/simPod/PhpClickHouseClient?branch=master)
 [![Downloads](https://poser.pugx.org/simpod/clickhouse-client/d/total.svg)](https://packagist.org/packages/simpod/clickhouse-client)
 [![Packagist](https://poser.pugx.org/simpod/clickhouse-client/v/stable.svg)](https://packagist.org/packages/simpod/clickhouse-client)
 [![Licence](https://poser.pugx.org/simpod/clickhouse-client/license.svg)](https://packagist.org/packages/simpod/clickhouse-client)
 [![GitHub Issues](https://img.shields.io/github/issues/simPod/PhpClickHouseClient.svg?style=flat-square)](https://github.com/simPod/PhpClickHouseClient/issues)
-[![Psalm Coverage](https://shepherd.dev/github/simPod/PhpClickHouseClient/coverage.svg)](https://shepherd.dev/github/simPod/PhpClickHouseClient)
+[![Type Coverage](https://shepherd.dev/github/simPod/PhpClickHouseClient/coverage.svg)](https://shepherd.dev/github/simPod/PhpClickHouseClient)
+[![Infection MSI](https://badge.stryker-mutator.io/github.com/simPod/PhpClickHouseClient/master)](https://infection.github.io)
 
 ## Motivation
 

@@ -12,107 +12,107 @@ jobs:
     name: Coding Standard
 
     steps:
-      -   uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      -   name: Install PHP
-          uses: shivammathur/setup-php@1.7.0
-          with:
-            php-version: 7.3
-            coverage: none
-            extensions: json, mbstring
+      - name: Install PHP
+        uses: shivammathur/setup-php@1.7.0
+        with:
+          php-version: 7.3
+          coverage: none
+          extensions: json, mbstring
 
-      -   name: Get Composer Cache Directory
-          id: composer-cache
-          run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      -   name: Cache dependencies
-          uses: actions/cache@v1
-          with:
-            path: ${{ steps.composer-cache.outputs.dir }}
-            key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-            restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-      -   name: Install Dependencies
-          run: composer install ${DEPENDENCIES}
+      - name: Install Dependencies
+        run: composer install ${DEPENDENCIES}
 
-      -   name: Coding Standard
-          run: vendor/bin/phpcs
+      - name: Coding Standard
+        run: vendor/bin/phpcs
 
   phpstan:
     runs-on: ubuntu-18.04
     name: PHPStan
 
     steps:
-      -   uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      -   name: Install PHP
-          uses: shivammathur/setup-php@1.7.0
-          with:
-            php-version: 7.3
-            coverage: none
-            extensions: json, mbstring
+      - name: Install PHP
+        uses: shivammathur/setup-php@1.7.0
+        with:
+          php-version: 7.3
+          coverage: none
+          extensions: json, mbstring
 
-      -   name: Get Composer Cache Directory
-          id: composer-cache
-          run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      -   name: Cache dependencies
-          uses: actions/cache@v1
-          with:
-            path: ${{ steps.composer-cache.outputs.dir }}
-            key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-            restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-      -   name: Install Dependencies
-          run: composer install ${DEPENDENCIES}
+      - name: Install Dependencies
+        run: composer install ${DEPENDENCIES}
 
-      -   name: PHPStan
-          run: vendor/bin/phpstan analyse
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse
 
   coverage:
     runs-on: ubuntu-18.04
     name: Code Coverage
 
     steps:
-      -   uses: actions/checkout@v2
-          with:
-            ref: ${{ github.ref }}
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
 
-      -   name: Build the docker-compose stack
-          run: docker-compose -f tests/docker-compose.yaml up -d
-          env:
-            CLICKHOUSE_VERSION: 20
+      - name: Build the docker-compose stack
+        run: docker-compose -f tests/docker-compose.yaml up -d
+        env:
+          CLICKHOUSE_VERSION: 20
 
-      -   name: Install PHP
-          uses: shivammathur/setup-php@1.7.0
-          with:
-            php-version: 7.3
-            coverage: pcov
-            extensions: json, mbstring
+      - name: Install PHP
+        uses: shivammathur/setup-php@1.7.0
+        with:
+          php-version: 7.3
+          coverage: pcov
+          extensions: json, mbstring
 
-      -   name: Get Composer Cache Directory
-          id: composer-cache
-          run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      -   name: Cache dependencies
-          uses: actions/cache@v1
-          with:
-            path: ${{ steps.composer-cache.outputs.dir }}
-            key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-            restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-      -   name: Install Dependencies
-          run: composer install ${DEPENDENCIES}
+      - name: Install Dependencies
+        run: composer install ${DEPENDENCIES}
 
-      -   name: Code coverage
-          run: |
-            ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover.xml
+      - name: Code coverage
+        run: |
+          ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover.xml
 
-      -   name: Report to Coveralls
-          env:
-            COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            COVERALLS_RUN_LOCALLY: 1
-          run: vendor/bin/php-coveralls --verbose
+      - name: Report to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_RUN_LOCALLY: 1
+        run: vendor/bin/php-coveralls --verbose
 
   test_with-php-versions:
     runs-on: ubuntu-18.04
@@ -126,39 +126,39 @@ jobs:
     name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Build the docker-compose stack
-      run: docker-compose -f tests/docker-compose.yaml up -d
-      env:
+      - name: Build the docker-compose stack
+        run: docker-compose -f tests/docker-compose.yaml up -d
+        env:
           CLICKHOUSE_VERSION: 20
 
-    - name: Install PHP
-      uses: shivammathur/setup-php@1.7.0
-      with:
-        php-version: ${{ matrix.php }}
-        coverage: none
-        extensions: json, mbstring
-    - name: Get Composer Cache Directory
-      id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Install PHP
+        uses: shivammathur/setup-php@1.7.0
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          extensions: json, mbstring
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-    - name: Cache dependencies
-      uses: actions/cache@v1
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-    - name: Install Dependencies
-      run: composer install ${DEPENDENCIES}
+      - name: Install Dependencies
+        run: composer install ${DEPENDENCIES}
 
-    - name: Run tests
-      run: |
-        export $ENV
-        ./vendor/bin/phpunit --group default,ReactPromise
-      env:
-        ENV: ${{ matrix.env}}
+      - name: Run tests
+        run: |
+          export $ENV
+          ./vendor/bin/phpunit
+        env:
+          ENV: ${{ matrix.env}}
 
   test-with-clickhouse-versions:
     runs-on: ubuntu-18.04
@@ -168,32 +168,32 @@ jobs:
     name: ClickHouse ${{ matrix.clickhouse-version }} Test
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Build the docker-compose stack
-      run: docker-compose -f tests/docker-compose.yaml up -d
-      env:
-        CLICKHOUSE_VERSION: ${{ matrix.clickhouse-version }}
+      - name: Build the docker-compose stack
+        run: docker-compose -f tests/docker-compose.yaml up -d
+        env:
+          CLICKHOUSE_VERSION: ${{ matrix.clickhouse-version }}
 
-    - name: Install PHP
-      uses: shivammathur/setup-php@1.7.0
-      with:
-        php-version: 7.4
-        coverage: none
-        extensions: json, mbstring
-    - name: Get Composer Cache Directory
-      id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Install PHP
+        uses: shivammathur/setup-php@1.7.0
+        with:
+          php-version: 7.4
+          coverage: none
+          extensions: json, mbstring
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-    - name: Cache dependencies
-      uses: actions/cache@v1
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-    - name: Install Dependencies
-      run: composer install ${DEPENDENCIES}
+      - name: Install Dependencies
+        run: composer install ${DEPENDENCIES}
 
-    - name: Run tests
-      run: ./vendor/bin/phpunit --group default,ReactPromise
+      - name: Run tests
+        run: ./vendor/bin/phpunit

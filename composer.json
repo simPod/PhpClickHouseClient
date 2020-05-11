@@ -38,7 +38,7 @@
         "nyholm/psr7": "^1.2",
         "php-http/curl-client": "^2.1",
         "phpstan/extension-installer": "^1.0",
-        "phpstan/phpstan": "0.12.23",
+        "phpstan/phpstan": "0.12.25",
         "phpstan/phpstan-phpunit": "0.12.8",
         "phpstan/phpstan-strict-rules": "0.12.2",
         "phpunit/phpunit": "^9.0",

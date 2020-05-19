@@ -8,6 +8,7 @@ use SimPod\ClickHouseClient\Snippet\ShowDatabases;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 use function array_filter;
+use function array_shift;
 use function array_values;
 use function count;
 use function strpos;
@@ -30,6 +31,20 @@ final class ShowDatabasesTest extends TestCaseBase
             }
         );
 
-        self::assertSame([$this->currentDbName, 'default', 'system'], array_values($databases));
+        $databases = array_values($databases);
+
+        // BC
+        if ($databases[0] === '_temporary_and_external_tables') {
+            array_shift($databases);
+        }
+
+        self::assertSame(
+            [
+                $this->currentDbName,
+                'default',
+                'system',
+            ],
+            $databases
+        );
     }
 }

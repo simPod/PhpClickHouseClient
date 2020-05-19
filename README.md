@@ -252,3 +252,4 @@ $currentDatabaseName = CurrentDatabase::run($client);
 - ShowCreateTable
 - ShowDatabases
 - TableSizes
+- Version

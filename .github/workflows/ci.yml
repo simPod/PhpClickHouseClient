@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install PHP
-        uses: shivammathur/setup-php@1.7.0
+        uses: shivammathur/setup-php@2.2.2
         with:
           php-version: 7.3
           coverage: none
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install PHP
-        uses: shivammathur/setup-php@1.7.0
+        uses: shivammathur/setup-php@2.2.2
         with:
           php-version: 7.3
           coverage: none
@@ -84,7 +84,7 @@ jobs:
           CLICKHOUSE_VERSION: 20
 
       - name: Install PHP
-        uses: shivammathur/setup-php@1.7.0
+        uses: shivammathur/setup-php@2.2.2
         with:
           php-version: 7.3
           coverage: pcov
@@ -134,7 +134,7 @@ jobs:
           CLICKHOUSE_VERSION: 20
 
       - name: Install PHP
-        uses: shivammathur/setup-php@1.7.0
+        uses: shivammathur/setup-php@2.2.2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
@@ -176,7 +176,7 @@ jobs:
           CLICKHOUSE_VERSION: ${{ matrix.clickhouse-version }}
 
       - name: Install PHP
-        uses: shivammathur/setup-php@1.7.0
+        uses: shivammathur/setup-php@2.2.2
         with:
           php-version: 7.4
           coverage: none

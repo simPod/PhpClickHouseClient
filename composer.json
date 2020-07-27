@@ -30,7 +30,7 @@
         "thecodingmachine/safe": "^1.0"
     },
     "require-dev": {
-        "cdn77/coding-standard": "^3.0",
+        "cdn77/coding-standard": "^3.0 || ^4.0",
         "infection/infection": "^0.16.0",
         "nyholm/psr7": "^1.2",
         "php-http/curl-client": "^2.1",

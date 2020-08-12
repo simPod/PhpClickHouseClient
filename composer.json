@@ -38,7 +38,7 @@
         "phpstan/phpstan": "0.12.25",
         "phpstan/phpstan-phpunit": "0.12.10",
         "phpstan/phpstan-strict-rules": "0.12.2",
-        "phpunit/phpunit": "^9.0",
+        "phpunit/phpunit": "~9.2.0",
         "psalm/plugin-phpunit": "^0.10.0",
         "simpod/php-coveralls-mirror": "^3.0",
         "thecodingmachine/phpstan-safe-rule": "^1.0",

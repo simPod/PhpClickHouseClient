@@ -22,21 +22,14 @@ use function time;
 
 trait WithClient
 {
-    /** @var ClickHouseClient */
-    private $client;
+    private ClickHouseClient $client;
 
-    /** @var ClickHouseAsyncClient */
-    private $asyncClient;
+    private ClickHouseAsyncClient $asyncClient;
 
-    /**
-     * @internal
-     *
-     * @var ClickHouseClient
-     */
-    private $controllerClient;
+    /** @internal */
+    private ClickHouseClient $controllerClient;
 
-    /** @var string|null */
-    private $currentDbName;
+    private ?string $currentDbName = null;
 
     /** @before */
     public function setupClickHouseClient() : void

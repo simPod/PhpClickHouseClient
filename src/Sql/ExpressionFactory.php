@@ -9,8 +9,7 @@ use function Safe\sprintf;
 
 final class ExpressionFactory
 {
-    /** @var ValueFormatter */
-    private $valueFormatter;
+    private ValueFormatter $valueFormatter;
 
     public function __construct(ValueFormatter $valueFormatter)
     {

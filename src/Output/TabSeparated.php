@@ -7,8 +7,7 @@ namespace SimPod\ClickHouseClient\Output;
 /** @psalm-immutable */
 final class TabSeparated implements Output
 {
-    /** @var string */
-    public $contents;
+    public string $contents;
 
     public function __construct(string $contents)
     {

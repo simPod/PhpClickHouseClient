@@ -23,8 +23,7 @@ use function Safe\sprintf;
 /** @internal */
 final class ValueFormatter
 {
-    /** @var DateTimeZone|null */
-    private $dateTimeZone;
+    private ?DateTimeZone $dateTimeZone = null;
 
     public function __construct(?DateTimeZone $dateTimeZone = null)
     {

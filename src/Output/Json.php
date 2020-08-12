@@ -10,19 +10,17 @@ use function Safe\json_decode;
 final class Json implements Output
 {
     /** @var array<array<string, mixed>> */
-    public $data;
+    public array $data;
 
     /** @var array<mixed> */
-    public $meta;
+    public array $meta;
 
-    /** @var int */
-    public $rows;
+    public int $rows;
 
-    /** @var int|null */
-    public $rowsBeforeLimitAtLeast;
+    public ?int $rowsBeforeLimitAtLeast = null;
 
     /** @var array{elapsed: float, rows_read: int, bytes_read: int} */
-    public $statistics;
+    public array $statistics;
 
     public function __construct(string $contentsJson)
     {

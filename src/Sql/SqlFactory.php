@@ -10,8 +10,7 @@ use function Safe\sprintf;
 /** @internal */
 final class SqlFactory
 {
-    /** @var ValueFormatter */
-    private $valueFormatter;
+    private ValueFormatter $valueFormatter;
 
     public function __construct(ValueFormatter $valueFormatter)
     {

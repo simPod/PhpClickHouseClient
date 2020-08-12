@@ -1,6 +1,12 @@
-name: Run Infection
+name: Infection
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - "master"
+  schedule:
+    - cron: "0 17 * * *"
 
 jobs:
   Infection:
@@ -15,11 +21,11 @@ jobs:
           CLICKHOUSE_VERSION: 20
 
       - name: Install PHP
-        uses: shivammathur/setup-php@2.2.2
+        uses: shivammathur/setup-php@2.4.2
         with:
           php-version: 7.3
           coverage: xdebug
-          extensions: json, mbstring
+          extensions: json
 
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress --no-suggest

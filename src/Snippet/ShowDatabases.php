@@ -6,6 +6,7 @@ namespace SimPod\ClickHouseClient\Snippet;
 
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
+
 use function array_map;
 use function assert;
 use function is_string;

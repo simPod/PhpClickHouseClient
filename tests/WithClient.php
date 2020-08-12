@@ -13,6 +13,7 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
+
 use function assert;
 use function getenv;
 use function is_string;

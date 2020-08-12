@@ -7,6 +7,7 @@ namespace SimPod\ClickHouseClient\Snippet;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
+
 use function assert;
 
 final class DatabaseSize

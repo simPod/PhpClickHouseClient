@@ -7,6 +7,7 @@ namespace SimPod\ClickHouseClient\Tests\Snippet;
 use SimPod\ClickHouseClient\Snippet\ShowCreateTable;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
+
 use function Safe\preg_replace;
 use function str_replace;
 

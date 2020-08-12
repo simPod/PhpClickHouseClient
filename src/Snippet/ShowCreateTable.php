@@ -7,6 +7,7 @@ namespace SimPod\ClickHouseClient\Snippet;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use Webmozart\Assert\Assert;
+
 use function trim;
 
 final class ShowCreateTable

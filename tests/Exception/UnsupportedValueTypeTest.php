@@ -8,6 +8,7 @@ use Safe\DateTime;
 use SimPod\ClickHouseClient\Exception\UnsupportedValueType;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use stdClass;
+
 use function Safe\opendir;
 
 /** @covers \SimPod\ClickHouseClient\Exception\UnsupportedValueType */

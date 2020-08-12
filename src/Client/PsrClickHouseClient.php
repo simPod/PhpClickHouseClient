@@ -17,6 +17,7 @@ use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
+
 use function array_key_first;
 use function array_keys;
 use function array_map;

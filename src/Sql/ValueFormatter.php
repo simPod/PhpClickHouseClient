@@ -7,6 +7,7 @@ namespace SimPod\ClickHouseClient\Sql;
 use DateTimeImmutable;
 use DateTimeZone;
 use SimPod\ClickHouseClient\Exception\UnsupportedValueType;
+
 use function array_map;
 use function implode;
 use function is_array;
@@ -70,7 +71,8 @@ final class ValueFormatter
         }
 
         if (is_array($value)) {
-            if ($paramName !== null && $sql !== null
+            if (
+                $paramName !== null && $sql !== null
                 && preg_match(sprintf('~\s+IN\s+\\(:%s\\)~', $paramName), $sql) === 1
             ) {
                 return implode(

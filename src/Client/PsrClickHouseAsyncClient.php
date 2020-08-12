@@ -16,6 +16,7 @@ use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
+
 use function GuzzleHttp\Promise\promise_for;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient

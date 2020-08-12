@@ -6,8 +6,7 @@ namespace SimPod\ClickHouseClient\Sql;
 
 final class Expression
 {
-    /** @var string */
-    public $innerExpression;
+    public string $innerExpression;
 
     private function __construct(string $expression)
     {

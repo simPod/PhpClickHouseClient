@@ -12,7 +12,7 @@ use function str_replace;
 final class JsonEachRow implements Output
 {
     /** @var array<array<string, mixed>> */
-    public $data;
+    public array $data;
 
     public function __construct(string $contentsJson)
     {

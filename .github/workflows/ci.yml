@@ -19,7 +19,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@2.4.2
         with:
-          php-version: 7.3
+          php-version: 7.4
           coverage: none
           extensions: json
           tools: cs2pr
@@ -51,7 +51,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@2.4.2
         with:
-          php-version: 7.3
+          php-version: 7.4
           coverage: none
           extensions: json
           tools: cs2pr
@@ -90,7 +90,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@2.4.2
         with:
-          php-version: 7.3
+          php-version: 7.4
           coverage: pcov
           extensions: json
 
@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        php: [7.3, 7.4]
+        php: [7.4]
         env: [
           'DEPENDENCIES=--prefer-lowest',
           '',

@@ -14,7 +14,6 @@
 
     <rule ref="Cdn77">
         <exclude name="SlevomatCodingStandard.Files.LineLength"/>
-        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint" />
     </rule>
 
     <rule ref="SlevomatCodingStandard.Files.LineLength">

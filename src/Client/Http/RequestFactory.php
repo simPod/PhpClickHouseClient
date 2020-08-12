@@ -15,14 +15,11 @@ use const PHP_QUERY_RFC3986;
 
 final class RequestFactory
 {
-    /** @var RequestFactoryInterface */
-    private $requestFactory;
+    private RequestFactoryInterface $requestFactory;
 
-    /** @var UriFactoryInterface */
-    private $uriFactory;
+    private UriFactoryInterface $uriFactory;
 
-    /** @var StreamFactoryInterface */
-    private $streamFactory;
+    private StreamFactoryInterface $streamFactory;
 
     public function __construct(
         RequestFactoryInterface $requestFactory,

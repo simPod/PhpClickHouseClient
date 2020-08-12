@@ -23,7 +23,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@2.4.2
         with:
-          php-version: 7.3
+          php-version: 7.4
           coverage: xdebug
           extensions: json
 

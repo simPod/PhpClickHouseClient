@@ -6,11 +6,10 @@ namespace SimPod\ClickHouseClient\Client\Http;
 
 final class RequestOptions
 {
-    /** @var string */
-    public $sql;
+    public string $sql;
 
     /** @var array<string, float|int|string> */
-    public $parameters;
+    public array $parameters;
 
     /**
      * @param array<string, float|int|string> $defaultParameters

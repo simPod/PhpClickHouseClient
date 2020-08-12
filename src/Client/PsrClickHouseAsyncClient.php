@@ -21,23 +21,18 @@ use function GuzzleHttp\Promise\promise_for;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
-    /** @var HttpAsyncClient */
-    private $asyncClient;
+    private HttpAsyncClient $asyncClient;
 
-    /** @var RequestFactory */
-    private $requestFactory;
+    private RequestFactory $requestFactory;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var string */
-    private $endpoint;
+    private string $endpoint;
 
     /** @var array<string, float|int|string> */
-    private $defaultParameters;
+    private array $defaultParameters;
 
-    /** @var SqlFactory */
-    private $sqlFactory;
+    private SqlFactory $sqlFactory;
 
     /** @param array<string, float|int|string> $defaultParameters */
     public function __construct(

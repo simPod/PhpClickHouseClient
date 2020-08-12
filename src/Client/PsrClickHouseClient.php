@@ -27,26 +27,20 @@ use function Safe\sprintf;
 
 class PsrClickHouseClient implements ClickHouseClient
 {
-    /** @var ClientInterface */
-    private $client;
+    private ClientInterface $client;
 
-    /** @var RequestFactory */
-    private $requestFactory;
+    private RequestFactory $requestFactory;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var string */
-    private $endpoint;
+    private string $endpoint;
 
     /** @var array<string, float|int|string> */
-    private $defaultParameters;
+    private array $defaultParameters;
 
-    /** @var ValueFormatter */
-    private $valueFormatter;
+    private ValueFormatter $valueFormatter;
 
-    /** @var SqlFactory */
-    private $sqlFactory;
+    private SqlFactory $sqlFactory;
 
     /** @param array<string, float|int|string> $defaultParameters */
     public function __construct(

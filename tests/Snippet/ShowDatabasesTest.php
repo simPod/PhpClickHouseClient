@@ -7,6 +7,7 @@ namespace SimPod\ClickHouseClient\Tests\Snippet;
 use SimPod\ClickHouseClient\Snippet\ShowDatabases;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
+
 use function array_filter;
 use function array_shift;
 use function array_values;

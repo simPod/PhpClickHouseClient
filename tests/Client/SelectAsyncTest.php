@@ -9,6 +9,7 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
+
 use function GuzzleHttp\Promise\all;
 
 final class SelectAsyncTest extends TestCaseBase

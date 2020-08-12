@@ -55,7 +55,7 @@ final class ValueFormatterTest extends TestCaseBase
 
         yield 'Stringable' => [
             "'stringable'",
-            new class() {
+            new class () {
                 public function __toString() : string
                 {
                     return 'stringable';

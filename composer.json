@@ -37,7 +37,7 @@
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "0.12.37",
         "phpstan/phpstan-phpunit": "0.12.10",
-        "phpstan/phpstan-strict-rules": "0.12.2",
+        "phpstan/phpstan-strict-rules": "0.12.4",
         "phpunit/phpunit": "~9.2.0",
         "psalm/plugin-phpunit": "^0.10.0",
         "simpod/php-coveralls-mirror": "^3.0",

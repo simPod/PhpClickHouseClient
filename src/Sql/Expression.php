@@ -22,4 +22,9 @@ final class Expression
     {
         return $this->innerExpression;
     }
+
+    public function toString() : string
+    {
+        return $this->innerExpression;
+    }
 }

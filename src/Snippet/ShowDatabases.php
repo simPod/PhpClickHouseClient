@@ -8,27 +8,25 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 use function array_map;
-use function assert;
-use function is_string;
 
 final class ShowDatabases
 {
     /** @return array<string> */
     public static function run(ClickHouseClient $clickHouseClient) : array
     {
+        /** @var JsonEachRow<array{name: string}> $format */
+        $format = new JsonEachRow();
+
         $output = $clickHouseClient->select(
             <<<CLICKHOUSE
 SHOW DATABASES
 CLICKHOUSE,
-            new JsonEachRow()
+            $format
         );
 
         return array_map(
             static function (array $database) : string {
-                $databaseName = $database['name'];
-                assert(is_string($databaseName));
-
-                return $databaseName;
+                return $database['name'];
             },
             $output->data
         );

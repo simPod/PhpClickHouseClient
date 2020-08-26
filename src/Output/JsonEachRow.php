@@ -8,16 +8,20 @@ use function Safe\json_decode;
 use function Safe\sprintf;
 use function str_replace;
 
-/** @psalm-immutable */
+/**
+ * @psalm-immutable
+ * @template T
+ * @implements Output<T>
+ */
 final class JsonEachRow implements Output
 {
-    /** @var array<array<string, mixed>> */
+    /** @var list<T> */
     public array $data;
 
     public function __construct(string $contentsJson)
     {
         /**
-         * @var array<array<string, mixed>> $contents
+         * @var list<T> $contents
          * @psalm-suppress ImpureFunctionCall
          */
         $contents   = json_decode(sprintf('[%s]', str_replace("}\n{", '},{', $contentsJson)), true);

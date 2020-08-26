@@ -6,7 +6,10 @@ namespace SimPod\ClickHouseClient\Format;
 
 use SimPod\ClickHouseClient\Output\Output;
 
-/** @implements Format<\SimPod\ClickHouseClient\Output\TabSeparated> */
+/**
+ * @template T
+ * @implements Format<\SimPod\ClickHouseClient\Output\TabSeparated<T>>
+ */
 final class TabSeparated implements Format
 {
     public static function output(string $contents) : Output

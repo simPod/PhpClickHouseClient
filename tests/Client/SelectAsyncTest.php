@@ -24,11 +24,13 @@ final class SelectAsyncTest extends TestCaseBase
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE;
 
-        $promises   = [];
-        $promises[] = $client->select($sql, new JsonEachRow());
-        $promises[] = $client->select($sql, new JsonEachRow());
+        /** @var JsonEachRow<array{number: string}> $format */
+        $format   = new JsonEachRow();
+        $promises = [
+            $client->select($sql, $format),
+            $client->select($sql, $format),
+        ];
 
-        /** @var array<\SimPod\ClickHouseClient\Output\JsonEachRow> $jsonEachRowOutputs */
         $jsonEachRowOutputs = all($promises)->wait();
 
         $expectedData = [

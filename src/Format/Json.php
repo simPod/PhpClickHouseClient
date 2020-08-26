@@ -6,7 +6,10 @@ namespace SimPod\ClickHouseClient\Format;
 
 use SimPod\ClickHouseClient\Output\Output;
 
-/** @implements Format<\SimPod\ClickHouseClient\Output\Json> */
+/**
+ * @template T
+ * @implements Format<\SimPod\ClickHouseClient\Output\Json<T>>
+ */
 final class Json implements Format
 {
     public static function output(string $contents) : Output

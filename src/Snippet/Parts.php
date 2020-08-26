@@ -16,7 +16,10 @@ final class Parts
     {
         $whereActiveClause = $active === null ? '' : sprintf(' AND active = %s', (int) $active);
 
-        $currentDatabase = $clickHouseClient->selectWithParameters(
+        /** @var JsonEachRow<array<string, mixed>> $format */
+        $format = new JsonEachRow();
+
+        $output = $clickHouseClient->selectWithParameters(
             <<<CLICKHOUSE
 SELECT *
 FROM system.parts
@@ -24,9 +27,9 @@ WHERE table=:table $whereActiveClause
 ORDER BY max_date
 CLICKHOUSE,
             ['table' => $table],
-            new JsonEachRow()
+            $format
         );
 
-        return $currentDatabase->data;
+        return $output->data;
     }
 }

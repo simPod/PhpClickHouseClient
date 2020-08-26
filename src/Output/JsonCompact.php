@@ -6,10 +6,14 @@ namespace SimPod\ClickHouseClient\Output;
 
 use function Safe\json_decode;
 
-/** @psalm-immutable */
+/**
+ * @psalm-immutable
+ * @template T
+ * @implements Output<T>
+ */
 final class JsonCompact implements Output
 {
-    /** @var array<array<mixed>> */
+    /** @var list<T> */
     public array $data;
 
     /** @var array<mixed> */
@@ -26,7 +30,7 @@ final class JsonCompact implements Output
     {
         // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
         /**
-         * @var array{data: array<array<mixed>>, meta: array<mixed>, rows: int, rows_before_limit_at_least: int, statistics: array{elapsed: float, rows_read: int, bytes_read: int}} $contents
+         * @var array{data: list<T>, meta: array<mixed>, rows: int, rows_before_limit_at_least: int, statistics: array{elapsed: float, rows_read: int, bytes_read: int}} $contents
          * @psalm-suppress ImpureFunctionCall
          */
         $contents                     = json_decode($contentsJson, true);

@@ -8,12 +8,23 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
+/** @psalm-type entry = array{name: string, database: string, size: string, min_date: string, max_date: string} */
 final class TableSizes
 {
-    /** @return array<array<string, mixed>> */
+    /**
+     * @return array<entry>
+     *
+     * @phpstan-return array<array<string, mixed>>
+     */
     public static function run(ClickHouseClient $clickHouseClient, ?string $databaseName = null) : array
     {
-        $currentDatabase = $clickHouseClient->selectWithParameters(
+        /**
+         * @phpstan-var JsonEachRow<array<string, mixed>> $format
+         * @var JsonEachRow<entry> $format
+         */
+        $format = new JsonEachRow();
+
+        return $clickHouseClient->selectWithParameters(
             <<<CLICKHOUSE
 SELECT 
     name AS table,
@@ -37,9 +48,7 @@ WHERE database = :database AND storage_policy <> ''
 GROUP BY table, database
 CLICKHOUSE,
             ['database' => $databaseName ?? Expression::new('currentDatabase()')],
-            new JsonEachRow()
-        );
-
-        return $currentDatabase->data;
+            $format
+        )->data;
     }
 }

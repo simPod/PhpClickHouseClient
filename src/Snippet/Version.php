@@ -7,24 +7,20 @@ namespace SimPod\ClickHouseClient\Snippet;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
-use function assert;
-use function is_string;
-
 final class Version
 {
     public static function run(ClickHouseClient $clickHouseClient) : string
     {
-        $version = $clickHouseClient->select(
+        /** @var JsonEachRow<array{version: string}> $format */
+        $format = new JsonEachRow();
+
+        $output = $clickHouseClient->select(
             <<<CLICKHOUSE
 SELECT version() AS version
 CLICKHOUSE,
-            new JsonEachRow()
+            $format
         );
 
-        /** @psalm-suppress MixedAssignment */
-        $version = $version->data[0]['version'];
-        assert(is_string($version));
-
-        return $version;
+        return $output->data[0]['version'];
     }
 }

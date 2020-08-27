@@ -39,7 +39,7 @@
         "phpstan/phpstan-phpunit": "0.12.16",
         "phpstan/phpstan-strict-rules": "0.12.4",
         "phpunit/phpunit": "~9.2.0",
-        "psalm/plugin-phpunit": "^0.10.0 || ^0.11.0",
+        "psalm/plugin-phpunit": "^0.11.0",
         "simpod/php-coveralls-mirror": "^3.0",
         "thecodingmachine/phpstan-safe-rule": "^1.0",
         "vimeo/psalm": "^3.9"

@@ -31,18 +31,18 @@
     },
     "require-dev": {
         "cdn77/coding-standard": "^4.0",
-        "infection/infection": "^0.16.0",
+        "infection/infection": "^0.20.1",
         "nyholm/psr7": "^1.2",
         "php-http/curl-client": "^2.1",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "0.12.40",
         "phpstan/phpstan-phpunit": "0.12.16",
         "phpstan/phpstan-strict-rules": "0.12.4",
-        "phpunit/phpunit": "~9.2.0",
-        "psalm/plugin-phpunit": "^0.11.0",
+        "phpunit/phpunit": "^9.4",
+        "psalm/plugin-phpunit": "^0.13.0",
         "simpod/php-coveralls-mirror": "^3.0",
         "thecodingmachine/phpstan-safe-rule": "^1.0",
-        "vimeo/psalm": "^3.9"
+        "vimeo/psalm": "^4.1"
     },
     "autoload": {
         "psr-4": {

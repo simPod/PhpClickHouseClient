@@ -15,6 +15,6 @@ final class VersionTest extends TestCaseBase
 
     public function testRun() : void
     {
-        self::assertRegExp('~(\d+\.)+\d+~', Version::run($this->client));
+        self::assertMatchesRegularExpression('~(\d+\.)+\d+~', Version::run($this->client));
     }
 }

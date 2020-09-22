@@ -7,8 +7,6 @@ namespace SimPod\ClickHouseClient\Snippet;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
-use function trim;
-
 final class ShowCreateTable
 {
     public static function run(ClickHouseClient $clickHouseClient, string $tableName) : string
@@ -23,6 +21,6 @@ CLICKHOUSE,
             $format
         );
 
-        return trim($output->data[0]['statement']);
+        return $output->data[0]['statement'];
     }
 }

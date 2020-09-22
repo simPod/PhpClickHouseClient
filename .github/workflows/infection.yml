@@ -31,6 +31,6 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run Infection
-        run: vendor/bin/infection --min-msi=86 --min-covered-msi=90 --log-verbosity=none -s
+        run: vendor/bin/infection --min-msi=88 --min-covered-msi=90 --log-verbosity=none -s
         env:
           INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}

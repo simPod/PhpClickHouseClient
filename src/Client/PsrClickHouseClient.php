@@ -7,12 +7,12 @@ namespace SimPod\ClickHouseClient\Client;
 use DateTimeZone;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
+use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
@@ -31,7 +31,7 @@ class PsrClickHouseClient implements ClickHouseClient
 
     private RequestFactory $requestFactory;
 
-    private LoggerInterface $logger;
+    private SqlLogger $logger;
 
     private string $endpoint;
 
@@ -46,7 +46,7 @@ class PsrClickHouseClient implements ClickHouseClient
     public function __construct(
         ClientInterface $client,
         RequestFactory $requestFactory,
-        LoggerInterface $logger,
+        SqlLogger $logger,
         string $endpoint,
         array $defaultParameters = [],
         ?DateTimeZone $clickHouseTimeZone = null
@@ -162,8 +162,6 @@ CLICKHOUSE
     /** @param array<string, float|int|string> $requestParameters */
     private function executeRequest(string $sql, array $requestParameters = []) : ResponseInterface
     {
-        $this->logger->debug($sql, $requestParameters);
-
         $request = $this->requestFactory->prepareRequest(
             $this->endpoint,
             new RequestOptions(
@@ -173,7 +171,12 @@ CLICKHOUSE
             )
         );
 
+        $this->logger->startQuery($sql);
+
         $response = $this->client->sendRequest($request);
+
+        $this->logger->stopQuery();
+
         if ($response->getStatusCode() !== 200) {
             throw ServerError::fromResponse($response);
         }

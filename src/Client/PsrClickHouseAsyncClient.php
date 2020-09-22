@@ -105,7 +105,6 @@ CLICKHOUSE,
         $promise = promise_for($this->asyncClient->sendAsyncRequest($request));
 
         return $promise->then(
-            /** @return mixed */
             static function (ResponseInterface $response) use ($processResponse) {
                 if ($response->getStatusCode() !== 200) {
                     throw ServerError::fromResponse($response);

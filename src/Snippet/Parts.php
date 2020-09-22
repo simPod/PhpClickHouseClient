@@ -14,7 +14,7 @@ final class Parts
     /** @return array<array<string, mixed>> */
     public static function run(ClickHouseClient $clickHouseClient, string $table, ?bool $active = null) : array
     {
-        $whereActiveClause = $active === null ? '' : sprintf(' AND active = %s', (int) $active);
+        $whereActiveClause = $active === null ? '' : sprintf(' AND active = %d', $active);
 
         /** @var JsonEachRow<array<string, mixed>> $format */
         $format = new JsonEachRow();

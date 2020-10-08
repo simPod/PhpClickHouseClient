@@ -66,7 +66,7 @@ final class ValueFormatter
         }
 
         if (is_object($value) && method_exists($value, '__toString')) {
-            return "'" . $value . "'";
+            return "'" . Escaper::escape((string) $value) . "'";
         }
 
         if (is_array($value)) {

@@ -36,6 +36,7 @@ final class ValueFormatterTest extends TestCaseBase
         yield 'float .0' => ['1', 1.0];
         yield 'float .5' => ['1.5', 1.5];
         yield 'string' => ["'ping'", 'ping'];
+        yield 'string escaped' => ["'ping\\\\n'", 'ping\n'];
         yield 'null' => ['IS NULL', null];
         yield 'array' => ["['a','b','c']", ['a', 'b', 'c']];
         yield 'array in array' => ["[['a']]", [['a']]];
@@ -59,6 +60,16 @@ final class ValueFormatterTest extends TestCaseBase
                 public function __toString() : string
                 {
                     return 'stringable';
+                }
+            },
+        ];
+
+        yield 'Stringable escaped' => [
+            "'stringable \\\\n'",
+            new class () {
+                public function __toString() : string
+                {
+                    return 'stringable \n';
                 }
             },
         ];

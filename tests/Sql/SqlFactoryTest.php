@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
+use SimPod\ClickHouseClient\Sql\Expression;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
@@ -56,6 +57,18 @@ CLICKHOUSE,
             [
                 'ping'     => 1,
                 'pingpong' => 2,
+            ],
+        ];
+
+        yield 'escape backslash' => [
+            <<<CLICKHOUSE
+SELECT toIPv6('x\\\\')
+CLICKHOUSE,
+            <<<CLICKHOUSE
+SELECT :ping
+CLICKHOUSE,
+            [
+                'ping' => Expression::new("toIPv6('x\\\\')"),
             ],
         ];
     }

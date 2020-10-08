@@ -6,6 +6,7 @@ namespace SimPod\ClickHouseClient\Sql;
 
 use function preg_replace;
 use function Safe\sprintf;
+use function str_replace;
 
 /** @internal */
 final class SqlFactory
@@ -22,7 +23,11 @@ final class SqlFactory
     {
         /** @var mixed $value */
         foreach ($parameters as $name => $value) {
-            $query = preg_replace(sprintf('~:%s(?!\w)~', $name), $this->valueFormatter->format($value, $name, $query), $query);
+            $query = preg_replace(
+                sprintf('~:%s(?!\w)~', $name),
+                str_replace('\\', '\\\\', $this->valueFormatter->format($value, $name, $query)),
+                $query
+            );
         }
 
         return $query;

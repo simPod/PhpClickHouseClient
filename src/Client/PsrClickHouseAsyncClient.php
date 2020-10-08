@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use DateTimeZone;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
@@ -16,8 +17,6 @@ use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
-
-use function GuzzleHttp\Promise\promise_for;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
@@ -102,7 +101,7 @@ CLICKHOUSE,
             )
         );
 
-        $promise = promise_for($this->asyncClient->sendAsyncRequest($request));
+        $promise = Create::promiseFor($this->asyncClient->sendAsyncRequest($request));
 
         return $promise->then(
             static function (ResponseInterface $response) use ($processResponse) {

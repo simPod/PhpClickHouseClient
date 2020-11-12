@@ -12,7 +12,6 @@ use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
-use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
@@ -31,8 +30,6 @@ class PsrClickHouseClient implements ClickHouseClient
 
     private RequestFactory $requestFactory;
 
-    private SqlLogger $logger;
-
     private string $endpoint;
 
     /** @var array<string, float|int|string> */
@@ -46,14 +43,12 @@ class PsrClickHouseClient implements ClickHouseClient
     public function __construct(
         ClientInterface $client,
         RequestFactory $requestFactory,
-        SqlLogger $logger,
         string $endpoint,
         array $defaultParameters = [],
         ?DateTimeZone $clickHouseTimeZone = null
     ) {
         $this->client            = $client;
         $this->requestFactory    = $requestFactory;
-        $this->logger            = $logger;
         $this->endpoint          = $endpoint;
         $this->defaultParameters = $defaultParameters;
         $this->valueFormatter    = new ValueFormatter($clickHouseTimeZone);
@@ -171,11 +166,7 @@ CLICKHOUSE
             )
         );
 
-        $this->logger->startQuery($sql);
-
         $response = $this->client->sendRequest($request);
-
-        $this->logger->stopQuery();
 
         if ($response->getStatusCode() !== 200) {
             throw ServerError::fromResponse($response);

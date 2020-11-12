@@ -6,8 +6,7 @@ namespace SimPod\ClickHouseClient\Logger;
 
 interface SqlLogger
 {
-    /** @param array<string, mixed> $params */
-    public function startQuery(string $sql, array $params = []) : void;
+    public function startQuery(string $id, string $sql) : void;
 
-    public function stopQuery() : void;
+    public function stopQuery(string $id) : void;
 }

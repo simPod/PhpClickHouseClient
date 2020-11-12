@@ -13,24 +13,22 @@ final class LoggerChainTest extends TestCase
     public function testLog() : void
     {
         $logger = new class implements SqlLogger {
-            public ?string $sql = null;
+            public string $id;
 
-            /** @var array<string, mixed>|null $params */
-            public ?array $params = null;
+            public ?string $sql = null;
 
             public bool $started = false;
 
             public bool $stopped = false;
 
-            /** @inheritDoc */
-            public function startQuery(string $sql, array $params = []) : void
+            public function startQuery(string $id, string $sql) : void
             {
+                $this->id      = $id;
                 $this->sql     = $sql;
-                $this->params  = $params;
                 $this->started = true;
             }
 
-            public function stopQuery() : void
+            public function stopQuery(string $id) : void
             {
                 $this->stopped = true;
             }
@@ -38,11 +36,10 @@ final class LoggerChainTest extends TestCase
 
         $chain = new LoggerChain([$logger]);
 
-        $chain->startQuery('sql', []);
-        $chain->stopQuery();
+        $chain->startQuery('a', 'sql');
+        $chain->stopQuery('a');
 
         self::assertSame('sql', $logger->sql);
-        self::assertSame([], $logger->params);
         self::assertTrue($logger->started);
         self::assertTrue($logger->stopped);
     }

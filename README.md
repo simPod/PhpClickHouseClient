@@ -16,7 +16,6 @@ Naming used here is the same as in ClickHouse docs.
 - All [ClickHouse Formats](https://clickhouse.yandex/docs/en/interfaces/formats/) support
 - Logging ([PSR-3 compliant](https://www.php-fig.org/psr/psr-3/))
 - SQL Factory for [parameters "binding"](#parameters-binding)
-- Dependency only on PSR interfaces, Guzzle A+ Promises for async requests and Safe
 
 ## Contents
 

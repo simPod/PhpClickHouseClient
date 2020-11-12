@@ -6,13 +6,11 @@ namespace SimPod\ClickHouseClient\Tests;
 
 use Http\Client\Curl\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
-use Psr\Log\Test\TestLogger;
 use SimPod\ClickHouseClient\Client\ClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
-use SimPod\ClickHouseClient\Logger\PsrLogger;
 
 use function assert;
 use function getenv;
@@ -64,7 +62,6 @@ trait WithClient
                 new Psr17Factory(),
                 new Psr17Factory()
             ),
-            new PsrLogger(new TestLogger()),
             $endpoint,
             $defaultParameters
         );
@@ -78,7 +75,6 @@ trait WithClient
                 new Psr17Factory(),
                 new Psr17Factory()
             ),
-            new PsrLogger(new TestLogger()),
             $endpoint,
             $defaultParameters
         );
@@ -90,7 +86,6 @@ trait WithClient
                 new Psr17Factory(),
                 new Psr17Factory()
             ),
-            new TestLogger(),
             $endpoint,
             $defaultParameters
         );

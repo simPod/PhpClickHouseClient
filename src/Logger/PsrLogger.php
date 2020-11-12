@@ -15,13 +15,12 @@ final class PsrLogger implements SqlLogger
         $this->logger = $logger;
     }
 
-    /** @inheritdoc */
-    public function startQuery(string $sql, array $params = []) : void
+    public function startQuery(string $id, string $sql) : void
     {
-        $this->logger->debug($sql, $params);
+        $this->logger->debug($sql);
     }
 
-    public function stopQuery() : void
+    public function stopQuery(string $id) : void
     {
     }
 }

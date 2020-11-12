@@ -9,7 +9,6 @@ use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Exception\ServerError;
@@ -24,8 +23,6 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
     private RequestFactory $requestFactory;
 
-    private LoggerInterface $logger;
-
     private string $endpoint;
 
     /** @var array<string, float|int|string> */
@@ -37,14 +34,12 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     public function __construct(
         HttpAsyncClient $asyncClient,
         RequestFactory $requestFactory,
-        LoggerInterface $logger,
         string $endpoint,
         array $defaultParameters = [],
         ?DateTimeZone $clickHouseTimeZone = null
     ) {
         $this->asyncClient       = $asyncClient;
         $this->requestFactory    = $requestFactory;
-        $this->logger            = $logger;
         $this->endpoint          = $endpoint;
         $this->defaultParameters = $defaultParameters;
         $this->sqlFactory        = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
@@ -90,8 +85,6 @@ CLICKHOUSE,
         array $requestParameters = [],
         ?callable $processResponse = null
     ) : PromiseInterface {
-        $this->logger->debug($sql, $requestParameters);
-
         $request = $this->requestFactory->prepareRequest(
             $this->endpoint,
             new RequestOptions(

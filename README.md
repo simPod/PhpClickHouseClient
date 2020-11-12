@@ -20,6 +20,7 @@ Naming used here is the same as in ClickHouse docs.
 ## Contents
 
 - [Setup](#setup)
+  - [Logging](#logging)
   - [Time Zones](#time-zones)
   - [PSR Factories who?](#psr-factories-who)
 - [Sync API](#sync-api)
@@ -44,7 +45,6 @@ Create a new instance of client and pass PSR factories:
 
 use Http\Client\Curl\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
-use Psr\Log\NullLogger;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 
@@ -55,7 +55,6 @@ $clickHouseClient = new PsrClickHouseClient(
         new Psr17Factory,
         new Psr17Factory
     ),
-    new NullLogger(),
     'https://localhost:8123',
     [
         'database' => 'dbname',
@@ -65,6 +64,10 @@ $clickHouseClient = new PsrClickHouseClient(
     new DateTimeZone('UTC')
 );
 ```
+
+### Logging
+
+`SimPod\ClickHouseClient\Client\Http\LoggerPlugin` is available to be used with [HTTPlug PluginClient](http://docs.php-http.org/en/latest/plugins/index.html). 
 
 ### Time Zones
 

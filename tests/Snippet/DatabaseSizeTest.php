@@ -6,6 +6,7 @@ namespace SimPod\ClickHouseClient\Tests\Snippet;
 
 use DateTimeImmutable;
 use SimPod\ClickHouseClient\Snippet\DatabaseSize;
+use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -33,9 +34,10 @@ CLICKHOUSE
     {
         self::assertSame(0, DatabaseSize::run($this->client));
 
-        $this->client->insert('test', [[new DateTimeImmutable(), 1]]);
+        $this->client->insert('test', [[new DateTimeImmutable('2020-08-01 00:11:22'), 1]]);
 
-        self::assertSame(166, DatabaseSize::run($this->client));
+        $expectedSize = ClickHouseVersion::get() > 2009 ? 150 : 166;
+        self::assertSame($expectedSize, DatabaseSize::run($this->client));
     }
 
     public function tearDown() : void

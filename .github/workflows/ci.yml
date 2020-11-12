@@ -76,6 +76,8 @@ jobs:
   coverage:
     runs-on: ubuntu-18.04
     name: Code Coverage
+    env:
+      CLICKHOUSE_VERSION: "20.9"
 
     steps:
       - uses: actions/checkout@v2
@@ -84,14 +86,13 @@ jobs:
 
       - name: Build the docker-compose stack
         run: docker-compose -f tests/docker-compose.yaml up -d
-        env:
-          CLICKHOUSE_VERSION: 20
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.6.0
         with:
           php-version: 7.4
           coverage: pcov
+          ini-values: variables_order=EGPCS
           extensions: json
 
       - name: Get Composer Cache Directory
@@ -110,6 +111,7 @@ jobs:
 
       - name: Code coverage
         run: |
+          export $ENV
           ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover.xml
 
       - name: Report to Coveralls
@@ -128,20 +130,21 @@ jobs:
           '',
         ]
     name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
+    env:
+      CLICKHOUSE_VERSION: "20.9"
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Build the docker-compose stack
         run: docker-compose -f tests/docker-compose.yaml up -d
-        env:
-          CLICKHOUSE_VERSION: 20
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.6.0
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+          ini-values: variables_order=EGPCS
           extensions: json, mbstring
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -168,22 +171,23 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        clickhouse-version: [19, 20.1, 20.3, 20.4, 20.5, 20.6, 20.7, 20.8, 20.9]
+        clickhouse-version: ["19.17", "20.1", "20.3", "20.4", "20.5", "20.6", "20.7", "20.8", "20.9", "20.10", "20.11"]
     name: ClickHouse ${{ matrix.clickhouse-version }} Test
+    env:
+      CLICKHOUSE_VERSION: ${{ matrix.clickhouse-version }}
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Build the docker-compose stack
         run: docker-compose -f tests/docker-compose.yaml up -d
-        env:
-          CLICKHOUSE_VERSION: ${{ matrix.clickhouse-version }}
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.6.0
         with:
           php-version: 7.4
           coverage: none
+          ini-values: variables_order=EGPCS
           extensions: json
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -200,4 +204,6 @@ jobs:
         run: composer install ${DEPENDENCIES}
 
       - name: Run tests
-        run: ./vendor/bin/phpunit
+        run: |
+          export $ENV
+          ./vendor/bin/phpunit

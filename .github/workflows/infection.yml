@@ -11,26 +11,29 @@ on:
 jobs:
   Infection:
     runs-on: ubuntu-18.04
+    env:
+      CLICKHOUSE_VERSION: "20.9"
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Build the docker-compose stack
         run: docker-compose -f tests/docker-compose.yaml up -d
-        env:
-          CLICKHOUSE_VERSION: 20
 
       - name: Install PHP
         uses: shivammathur/setup-php@2.6.0
         with:
           php-version: 7.4
           coverage: xdebug
+          ini-values: variables_order=EGPCS
           extensions: json
 
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run Infection
-        run: vendor/bin/infection --min-msi=88 --min-covered-msi=90 --log-verbosity=none -s
+        run: |
+          export $ENV
+          vendor/bin/infection --min-msi=88 --min-covered-msi=90 --log-verbosity=none -s
         env:
           INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}

@@ -21,7 +21,7 @@
         "sort-packages": true
     },
     "require": {
-        "php-64bit": "^7.4",
+        "php-64bit": "^7.4 || ^8.0",
         "guzzlehttp/promises": "^1.4",
         "php-http/client-common": "^2.0",
         "psr/http-client": "^1.0",

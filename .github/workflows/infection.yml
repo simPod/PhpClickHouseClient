@@ -12,7 +12,7 @@ jobs:
   Infection:
     runs-on: ubuntu-18.04
     env:
-      CLICKHOUSE_VERSION: "20.9"
+      CLICKHOUSE_VERSION: "20.12"
 
     steps:
       - uses: actions/checkout@v2

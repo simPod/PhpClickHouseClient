@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Sql;
 
-use function preg_replace;
+use function Safe\preg_replace;
 use function Safe\sprintf;
 use function str_replace;
 
@@ -29,6 +29,8 @@ final class SqlFactory
                 $query
             );
         }
+
+        $query = preg_replace('~ ?=([\s]*?)IS NULL~', '$1IS NULL', $query);
 
         return $query;
     }

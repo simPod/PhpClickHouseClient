@@ -60,6 +60,16 @@ CLICKHOUSE,
             ],
         ];
 
+        yield 'null filter' => [
+            <<<CLICKHOUSE
+SELECT 1 FROM system.one WHERE dummy IS NULL
+CLICKHOUSE,
+            <<<CLICKHOUSE
+SELECT 1 FROM system.one WHERE dummy = :null
+CLICKHOUSE,
+            ['null' => null],
+        ];
+
         yield 'escape backslash' => [
             <<<CLICKHOUSE
 SELECT toIPv6('x\\\\')

@@ -37,7 +37,21 @@ final class ValueFormatterTest extends TestCaseBase
         yield 'float .5' => ['1.5', 1.5];
         yield 'string' => ["'ping'", 'ping'];
         yield 'string escaped' => ["'ping\\\\n'", 'ping\n'];
-        yield 'null' => ['IS NULL', null];
+        yield 'null' => ['NULL', null];
+        yield 'null with WHERE' => ['IS NULL', null, 'null', 'SELECT 1 FROM table WHERE x = :null'];
+        yield 'null with multiline WHERE' => [
+            'IS NULL',
+            null,
+            'null',
+            <<<SQL
+            SELECT 1 FROM table WHERE
+                1 = 1
+                AND x = :null
+            SQL,
+        ];
+
+        yield 'null with HAVING' => ['IS NULL', null, 'null', 'SELECT 1 FROM table HAVING x = :null'];
+        yield 'null with SELECT' => ['NULL', null, 'SELECT :null'];
         yield 'array' => ["['a','b','c']", ['a', 'b', 'c']];
         yield 'array in array' => ["[['a']]", [['a']]];
         yield 'array with null' => ['[NULL]', [null]];

@@ -50,7 +50,14 @@ final class ValueFormatter
         }
 
         if ($value === null) {
-            return 'IS NULL';
+            if (
+                $paramName !== null && $sql !== null
+                && preg_match(sprintf('~(HAVING|WHERE).+? =\s+?:%s~', $paramName), $sql) === 1
+            ) {
+                return 'IS NULL';
+            }
+
+            return 'NULL';
         }
 
         if ($value instanceof DateTimeImmutable) {
@@ -72,7 +79,7 @@ final class ValueFormatter
         if (is_array($value)) {
             if (
                 $paramName !== null && $sql !== null
-                && preg_match(sprintf('~\s+IN\s+\\(:%s\\)~', $paramName), $sql) === 1
+                && preg_match(sprintf('~\s+?IN\s+?\\(:%s\\)~', $paramName), $sql) === 1
             ) {
                 return implode(
                     ',',

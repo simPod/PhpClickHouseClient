@@ -41,6 +41,7 @@
         "phpstan/phpstan-strict-rules": "0.12.4",
         "phpunit/phpunit": "^9.4",
         "psalm/plugin-phpunit": "^0.13.0",
+        "roave/infection-static-analysis-plugin": "^1.6",
         "simpod/php-coveralls-mirror": "^3.0",
         "thecodingmachine/phpstan-safe-rule": "^1.0",
         "vimeo/psalm": "^4.1"

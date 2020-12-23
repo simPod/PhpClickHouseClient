@@ -24,7 +24,7 @@ jobs:
         uses: shivammathur/setup-php@2.6.0
         with:
           php-version: 7.4
-          coverage: xdebug
+          coverage: pcov
           ini-values: variables_order=EGPCS
           extensions: json
 

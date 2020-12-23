@@ -34,6 +34,6 @@ jobs:
       - name: Run Infection
         run: |
           export $ENV
-          vendor/bin/infection --min-msi=88 --min-covered-msi=90 --log-verbosity=none -s
+          vendor/bin/infection --min-msi=86 --min-covered-msi=90 --log-verbosity=none -s
         env:
           INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}

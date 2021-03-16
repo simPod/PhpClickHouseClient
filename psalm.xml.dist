@@ -19,6 +19,7 @@
         </ignoreFiles>
     </projectFiles>
     <plugins>
+        <pluginClass class="AlexS\Guzzle\PsalmPlugin" />
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin" />
     </plugins>
 </psalm>

@@ -78,13 +78,14 @@ CLICKHOUSE,
 
     /**
      * @param array<string, float|int|string> $requestParameters
-     * @param callable(ResponseInterface):mixed|null $processResponse
+     * @param callable(ResponseInterface): T $processResponse
+     *
+     * @return PromiseInterface<T>
+     *
+     * @template T
      */
-    private function executeRequest(
-        string $sql,
-        array $requestParameters = [],
-        ?callable $processResponse = null
-    ) : PromiseInterface {
+    private function executeRequest(string $sql, array $requestParameters, callable $processResponse) : PromiseInterface
+    {
         $request = $this->requestFactory->prepareRequest(
             $this->endpoint,
             new RequestOptions(
@@ -94,16 +95,14 @@ CLICKHOUSE,
             )
         );
 
+        /** @var PromiseInterface<ResponseInterface> $promise */
         $promise = Create::promiseFor($this->asyncClient->sendAsyncRequest($request));
 
         return $promise->then(
+        /** @return T */
             static function (ResponseInterface $response) use ($processResponse) {
                 if ($response->getStatusCode() !== 200) {
                     throw ServerError::fromResponse($response);
-                }
-
-                if ($processResponse === null) {
-                    return $response;
                 }
 
                 return $processResponse($response);

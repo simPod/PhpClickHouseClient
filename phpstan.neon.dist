@@ -7,3 +7,6 @@ parameters:
     ignoreErrors:
         # Adds unnecessary maintanence overhead. We rather rely on PHPStan telling us the method returns unhandled FALSE
         - "~Class DateTime(Immutable)? is unsafe to use. Its methods can return FALSE instead of throwing an exception. Please add 'use Safe\\\\DateTime(Immutable)?;' at the beginning of the file to use the variant provided by the 'thecodingmachine/safe' library~"
+
+    stubFiles:
+        - phpstubs/Guzzle/Promises/PromiseInterface.stub

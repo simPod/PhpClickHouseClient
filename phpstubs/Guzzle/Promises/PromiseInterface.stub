@@ -1,0 +1,65 @@
+<?php
+
+namespace GuzzleHttp\Promise;
+
+/**
+ * @template T
+ *
+ * @see https://github.com/vimeo/psalm/issues/1283
+ */
+interface PromiseInterface
+{
+    const PENDING = 'pending';
+    const FULFILLED = 'fulfilled';
+    const REJECTED = 'rejected';
+
+    /**
+     * @template TFulfilled
+     *
+     * @psalm-param callable(T):(PromiseInterface<TFulfilled>|TFulfilled)|null $onFulfilled
+     * @psalm-param (callable(mixed):mixed)|null $onRejected
+     *
+     * @psalm-return PromiseInterface<TFulfilled>
+     */
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null);
+
+    /**
+     * @template TRejected
+     *
+     * @psalm-param callable(mixed):TRejected $onRejected
+     *
+     * @psalm-return PromiseInterface<TRejected>
+     */
+    public function otherwise(callable $onRejected);
+
+    /**
+     * @return PromiseInterface::PENDING|PromiseInterface::FULFILLED|PromiseInterface::REJECTED
+     */
+    public function getState();
+
+    /**
+     * @psalm-param T $value
+     *
+     * @return void
+     */
+    public function resolve($value);
+
+    /**
+     * @param mixed $reason
+     *
+     * @return void
+     */
+    public function reject($reason);
+
+    /**
+     * @return void
+     */
+    public function cancel();
+
+    /**
+     * @param bool $unwrap
+     *
+     * @psalm-return T
+     */
+    public function wait($unwrap = true);
+}

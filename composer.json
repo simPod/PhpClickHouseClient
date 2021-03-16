@@ -36,15 +36,15 @@
         "nyholm/psr7": "^1.2",
         "php-http/curl-client": "^2.1",
         "phpstan/extension-installer": "^1.0",
-        "phpstan/phpstan": "0.12.40",
-        "phpstan/phpstan-phpunit": "0.12.16",
-        "phpstan/phpstan-strict-rules": "0.12.4",
+        "phpstan/phpstan": "0.12.81",
+        "phpstan/phpstan-phpunit": "0.12.18",
+        "phpstan/phpstan-strict-rules": "0.12.9",
         "phpunit/phpunit": "^9.4",
-        "psalm/plugin-phpunit": "^0.13.0",
+        "psalm/plugin-phpunit": "0.15.1",
         "roave/infection-static-analysis-plugin": "^1.6",
         "simpod/php-coveralls-mirror": "^3.0",
         "thecodingmachine/phpstan-safe-rule": "^1.0",
-        "vimeo/psalm": "^4.1"
+        "vimeo/psalm": "4.6.3"
     },
     "autoload": {
         "psr-4": {

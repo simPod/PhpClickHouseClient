@@ -1,15 +1,24 @@
 <?xml version="1.0"?>
 <psalm
-    totallyTyped="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    ensureArrayStringOffsetsExist="true"
     errorBaseline="psalm-baseline.xml"
+    errorLevel="1"
+    findUnusedPsalmSuppress="true"
+    findUnusedVariablesAndParams="true"
+    ignoreInternalFunctionFalseReturn="false"
+    ignoreInternalFunctionNullReturn="false"
+    strictBinaryOperands="true"
 >
     <projectFiles>
-        <directory name="src"/>
+        <directory name="src" />
         <ignoreFiles>
-            <directory name="vendor"/>
+            <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
-<plugins><pluginClass class="Psalm\PhpUnitPlugin\Plugin"/></plugins></psalm>
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin" />
+    </plugins>
+</psalm>

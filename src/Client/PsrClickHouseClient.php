@@ -132,7 +132,7 @@ CLICKHOUSE,
 
         $table = Escaper::quoteIdentifier($table);
 
-        $response = $this->executeRequest(
+        $this->executeRequest(
             <<<CLICKHOUSE
 INSERT INTO $table
 $columnsSql

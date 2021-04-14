@@ -6,7 +6,7 @@ namespace SimPod\ClickHouseClient\Format;
 
 use SimPod\ClickHouseClient\Output\Output;
 
-/** @psalm-template-covariant O of Output */
+/** @template-covariant O of Output */
 interface Format
 {
     /** @psalm-return O */

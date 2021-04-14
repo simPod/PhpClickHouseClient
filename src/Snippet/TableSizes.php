@@ -11,11 +11,7 @@ use SimPod\ClickHouseClient\Sql\Expression;
 /** @psalm-type entry = array{name: string, database: string, size: string, min_date: string, max_date: string} */
 final class TableSizes
 {
-    /**
-     * @return array<entry>
-     *
-     * @phpstan-return array<array<string, mixed>>
-     */
+    /** @return array<array<string, mixed>> */
     public static function run(ClickHouseClient $clickHouseClient, ?string $databaseName = null) : array
     {
         /**

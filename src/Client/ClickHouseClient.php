@@ -16,20 +16,22 @@ interface ClickHouseClient
 
     /**
      * @param array<string, float|int|string> $requestParameters
+     * @psalm-param  Format<O> $outputFormat
      *
-     * @psalm-template       O of Output
-     * @psalm-param          Format<O> $outputFormat
-     * @psalm-return         O
+     * @psalm-return O
+     *
+     * @template     O of Output
      */
     public function select(string $query, Format $outputFormat, array $requestParameters = []) : Output;
 
     /**
      * @param array<string, float|int|string> $requestParameters
-     * @param array<string, mixed>            $queryParameters
+     * @param array<string, mixed> $queryParameters
+     * @psalm-param  Format<O> $outputFormat
      *
-     * @psalm-template       O of Output
-     * @psalm-param          Format<O> $outputFormat
-     * @psalm-return         O
+     * @psalm-return O
+     *
+     * @template     O of Output
      */
     public function selectWithParameters(
         string $query,
@@ -40,13 +42,14 @@ interface ClickHouseClient
 
     /**
      * @param array<array<mixed>> $values
-     * @param array<string>|null  $columns
+     * @param array<string>|null $columns
      */
     public function insert(string $table, array $values, ?array $columns = null) : void;
 
     /**
-     * @psalm-template       O of Output
-     * @psalm-param          Format<O> $inputFormat
+     * @psalm-param Format<O> $inputFormat
+     *
+     * @template    O of Output
      */
     public function insertWithFormat(string $table, Format $inputFormat, string $data) : void;
 }

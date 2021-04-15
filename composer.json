@@ -33,7 +33,7 @@
     "require-dev": {
         "cdn77/coding-standard": "^5.0",
         "infection/infection": "^0.20.1",
-        "nyholm/psr7": "^1.2",
+        "nyholm/psr7": "^1.4",
         "php-http/curl-client": "^2.1",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "0.12.81",

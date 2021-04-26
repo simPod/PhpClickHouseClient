@@ -1,7 +1,7 @@
 # PHP ClickHouse Client
 
 [![Build Status](https://github.com/simPod/PhpClickHouseClient/workflows/CI/badge.svg?branch=master)](https://github.com/simPod/PhpClickHouseClient/actions)
-[![Coverage Status](https://coveralls.io/repos/github/simPod/PhpClickHouseClient/badge.svg?branch=master)](https://coveralls.io/github/simPod/PhpClickHouseClient?branch=master)
+[![Code Coverage][Coverage image]][CodeCov Master]
 [![Downloads](https://poser.pugx.org/simpod/clickhouse-client/d/total.svg)](https://packagist.org/packages/simpod/clickhouse-client)
 [![Type Coverage](https://shepherd.dev/github/simPod/PhpClickHouseClient/coverage.svg)](https://shepherd.dev/github/simPod/PhpClickHouseClient)
 [![Infection MSI](https://badge.stryker-mutator.io/github.com/simPod/PhpClickHouseClient/master)](https://infection.github.io)
@@ -252,3 +252,6 @@ $currentDatabaseName = CurrentDatabase::run($client);
 - ShowDatabases
 - TableSizes
 - Version
+
+[Coverage image]: https://codecov.io/gh/simPod/PhpClickHouseClient/branch/master/graph/badge.svg
+[CodeCov Master]: https://codecov.io/gh/simPod/PhpClickHouseClient/branch/master

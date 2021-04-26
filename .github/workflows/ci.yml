@@ -9,137 +9,127 @@ on:
     - cron: "0 17 * * *"
 
 jobs:
-  coverage:
-    runs-on: ubuntu-18.04
-    name: Code Coverage
+  phpunit:
+    name: "PHPUnit"
+    runs-on: "ubuntu-20.04"
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+          - "8.0"
+        dependencies:
+          - "highest"
+        include:
+          - dependencies: "lowest"
+            php-version: "7.4"
     env:
       CLICKHOUSE_VERSION: "20.12"
 
     steps:
-      - uses: actions/checkout@v2
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
         with:
-          ref: ${{ github.ref }}
+          fetch-depth: 2
 
-      - name: Build the docker-compose stack
-        run: docker-compose -f tests/docker-compose.yaml up -d
+      -   name: "Build the docker-compose stack"
+          run: "docker-compose -f tests/docker-compose.yaml up -d"
 
-      - name: Install PHP
-        uses: shivammathur/setup-php@2.9.0
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
         with:
-          php-version: 7.4
-          coverage: pcov
-          ini-values: variables_order=EGPCS
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "variables_order=EGPCS, zend.assertions=1"
           extensions: json
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache dependencies
-        uses: actions/cache@v1
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
+          dependency-versions: "${{ matrix.dependencies }}"
 
-      - name: Install Dependencies
-        run: composer install ${DEPENDENCIES}
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit --coverage-clover=coverage.xml"
 
-      - name: Code coverage
-        run: |
-          export $ENV
-          ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover.xml
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "phpunit-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
 
-      - name: Report to Coveralls
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_RUN_LOCALLY: 1
-        run: vendor/bin/php-coveralls --coverage_clover /tmp/coverage/clover.xml --json_path /tmp/coverage/coveralls.json
-
-  test_with-php-versions:
-    runs-on: ubuntu-18.04
+  phpunit-with-clickhouse:
+    name: "PHPUnit"
+    runs-on: "ubuntu-20.04"
     strategy:
       matrix:
-        php: [7.4]
-        env: [
-          'DEPENDENCIES=--prefer-lowest',
-          '',
-        ]
-    name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
-    env:
-      CLICKHOUSE_VERSION: "20.12"
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Build the docker-compose stack
-        run: docker-compose -f tests/docker-compose.yaml up -d
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@2.9.0
-        with:
-          php-version: ${{ matrix.php }}
-          coverage: none
-          ini-values: variables_order=EGPCS
-          extensions: json, mbstring
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache dependencies
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install Dependencies
-        run: composer install ${DEPENDENCIES}
-
-      - name: Run tests
-        run: |
-          export $ENV
-          ./vendor/bin/phpunit
-        env:
-          ENV: ${{ matrix.env}}
-
-  test-with-clickhouse-versions:
-    runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        clickhouse-version: ["19.17", "20.1", "20.3", "20.4", "20.5", "20.6", "20.7", "20.8", "20.9", "20.10", "20.11", "20.12"]
-    name: ClickHouse ${{ matrix.clickhouse-version }} Test
+        php-version:
+          - "7.4"
+        clickhouse-version:
+          - "19.17"
+          - "20.1"
+          - "20.3"
+          - "20.4"
+          - "20.5"
+          - "20.6"
+          - "20.7"
+          - "20.8"
+          - "20.9"
+          - "20.10"
+          - "20.11"
+          - "20.12"
+        dependencies:
+          - "highest"
     env:
       CLICKHOUSE_VERSION: ${{ matrix.clickhouse-version }}
 
     steps:
-      - uses: actions/checkout@v2
+      -   name: "Checkout"
+          uses: "actions/checkout@v2"
+          with:
+            fetch-depth: 2
 
-      - name: Build the docker-compose stack
-        run: docker-compose -f tests/docker-compose.yaml up -d
+      -   name: "Build the docker-compose stack"
+          run: "docker-compose -f tests/docker-compose.yaml up -d"
 
-      - name: Install PHP
-        uses: shivammathur/setup-php@2.9.0
+      -   name: "Install PHP"
+          uses: "shivammathur/setup-php@v2"
+          with:
+            php-version: "${{ matrix.php-version }}"
+            coverage: "pcov"
+            ini-values: "variables_order=EGPCS, zend.assertions=1"
+            extensions: json
+
+      -   name: "Install dependencies with Composer"
+          uses: "ramsey/composer-install@v1"
+          with:
+            dependency-versions: "${{ matrix.dependencies }}"
+
+      -   name: "Run PHPUnit"
+          run: "vendor/bin/phpunit --coverage-clover=coverage.xml"
+
+      -   name: "Upload coverage file"
+          uses: "actions/upload-artifact@v2"
+          with:
+            name: "phpunit-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
+            path: "coverage.xml"
+
+  upload_coverage:
+    name: "Upload coverage to Codecov"
+    runs-on: "ubuntu-20.04"
+    needs:
+      - "phpunit"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
         with:
-          php-version: 7.4
-          coverage: none
-          ini-values: variables_order=EGPCS
-          extensions: json
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+          fetch-depth: 2
 
-      - name: Cache dependencies
-        uses: actions/cache@v1
+      - name: "Download coverage files"
+        uses: "actions/download-artifact@v2"
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-
+          path: "reports"
 
-      - name: Install Dependencies
-        run: composer install ${DEPENDENCIES}
-
-      - name: Run tests
-        run: |
-          export $ENV
-          ./vendor/bin/phpunit
+      - name: "Upload to Codecov"
+        uses: "codecov/codecov-action@v1"
+        with:
+          directory: reports

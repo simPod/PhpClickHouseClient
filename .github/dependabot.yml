@@ -6,23 +6,4 @@ updates:
     interval: daily
     time: "04:00"
   open-pull-requests-limit: 10
-  versioning-strategy: increase
-  ignore:
-  - dependency-name: infection/infection
-    versions:
-    - "> 0.16.0"
-  - dependency-name: phpstan/phpstan
-    versions:
-    - "> 0.12.40"
-  - dependency-name: phpstan/phpstan-strict-rules
-    versions:
-    - "> 0.12.4"
-  - dependency-name: phpunit/phpunit
-    versions:
-    - "> 9.2.0"
-  - dependency-name: psalm/plugin-phpunit
-    versions:
-    - "> 0.11.0"
-  - dependency-name: vimeo/psalm
-    versions:
-    - 4.6.4
+  versioning-strategy: increase-if-necessary

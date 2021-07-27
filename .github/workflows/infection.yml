@@ -34,6 +34,6 @@ jobs:
       - name: Run Infection
         run: |
           export $ENV
-          vendor/bin/roave-infection-static-analysis-plugin --min-msi=88 --min-covered-msi=90 --log-verbosity=none -s
+          vendor/bin/roave-infection-static-analysis-plugin --min-msi=90 --min-covered-msi=96 --log-verbosity=none -s
         env:
           INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}

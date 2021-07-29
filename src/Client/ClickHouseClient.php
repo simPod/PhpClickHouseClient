@@ -9,10 +9,14 @@ use SimPod\ClickHouseClient\Output\Output;
 
 interface ClickHouseClient
 {
-    public function executeQuery(string $query) : void;
+    /** @param array<string, float|int|string> $requestParameters */
+    public function executeQuery(string $query, array $requestParameters = []) : void;
 
-    /** @param array<string, mixed> $queryParameters */
-    public function executeQueryWithParameters(string $query, array $queryParameters) : void;
+    /**
+     * @param array<string, mixed> $queryParameters
+     * @param array<string, float|int|string> $requestParameters
+     */
+    public function executeQueryWithParameters(string $query, array $queryParameters, array $requestParameters = []) : void;
 
     /**
      * @param array<string, float|int|string> $requestParameters

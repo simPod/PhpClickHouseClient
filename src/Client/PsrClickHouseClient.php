@@ -55,17 +55,20 @@ class PsrClickHouseClient implements ClickHouseClient
         $this->sqlFactory        = new SqlFactory($this->valueFormatter);
     }
 
-    public function executeQuery(string $query) : void
+    /**
+     * {@inheritDoc}
+     */
+    public function executeQuery(string $query, array $requestParameters = []) : void
     {
-        $this->executeRequest($query);
+        $this->executeRequest($query, $requestParameters);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function executeQueryWithParameters(string $query, array $queryParameters) : void
+    public function executeQueryWithParameters(string $query, array $queryParameters, array $requestParameters = []) : void
     {
-        $this->executeQuery($this->sqlFactory->createWithParameters($query, $queryParameters));
+        $this->executeQuery($this->sqlFactory->createWithParameters($query, $queryParameters), $requestParameters);
     }
 
     /**

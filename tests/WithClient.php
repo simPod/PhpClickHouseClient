@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests;
 
-use Http\Client\Curl\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use SimPod\ClickHouseClient\Client\ClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
+use Symfony\Component\HttpClient\HttplugClient;
+use Symfony\Component\HttpClient\Psr18Client;
 
 use function assert;
 use function getenv;
@@ -56,7 +57,7 @@ trait WithClient
         ];
 
         $this->controllerClient = new PsrClickHouseClient(
-            new Client(),
+            new Psr18Client(),
             new RequestFactory(
                 new Psr17Factory(),
                 new Psr17Factory(),
@@ -69,7 +70,7 @@ trait WithClient
         $defaultParameters['database'] = $this->currentDbName;
 
         $this->client = new PsrClickHouseClient(
-            new Client(),
+            new Psr18Client(),
             new RequestFactory(
                 new Psr17Factory(),
                 new Psr17Factory(),
@@ -80,7 +81,7 @@ trait WithClient
         );
 
         $this->asyncClient = new PsrClickHouseAsyncClient(
-            new Client(),
+            new HttplugClient(),
             new RequestFactory(
                 new Psr17Factory(),
                 new Psr17Factory(),

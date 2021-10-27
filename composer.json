@@ -43,7 +43,7 @@
         "roave/infection-static-analysis-plugin": "^1.6",
         "symfony/http-client": "^5.3",
         "thecodingmachine/phpstan-safe-rule": "^1.0",
-        "vimeo/psalm": "4.11.1"
+        "vimeo/psalm": "4.11.2"
     },
     "autoload": {
         "psr-4": {

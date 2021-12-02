@@ -89,6 +89,8 @@ jobs:
           - "21.7"
           - "21.8"
           - "21.9"
+          - "21.10"
+          - "21.11"
         dependency-versions:
           - "highest"
     env:

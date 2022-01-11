@@ -18,6 +18,12 @@
         }
     ],
     "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/package-versions-deprecated": true,
+            "infection/extension-installer": true,
+            "phpstan/extension-installer": true
+        },
         "sort-packages": true
     },
     "require": {

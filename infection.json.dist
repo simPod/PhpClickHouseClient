@@ -1,5 +1,5 @@
 {
-    "bootstrap":"./tests/bootstrap.php",
+    "bootstrap":" ./tests/bootstrap.php",
     "timeout": 10,
     "source": {
         "directories": [
@@ -10,9 +10,12 @@
         "@default": true
     },
     "logs": {
-        "badge": {
-            "branch": "master"
+        "html": "infection.html",
+        "stryker": {
+            "report": "master"
         },
         "text": "infection-log.txt"
-    }
+    },
+    "minMsi": 90,
+    "minCoveredMsi": 96
 }

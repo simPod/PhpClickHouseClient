@@ -4,7 +4,7 @@
 [![Code Coverage][Coverage image]][CodeCov Master]
 [![Downloads](https://poser.pugx.org/simpod/clickhouse-client/d/total.svg)](https://packagist.org/packages/simpod/clickhouse-client)
 [![Type Coverage](https://shepherd.dev/github/simPod/PhpClickHouseClient/coverage.svg)](https://shepherd.dev/github/simPod/PhpClickHouseClient)
-[![Infection MSI](https://badge.stryker-mutator.io/github.com/simPod/PhpClickHouseClient/master)](https://infection.github.io)
+[![Infection MSI](https://badge.stryker-mutator.io/github.com/simPod/PhpClickHouseClient/master)](https://dashboard.stryker-mutator.io/reports/github.com/simPod/PhpClickHouseClient/master)
 
 ## Motivation
 

@@ -36,17 +36,20 @@ final class RequestFactory
         $uri = $this->uriFactory->createUri($endpoint);
         $uri = $uri->withQuery(
             http_build_query(
-                $requestOptions->parameters,
+                $requestOptions->queryParams,
                 '',
                 '&',
                 PHP_QUERY_RFC3986
             )
         );
 
-        $body = $this->streamFactory->createStream($requestOptions->sql);
-
         $request = $this->requestFactory->createRequest('POST', $uri);
 
+        foreach ($requestOptions->headers as $name => $value) {
+            $request = $request->withHeader($name, $value);
+        }
+
+        $body    = $this->streamFactory->createStream($requestOptions->sql);
         $request = $request->withBody($body);
 
         return $request;

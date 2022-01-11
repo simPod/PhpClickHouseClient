@@ -20,7 +20,7 @@ final class TableSizes
          */
         $format = new JsonEachRow();
 
-        return $clickHouseClient->selectWithParameters(
+        return $clickHouseClient->selectWithParams(
             <<<CLICKHOUSE
 SELECT 
     name AS table,

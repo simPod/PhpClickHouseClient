@@ -8,16 +8,27 @@ final class RequestOptions
 {
     public string $sql;
 
+    /** @var array<string, string|array<string>> */
+    public array $headers;
+
     /** @var array<string, float|int|string> */
-    public array $parameters;
+    public array $queryParams;
 
     /**
-     * @param array<string, float|int|string> $defaultParameters
-     * @param array<string, float|int|string> $requestParameters
+     * @param array<string, string|array<string>> $defaultHeaders
+     * @param array<string, string|array<string>> $requestHeaders
+     * @param array<string, float|int|string> $defaultQueryParams
+     * @param array<string, float|int|string> $requestParams
      */
-    public function __construct(string $sql, array $defaultParameters, array $requestParameters)
-    {
-        $this->sql        = $sql;
-        $this->parameters = $defaultParameters + $requestParameters;
+    public function __construct(
+        string $sql,
+        array $defaultHeaders,
+        array $requestHeaders,
+        array $defaultQueryParams,
+        array $requestParams
+    ) {
+        $this->sql         = $sql;
+        $this->headers     = $defaultHeaders + $requestHeaders;
+        $this->queryParams = $defaultQueryParams + $requestParams;
     }
 }

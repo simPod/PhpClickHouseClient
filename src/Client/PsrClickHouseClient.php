@@ -32,50 +32,70 @@ class PsrClickHouseClient implements ClickHouseClient
 
     private string $endpoint;
 
+    /** @var array<string, string|array<string>> */
+    private array $defaultHeaders;
+
     /** @var array<string, float|int|string> */
-    private array $defaultParameters;
+    private array $defaultQueryParams;
 
     private ValueFormatter $valueFormatter;
 
     private SqlFactory $sqlFactory;
 
-    /** @param array<string, float|int|string> $defaultParameters */
+    /**
+     * @param array<string, string|array<string>> $defaultHeaders
+     * @param array<string, float|int|string> $defaultQueryParams
+     */
     public function __construct(
         ClientInterface $client,
         RequestFactory $requestFactory,
         string $endpoint,
-        array $defaultParameters = [],
+        array $defaultHeaders = [],
+        array $defaultQueryParams = [],
         ?DateTimeZone $clickHouseTimeZone = null
     ) {
-        $this->client            = $client;
-        $this->requestFactory    = $requestFactory;
-        $this->endpoint          = $endpoint;
-        $this->defaultParameters = $defaultParameters;
-        $this->valueFormatter    = new ValueFormatter($clickHouseTimeZone);
-        $this->sqlFactory        = new SqlFactory($this->valueFormatter);
+        $this->client             = $client;
+        $this->requestFactory     = $requestFactory;
+        $this->endpoint           = $endpoint;
+        $this->defaultHeaders     = $defaultHeaders;
+        $this->defaultQueryParams = $defaultQueryParams;
+        $this->valueFormatter     = new ValueFormatter($clickHouseTimeZone);
+        $this->sqlFactory         = new SqlFactory($this->valueFormatter);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function executeQuery(string $query, array $requestParameters = []) : void
+    public function executeQuery(string $query, array $requestHeaders = [], array $requestQueryParams = []) : void
     {
-        $this->executeRequest($query, $requestParameters);
+        $this->executeRequest($query, $requestHeaders, $requestQueryParams);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function executeQueryWithParameters(string $query, array $queryParameters, array $requestParameters = []) : void
-    {
-        $this->executeQuery($this->sqlFactory->createWithParameters($query, $queryParameters), $requestParameters);
+    public function executeQueryWithParameters(
+        string $query,
+        array $statementParams,
+        array $requestHeaders = [],
+        array $requestQueryParams = []
+    ) : void {
+        $this->executeQuery(
+            $this->sqlFactory->createWithParameters($query, $statementParams),
+            $requestHeaders,
+            $requestQueryParams
+        );
     }
 
     /**
      * {@inheritDoc}
      */
-    public function select(string $query, Format $outputFormat, array $requestParameters = []) : Output
-    {
+    public function select(
+        string $query,
+        Format $outputFormat,
+        array $requestHeaders = [],
+        array $requestQueryParams = []
+    ) : Output {
         $formatClause = $outputFormat::toSql();
 
         $response = $this->executeRequest(
@@ -83,7 +103,8 @@ class PsrClickHouseClient implements ClickHouseClient
 $query
 $formatClause
 CLICKHOUSE,
-            $requestParameters
+            $requestHeaders,
+            $requestQueryParams
         );
 
         return $outputFormat::output((string) $response->getBody());
@@ -92,12 +113,18 @@ CLICKHOUSE,
     /**
      * {@inheritDoc}
      */
-    public function selectWithParameters(string $query, array $queryParameters, Format $outputFormat, array $requestParameters = []) : Output
-    {
+    public function selectWithParams(
+        string $query,
+        array $statementParams,
+        Format $outputFormat,
+        array $requestHeaders = [],
+        array $requestQueryParams = []
+    ) : Output {
         return $this->select(
-            $this->sqlFactory->createWithParameters($query, $queryParameters),
+            $this->sqlFactory->createWithParameters($query, $statementParams),
             $outputFormat,
-            $requestParameters
+            $requestHeaders,
+            $requestQueryParams
         );
     }
 
@@ -157,14 +184,22 @@ CLICKHOUSE
         );
     }
 
-    /** @param array<string, float|int|string> $requestParameters */
-    private function executeRequest(string $sql, array $requestParameters = []) : ResponseInterface
-    {
+    /**
+     * @param array<string, string|array<string>> $requestHeaders
+     * @param array<string, float|int|string> $requestParameters
+     */
+    private function executeRequest(
+        string $sql,
+        array $requestHeaders = [],
+        array $requestParameters = []
+    ) : ResponseInterface {
         $request = $this->requestFactory->prepareRequest(
             $this->endpoint,
             new RequestOptions(
                 $sql,
-                $this->defaultParameters,
+                $this->defaultHeaders,
+                $requestHeaders,
+                $this->defaultQueryParams,
                 $requestParameters
             )
         );

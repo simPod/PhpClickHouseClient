@@ -43,17 +43,23 @@ jobs:
           - "7.4"
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
 
-      - name: Psalm
-        uses: docker://vimeo/psalm-github-actions:4.3.2
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
         with:
-          args: --shepherd
-          composer_require_dev: true
-          security_analysis: true
-          report_file: results.sarif
-      - name: Upload Security Analysis results to GitHub
-        uses: github/codeql-action/upload-sarif@v1
+          coverage: "none"
+          php-version: "${{ matrix.php-version }}"
+          tools: "cs2pr"
+
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
+
+      - name: "Run a static analysis with vimeo/psalm"
+        run: "vendor/bin/psalm --output-format=github --shepherd --taint-analysis --report=results.sarif"
+
+      - name: "Upload Security Analysis results to GitHub"
+        uses: "github/codeql-action/upload-sarif@v1"
         with:
           sarif_file: results.sarif

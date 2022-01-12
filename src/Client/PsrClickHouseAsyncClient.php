@@ -23,45 +23,29 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
     private RequestFactory $requestFactory;
 
-    private string $endpoint;
-
-    /** @var array<string, string|array<string>> */
-    private array $defaultHeaders;
-
     /** @var array<string, float|int|string> */
-    private array $defaultQueryParams;
+    private array $defaultSettings;
 
     private SqlFactory $sqlFactory;
 
-    /**
-     * @param array<string, string|array<string>> $defaultHeaders
-     * @param array<string, float|int|string> $defaultQueryParams
-     */
+    /** @param array<string, float|int|string> $defaultSettings */
     public function __construct(
         HttpAsyncClient $asyncClient,
         RequestFactory $requestFactory,
-        string $endpoint,
-        array $defaultHeaders = [],
-        array $defaultQueryParams = [],
-        ?DateTimeZone $clickHouseTimeZone = null
+        array $defaultSettings = [],
+        ?DateTimeZone $clickHouseTimeZone = null,
     ) {
-        $this->asyncClient        = $asyncClient;
-        $this->requestFactory     = $requestFactory;
-        $this->endpoint           = $endpoint;
-        $this->defaultHeaders     = $defaultHeaders;
-        $this->defaultQueryParams = $defaultQueryParams;
-        $this->sqlFactory         = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
+        $this->asyncClient     = $asyncClient;
+        $this->requestFactory  = $requestFactory;
+        $this->defaultSettings = $defaultSettings;
+        $this->sqlFactory      = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function select(
-        string $sql,
-        Format $outputFormat,
-        array $requestHeaders = [],
-        array $requestParameters = []
-    ) : PromiseInterface {
+    public function select(string $sql, Format $outputFormat, array $settings = []) : PromiseInterface
+    {
         $formatClause = $outputFormat::toSql();
 
         return $this->executeRequest(
@@ -69,10 +53,9 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 $sql
 $formatClause
 CLICKHOUSE,
-            $requestHeaders,
-            $requestParameters,
+            $settings,
             static function (ResponseInterface $response) use ($outputFormat) : Output {
-                return $outputFormat::output((string) $response->getBody());
+                return $outputFormat::output($response->getBody()->__toString());
             }
         );
     }
@@ -82,44 +65,35 @@ CLICKHOUSE,
      */
     public function selectWithParams(
         string $sql,
-        array $statementParams,
+        array $params,
         Format $outputFormat,
-        array $requestHeaders = [],
-        array $requestQueryParams = []
+        array $settings = []
     ) : PromiseInterface {
         return $this->select(
-            $this->sqlFactory->createWithParameters($sql, $statementParams),
+            $this->sqlFactory->createWithParameters($sql, $params),
             $outputFormat,
-            $requestHeaders,
-            $requestQueryParams
+            $settings
         );
     }
 
     /**
-     * @param array<string, string|array<string>> $requestHeaders
-     * @param array<string, float|int|string> $requestQueryParams
+     * @param array<string, float|int|string> $settings
      * @param (callable(ResponseInterface):mixed)|null $processResponse
      */
     private function executeRequest(
         string $sql,
-        array $requestHeaders = [],
-        array $requestQueryParams = [],
+        array $settings = [],
         ?callable $processResponse = null
     ) : PromiseInterface {
         $request = $this->requestFactory->prepareRequest(
-            $this->endpoint,
             new RequestOptions(
                 $sql,
-                $this->defaultHeaders,
-                $requestHeaders,
-                $this->defaultQueryParams,
-                $requestQueryParams
+                $this->defaultSettings,
+                $settings
             )
         );
 
-        $promise = Create::promiseFor($this->asyncClient->sendAsyncRequest($request));
-
-        return $promise->then(
+        return Create::promiseFor($this->asyncClient->sendAsyncRequest($request))->then(
             static function (ResponseInterface $response) use ($processResponse) {
                 if ($response->getStatusCode() !== 200) {
                     throw ServerError::fromResponse($response);

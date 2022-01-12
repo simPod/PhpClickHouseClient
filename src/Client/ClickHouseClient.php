@@ -9,57 +9,35 @@ use SimPod\ClickHouseClient\Output\Output;
 
 interface ClickHouseClient
 {
-    /**
-     * @param array<string, string|array<string>> $requestHeaders
-     * @param array<string, float|int|string> $requestQueryParams
-     */
-    public function executeQuery(string $query, array $requestHeaders = [], array $requestQueryParams = []) : void;
+    /** @param array<string, float|int|string> $settings */
+    public function executeQuery(string $query, array $settings = []) : void;
 
     /**
-     * @param array<string, mixed> $statementParams
-     * @param array<string, string|array<string>> $requestHeaders
-     * @param array<string, float|int|string> $requestQueryParams
+     * @param array<string, mixed> $params
+     * @param array<string, float|int|string> $settings
      */
-    public function executeQueryWithParameters(
-        string $query,
-        array $statementParams,
-        array $requestHeaders = [],
-        array $requestQueryParams = []
-    ) : void;
+    public function executeQueryWithParams(string $query, array $params, array $settings = []) : void;
 
     /**
-     * @param array<string, string|array<string>> $requestHeaders
-     * @param array<string, float|int|string> $requestQueryParams
-     * @psalm-param  Format<O> $outputFormat
+     * @param array<string, float|int|string> $settings
+     * @param Format<O> $outputFormat
      *
-     * @psalm-return O
+     * @return O
      *
-     * @template     O of Output
+     * @template O of Output
      */
-    public function select(
-        string $query,
-        Format $outputFormat,
-        array $requestHeaders = [],
-        array $requestQueryParams = []
-    ) : Output;
+    public function select(string $query, Format $outputFormat, array $settings = []) : Output;
 
     /**
-     * @param array<string, string|array<string>> $requestHeaders
-     * @param array<string, float|int|string> $requestQueryParams
-     * @param array<string, mixed> $statementParams
-     * @psalm-param  Format<O> $outputFormat
+     * @param array<string, float|int|string> $settings
+     * @param array<string, mixed> $params
+     * @param Format<O> $outputFormat
      *
-     * @psalm-return O
+     * @return O
      *
-     * @template     O of Output
+     * @template O of Output
      */
-    public function selectWithParams(
-        string $query,
-        array $statementParams,
-        Format $outputFormat,
-        array $requestHeaders = [],
-        array $requestQueryParams = []
-    ) : Output;
+    public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []) : Output;
 
     /**
      * @param array<array<mixed>> $values
@@ -68,9 +46,9 @@ interface ClickHouseClient
     public function insert(string $table, array $values, ?array $columns = null) : void;
 
     /**
-     * @psalm-param Format<O> $inputFormat
+     * @param Format<O> $inputFormat
      *
-     * @template    O of Output
+     * @template O of Output
      */
     public function insertWithFormat(string $table, Format $inputFormat, string $data) : void;
 }

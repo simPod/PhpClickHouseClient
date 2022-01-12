@@ -10,6 +10,7 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
+use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\HttpClient\HttplugClient;
 use Symfony\Component\HttpClient\Psr18Client;
 
@@ -56,39 +57,45 @@ trait WithClient
         ];
 
         $this->controllerClient = new PsrClickHouseClient(
-            new Psr18Client(),
+            new Psr18Client(
+                new CurlHttpClient([
+                    'base_uri' => $endpoint,
+                    'headers' => $headers,
+                    'query' => ['database' => $databaseName],
+                ])
+            ),
             new RequestFactory(
                 new Psr17Factory(),
                 new Psr17Factory(),
-                new Psr17Factory()
             ),
-            $endpoint,
-            $headers,
-            ['database' => $databaseName],
         );
 
         $this->client = new PsrClickHouseClient(
-            new Psr18Client(),
+            new Psr18Client(
+                new CurlHttpClient([
+                    'base_uri' => $endpoint,
+                    'headers' => $headers,
+                    'query' => ['database' => $this->currentDbName],
+                ])
+            ),
             new RequestFactory(
                 new Psr17Factory(),
                 new Psr17Factory(),
-                new Psr17Factory()
             ),
-            $endpoint,
-            $headers,
-            ['database' => $this->currentDbName],
         );
 
         $this->asyncClient = new PsrClickHouseAsyncClient(
-            new HttplugClient(),
+            new HttplugClient(
+                new CurlHttpClient([
+                    'base_uri' => $endpoint,
+                    'headers' => $headers,
+                    'query' => ['database' => $this->currentDbName],
+                ])
+            ),
             new RequestFactory(
                 new Psr17Factory(),
                 new Psr17Factory(),
-                new Psr17Factory()
             ),
-            $endpoint,
-            $headers,
-            ['database' => $this->currentDbName],
         );
 
         $this->controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', $this->currentDbName));

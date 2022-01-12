@@ -38,7 +38,11 @@ Naming used here is the same as in ClickHouse docs.
 composer require simpod/clickhouse-client  
 ```
 
-Create a new instance of client and pass PSR factories:
+1. Read about ClickHouse [Http Interface](https://clickhouse.com/docs/en/interfaces/http/). _It's short and useful for concept understanding._
+2. Create a new instance of ClickHouse client and pass PSR factories.
+   1. Symfony HttpClient is recommended (performance, less bugs, maintenance)
+   2. The plot twist is there's no endpoint/credentials etc. config in this library, provide it via client
+3. See tests
 
 ```php
 <?php
@@ -48,26 +52,72 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 
+$psr17Factory = new Psr17Factory;
+
 $clickHouseClient = new PsrClickHouseClient(
     new Client(),
     new RequestFactory(
-        new Psr17Factory,
-        new Psr17Factory,
-        new Psr17Factory
+        $psr17Factory,
+        $psr17Factory
     ),
-    'https://localhost:8123',
-    [
-        ‘X-ClickHouse-User' => 'username',
-        'X-ClickHouse-Key' => 'secret',
-    ],
-    ['database' => 'dbname'],
+    [],
     new DateTimeZone('UTC')
 );
 ```
 
+### Symfony HttpClient Example
+
+Configure HTTP Client
+
+As said in ClickHouse HTTP Interface spec, we use headers to auth and e.g. set default database via query.
+
+```yaml
+framework:
+    http_client:
+        scoped_clients:
+            click_house.client:
+                base_uri: '%clickhouse.endpoint%'
+                headers:
+                    'X-ClickHouse-User': '%clickhouse.username%'
+                    'X-ClickHouse-Key': '%clickhouse.password%'
+                query:
+                    database: '%clickhouse.database%'
+```
+
 ### Logging
 
-`SimPod\ClickHouseClient\Client\Http\LoggerPlugin` is available to be used with [HTTPlug PluginClient](http://docs.php-http.org/en/latest/plugins/index.html). 
+`SimPod\ClickHouseClient\Client\Http\LoggerPlugin` is available to be used with [HTTPlug PluginClient](http://docs.php-http.org/en/latest/plugins/index.html).
+
+This is the
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Cdn77\Mon\Core\Infrastructure\Symfony\Service\ClickHouse;
+
+use Http\Client\Common\PluginClient;
+use SimPod\ClickHouseClient\Client\Http\LoggerPlugin;
+use SimPod\ClickHouseClient\Logger\SqlLogger;
+use Symfony\Component\HttpClient\HttplugClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
+final class HttpClientFactory
+{
+    public function __construct(private HttpClientInterface $clickHouseClient, private SqlLogger $sqlLogger)
+    {
+    }
+
+    public function create() : PluginClient
+    {
+        return new PluginClient(
+            new HttplugClient($this->clickHouseClient),
+            [new LoggerPlugin($this->sqlLogger)]
+        );
+    }
+}
+```
 
 ### Time Zones
 

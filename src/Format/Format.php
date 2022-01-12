@@ -9,7 +9,7 @@ use SimPod\ClickHouseClient\Output\Output;
 /** @template-covariant O of Output */
 interface Format
 {
-    /** @psalm-return O */
+    /** @return O */
     public static function output(string $contents) : Output;
 
     public static function toSql() : string;

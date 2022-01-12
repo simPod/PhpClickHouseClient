@@ -15,7 +15,7 @@ final class DatabaseSize
         /** @var JsonEachRow<array{size: string|null}> $format */
         $format = new JsonEachRow();
 
-        $currentDatabase = $clickHouseClient->selectWithParameters(
+        $currentDatabase = $clickHouseClient->selectWithParams(
             <<<CLICKHOUSE
 SELECT sum(bytes) AS size
 FROM system.parts

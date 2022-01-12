@@ -9,39 +9,56 @@ use SimPod\ClickHouseClient\Output\Output;
 
 interface ClickHouseClient
 {
-    /** @param array<string, float|int|string> $requestParameters */
-    public function executeQuery(string $query, array $requestParameters = []) : void;
+    /**
+     * @param array<string, string|array<string>> $requestHeaders
+     * @param array<string, float|int|string> $requestQueryParams
+     */
+    public function executeQuery(string $query, array $requestHeaders = [], array $requestQueryParams = []) : void;
 
     /**
-     * @param array<string, mixed> $queryParameters
-     * @param array<string, float|int|string> $requestParameters
+     * @param array<string, mixed> $statementParams
+     * @param array<string, string|array<string>> $requestHeaders
+     * @param array<string, float|int|string> $requestQueryParams
      */
-    public function executeQueryWithParameters(string $query, array $queryParameters, array $requestParameters = []) : void;
-
-    /**
-     * @param array<string, float|int|string> $requestParameters
-     * @psalm-param  Format<O> $outputFormat
-     *
-     * @psalm-return O
-     *
-     * @template     O of Output
-     */
-    public function select(string $query, Format $outputFormat, array $requestParameters = []) : Output;
-
-    /**
-     * @param array<string, float|int|string> $requestParameters
-     * @param array<string, mixed> $queryParameters
-     * @psalm-param  Format<O> $outputFormat
-     *
-     * @psalm-return O
-     *
-     * @template     O of Output
-     */
-    public function selectWithParameters(
+    public function executeQueryWithParameters(
         string $query,
-        array $queryParameters,
+        array $statementParams,
+        array $requestHeaders = [],
+        array $requestQueryParams = []
+    ) : void;
+
+    /**
+     * @param array<string, string|array<string>> $requestHeaders
+     * @param array<string, float|int|string> $requestQueryParams
+     * @psalm-param  Format<O> $outputFormat
+     *
+     * @psalm-return O
+     *
+     * @template     O of Output
+     */
+    public function select(
+        string $query,
         Format $outputFormat,
-        array $requestParameters = []
+        array $requestHeaders = [],
+        array $requestQueryParams = []
+    ) : Output;
+
+    /**
+     * @param array<string, string|array<string>> $requestHeaders
+     * @param array<string, float|int|string> $requestQueryParams
+     * @param array<string, mixed> $statementParams
+     * @psalm-param  Format<O> $outputFormat
+     *
+     * @psalm-return O
+     *
+     * @template     O of Output
+     */
+    public function selectWithParams(
+        string $query,
+        array $statementParams,
+        Format $outputFormat,
+        array $requestHeaders = [],
+        array $requestQueryParams = []
     ) : Output;
 
     /**

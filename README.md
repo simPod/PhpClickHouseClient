@@ -25,7 +25,7 @@ Naming used here is the same as in ClickHouse docs.
   - [PSR Factories who?](#psr-factories-who)
 - [Sync API](#sync-api)
   - [Select](#select)
-  - [Select With Parameters](#select-with-parameters)
+  - [Select With Params](#select-with-params)
   - [Insert](#insert)
 - [Async API](#async-api)
   - [Select](#select-1)
@@ -57,10 +57,10 @@ $clickHouseClient = new PsrClickHouseClient(
     ),
     'https://localhost:8123',
     [
-        'database' => 'dbname',
-        'user' => 'username',
-        'password' => 'secret',
+        ‘X-ClickHouse-User' => 'username',
+        'X-ClickHouse-Key' => 'secret',
     ],
+    ['database' => 'dbname'],
     new DateTimeZone('UTC')
 );
 ```
@@ -117,13 +117,14 @@ use SimPod\ClickHouseClient\Output;
 $output = $client->select(
     'SELECT * FROM table',
     new JsonEachRow(),
+    [],
     ['force_primary_key' => 1]
 );
 ```
 
-### Select With Parameters
+### Select With Params
 
-`ClickHouseClient::selectWithParameters()`
+`ClickHouseClient::selectWithParams()`
 
 Same as `ClickHouseClient::select()` except it also allows [parameter binding](#parameters-binding).
 
@@ -136,10 +137,11 @@ use SimPod\ClickHouseClient\Output;
 
 /** @var ClickHouseClient $client */
 /** @var Output\JsonEachRow $output */
-$output = $client->selectWithParameters(
+$output = $client->selectWithParams(
     'SELECT * FROM :table',
     ['table' => 'table_name'],
     new JsonEachRow(),
+    [],
     ['force_primary_key' => 1]
 );
 ```

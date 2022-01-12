@@ -50,10 +50,9 @@ trait WithClient
 
         $this->currentDbName = 'clickhouse_client_test__' . time();
 
-        $defaultParameters = [
-            'database' => $databaseName,
-            'user'     => $username,
-            'password' => $password,
+        $headers = [
+            'X-ClickHouse-User' => $username,
+            'X-ClickHouse-Key' => $password,
         ];
 
         $this->controllerClient = new PsrClickHouseClient(
@@ -64,10 +63,9 @@ trait WithClient
                 new Psr17Factory()
             ),
             $endpoint,
-            $defaultParameters
+            $headers,
+            ['database' => $databaseName],
         );
-
-        $defaultParameters['database'] = $this->currentDbName;
 
         $this->client = new PsrClickHouseClient(
             new Psr18Client(),
@@ -77,7 +75,8 @@ trait WithClient
                 new Psr17Factory()
             ),
             $endpoint,
-            $defaultParameters
+            $headers,
+            ['database' => $this->currentDbName],
         );
 
         $this->asyncClient = new PsrClickHouseAsyncClient(
@@ -88,7 +87,8 @@ trait WithClient
                 new Psr17Factory()
             ),
             $endpoint,
-            $defaultParameters
+            $headers,
+            ['database' => $this->currentDbName],
         );
 
         $this->controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', $this->currentDbName));

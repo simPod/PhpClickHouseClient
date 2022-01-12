@@ -25,31 +25,43 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
     private string $endpoint;
 
+    /** @var array<string, string|array<string>> */
+    private array $defaultHeaders;
+
     /** @var array<string, float|int|string> */
-    private array $defaultParameters;
+    private array $defaultQueryParams;
 
     private SqlFactory $sqlFactory;
 
-    /** @param array<string, float|int|string> $defaultParameters */
+    /**
+     * @param array<string, string|array<string>> $defaultHeaders
+     * @param array<string, float|int|string> $defaultQueryParams
+     */
     public function __construct(
         HttpAsyncClient $asyncClient,
         RequestFactory $requestFactory,
         string $endpoint,
-        array $defaultParameters = [],
+        array $defaultHeaders = [],
+        array $defaultQueryParams = [],
         ?DateTimeZone $clickHouseTimeZone = null
     ) {
-        $this->asyncClient       = $asyncClient;
-        $this->requestFactory    = $requestFactory;
-        $this->endpoint          = $endpoint;
-        $this->defaultParameters = $defaultParameters;
-        $this->sqlFactory        = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
+        $this->asyncClient        = $asyncClient;
+        $this->requestFactory     = $requestFactory;
+        $this->endpoint           = $endpoint;
+        $this->defaultHeaders     = $defaultHeaders;
+        $this->defaultQueryParams = $defaultQueryParams;
+        $this->sqlFactory         = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function select(string $sql, Format $outputFormat, array $requestParameters = []) : PromiseInterface
-    {
+    public function select(
+        string $sql,
+        Format $outputFormat,
+        array $requestHeaders = [],
+        array $requestParameters = []
+    ) : PromiseInterface {
         $formatClause = $outputFormat::toSql();
 
         return $this->executeRequest(
@@ -57,6 +69,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 $sql
 $formatClause
 CLICKHOUSE,
+            $requestHeaders,
             $requestParameters,
             static function (ResponseInterface $response) use ($outputFormat) : Output {
                 return $outputFormat::output((string) $response->getBody());
@@ -67,30 +80,40 @@ CLICKHOUSE,
     /**
      * {@inheritDoc}
      */
-    public function selectWithParameters(string $query, array $queryParameters, Format $outputFormat, array $requestParameters = []) : PromiseInterface
-    {
+    public function selectWithParams(
+        string $sql,
+        array $statementParams,
+        Format $outputFormat,
+        array $requestHeaders = [],
+        array $requestQueryParams = []
+    ) : PromiseInterface {
         return $this->select(
-            $this->sqlFactory->createWithParameters($query, $queryParameters),
+            $this->sqlFactory->createWithParameters($sql, $statementParams),
             $outputFormat,
-            $requestParameters
+            $requestHeaders,
+            $requestQueryParams
         );
     }
 
     /**
-     * @param array<string, float|int|string> $requestParameters
-     * @param callable(ResponseInterface):mixed|null $processResponse
+     * @param array<string, string|array<string>> $requestHeaders
+     * @param array<string, float|int|string> $requestQueryParams
+     * @param (callable(ResponseInterface):mixed)|null $processResponse
      */
     private function executeRequest(
         string $sql,
-        array $requestParameters = [],
+        array $requestHeaders = [],
+        array $requestQueryParams = [],
         ?callable $processResponse = null
     ) : PromiseInterface {
         $request = $this->requestFactory->prepareRequest(
             $this->endpoint,
             new RequestOptions(
                 $sql,
-                $this->defaultParameters,
-                $requestParameters
+                $this->defaultHeaders,
+                $requestHeaders,
+                $this->defaultQueryParams,
+                $requestQueryParams
             )
         );
 

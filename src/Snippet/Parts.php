@@ -19,7 +19,7 @@ final class Parts
         /** @var JsonEachRow<array<string, mixed>> $format */
         $format = new JsonEachRow();
 
-        $output = $clickHouseClient->selectWithParameters(
+        $output = $clickHouseClient->selectWithParams(
             <<<CLICKHOUSE
 SELECT *
 FROM system.parts

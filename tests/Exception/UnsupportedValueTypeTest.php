@@ -14,12 +14,8 @@ use function Safe\opendir;
 /** @covers \SimPod\ClickHouseClient\Exception\UnsupportedValueType */
 final class UnsupportedValueTypeTest extends TestCaseBase
 {
-    /**
-     * @param mixed $value
-     *
-     * @dataProvider providerValue
-     */
-    public function testValue(string $expectedMessage, $value) : void
+    /** @dataProvider providerValue */
+    public function testValue(string $expectedMessage, mixed $value) : void
     {
         $exception = UnsupportedValueType::value($value);
 

@@ -30,8 +30,7 @@ final class ValueFormatter
         $this->dateTimeZone = $dateTimeZone;
     }
 
-    /** @param mixed $value */
-    public function format($value, ?string $paramName = null, ?string $sql = null) : string
+    public function format(mixed $value, ?string $paramName = null, ?string $sql = null) : string
     {
         if (is_string($value)) {
             return "'" . Escaper::escape($value) . "'";

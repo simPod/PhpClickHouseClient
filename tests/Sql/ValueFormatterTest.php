@@ -15,12 +15,8 @@ use stdClass;
 /** @covers \SimPod\ClickHouseClient\Sql\ValueFormatter */
 final class ValueFormatterTest extends TestCaseBase
 {
-    /**
-     * @param mixed $value
-     *
-     * @dataProvider providerFormat
-     */
-    public function testFormat(string $expectedValue, $value, ?string $paramName = null, ?string $sql = null) : void
+    /** @dataProvider providerFormat */
+    public function testFormat(string $expectedValue, mixed $value, ?string $paramName = null, ?string $sql = null) : void
     {
         self::assertSame(
             $expectedValue,

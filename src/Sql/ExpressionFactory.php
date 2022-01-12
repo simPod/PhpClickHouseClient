@@ -16,8 +16,7 @@ final class ExpressionFactory
         $this->valueFormatter = $valueFormatter;
     }
 
-    /** @param mixed ...$values */
-    public function templateAndValues(string $template, ...$values) : Expression
+    public function templateAndValues(string $template, mixed ...$values) : Expression
     {
         return Expression::new(
             sprintf($template, ...array_map([$this->valueFormatter, 'format'], $values))

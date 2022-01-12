@@ -14,12 +14,8 @@ final class SelectTest extends TestCaseBase
 {
     use WithClient;
 
-    /**
-     * @param mixed $expectedData
-     *
-     * @dataProvider providerJson
-     */
-    public function testJson($expectedData, string $sql) : void
+    /** @dataProvider providerJson */
+    public function testJson(mixed $expectedData, string $sql) : void
     {
         $client = $this->client;
         $output = $client->select($sql, new Json());
@@ -57,12 +53,8 @@ CLICKHOUSE,
         ];
     }
 
-    /**
-     * @param mixed $expectedData
-     *
-     * @dataProvider providerJsonCompact
-     */
-    public function testJsonCompact($expectedData, string $sql) : void
+    /** @dataProvider providerJsonCompact */
+    public function testJsonCompact(mixed $expectedData, string $sql) : void
     {
         $client = $this->client;
         $output = $client->select($sql, new JsonCompact());
@@ -100,12 +92,8 @@ CLICKHOUSE,
         ];
     }
 
-    /**
-     * @param mixed $expectedData
-     *
-     * @dataProvider providerJsonEachRow
-     */
-    public function testJsonEachRow($expectedData, string $sql) : void
+    /** @dataProvider providerJsonEachRow */
+    public function testJsonEachRow(mixed $expectedData, string $sql) : void
     {
         $client = $this->client;
         $output = $client->select($sql, new JsonEachRow());

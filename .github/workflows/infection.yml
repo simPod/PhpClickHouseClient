@@ -23,7 +23,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@2.9.0
         with:
-          php-version: 7.4
+          php-version: 8.0
           coverage: pcov
           ini-values: variables_order=EGPCS
           extensions: json

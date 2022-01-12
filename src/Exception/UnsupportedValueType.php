@@ -6,20 +6,18 @@ namespace SimPod\ClickHouseClient\Exception;
 
 use InvalidArgumentException;
 
-use function get_class;
 use function gettype;
 use function is_object;
 use function Safe\sprintf;
 
 final class UnsupportedValueType extends InvalidArgumentException implements ClickHouseClientException
 {
-    /** @param mixed $value */
-    public static function value($value) : self
+    public static function value(mixed $value) : self
     {
         return new self(
             sprintf(
                 'Value of type "%s" is not supported as a parameter',
-                is_object($value) ? get_class($value) : gettype($value)
+                is_object($value) ? $value::class : gettype($value)
             )
         );
     }

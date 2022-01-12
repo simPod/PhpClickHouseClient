@@ -21,33 +21,22 @@ final class RequestFactory
 
     private StreamFactoryInterface $streamFactory;
 
-    public function __construct(
-        RequestFactoryInterface $requestFactory,
-        StreamFactoryInterface $streamFactory,
-        UriFactoryInterface $uriFactory
-    ) {
+    public function __construct(RequestFactoryInterface $requestFactory, StreamFactoryInterface $streamFactory)
+    {
         $this->requestFactory = $requestFactory;
-        $this->uriFactory     = $uriFactory;
         $this->streamFactory  = $streamFactory;
     }
 
-    public function prepareRequest(string $endpoint, RequestOptions $requestOptions) : RequestInterface
+    public function prepareRequest(RequestOptions $requestOptions) : RequestInterface
     {
-        $uri = $this->uriFactory->createUri($endpoint);
-        $uri = $uri->withQuery(
-            http_build_query(
-                $requestOptions->queryParams,
-                '',
-                '&',
-                PHP_QUERY_RFC3986
-            )
+        $query = http_build_query(
+            $requestOptions->settings,
+            '',
+            '&',
+            PHP_QUERY_RFC3986
         );
 
-        $request = $this->requestFactory->createRequest('POST', $uri);
-
-        foreach ($requestOptions->headers as $name => $value) {
-            $request = $request->withHeader($name, $value);
-        }
+        $request = $this->requestFactory->createRequest('POST', $query);
 
         $body    = $this->streamFactory->createStream($requestOptions->sql);
         $request = $request->withBody($body);

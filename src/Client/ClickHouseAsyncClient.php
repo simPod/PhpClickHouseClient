@@ -12,32 +12,24 @@ use SimPod\ClickHouseClient\Output\Output;
 interface ClickHouseAsyncClient
 {
     /**
-     * @param array<string, string|array<string>> $requestHeaders
-     * @param array<string, float|int|string> $requestQueryParams
-     * @psalm-param    Format<O> $outputFormat
+     * @param Format<O> $outputFormat
+     * @param array<string, float|int|string> $settings
      *
      * @template O of Output
      */
-    public function select(
-        string $sql,
-        Format $outputFormat,
-        array $requestHeaders = [],
-        array $requestQueryParams = []
-    ) : PromiseInterface;
+    public function select(string $sql, Format $outputFormat, array $settings = []) : PromiseInterface;
 
     /**
-     * @param array<string, mixed>            $statementParams
-     * @param array<string, string|array<string>> $requestHeaders
-     * @param array<string, float|int|string> $requestQueryParams
-     * @psalm-param    Format<O> $outputFormat
+     * @param array<string, mixed>            $params
+     * @param Format<O>                       $outputFormat
+     * @param array<string, float|int|string> $settings
      *
      * @template O of Output
      */
     public function selectWithParams(
         string $sql,
-        array $statementParams,
+        array $params,
         Format $outputFormat,
-        array $requestHeaders = [],
-        array $requestQueryParams = []
+        array $settings = []
     ) : PromiseInterface;
 }

@@ -28,9 +28,14 @@ final class JsonCompact implements Output
 
     public function __construct(string $contentsJson)
     {
-        // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
         /**
-         * @var array{data: list<T>, meta: array<mixed>, rows: int, rows_before_limit_at_least: int, statistics: array{elapsed: float, rows_read: int, bytes_read: int}} $contents
+         * @var array{
+         *     data: list<T>,
+         *     meta: array<mixed>,
+         *     rows: int,
+         *     rows_before_limit_at_least?: int,
+         *     statistics: array{elapsed: float, rows_read: int, bytes_read: int}
+         * } $contents
          * @psalm-suppress ImpureFunctionCall
          */
         $contents                     = json_decode($contentsJson, true);

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
+use GuzzleHttp\Promise\Utils;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
-
-use function GuzzleHttp\Promise\all;
 
 final class SelectAsyncTest extends TestCaseBase
 {
@@ -31,13 +30,14 @@ CLICKHOUSE;
             $client->select($sql, $format),
         ];
 
-        $jsonEachRowOutputs = all($promises)->wait();
+        $jsonEachRowOutputs = Utils::all($promises)->wait();
 
         $expectedData = [
             ['number' => '0'],
             ['number' => '1'],
         ];
 
+        self::assertIsArray($jsonEachRowOutputs);
         self::assertCount(2, $jsonEachRowOutputs);
         self::assertSame($expectedData, $jsonEachRowOutputs[0]->data);
         self::assertSame($expectedData, $jsonEachRowOutputs[1]->data);

@@ -33,7 +33,7 @@ final class RequestFactory
             PHP_QUERY_RFC3986
         );
 
-        return $this->requestFactory->createRequest('POST', $query)
+        return $this->requestFactory->createRequest('POST', $query === '' ? '' : '?' . $query)
             ->withBody($this->streamFactory->createStream($requestOptions->sql));
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
+use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
@@ -129,5 +130,13 @@ CLICKHOUSE,
 SELECT 'ping'
 CLICKHOUSE,
         ];
+    }
+
+    public function testSettingsArePassed() : void
+    {
+        self::expectException(ServerError::class);
+        $this->expectExceptionMessage("DB::Exception: Database `non-existent` doesn't exist");
+
+        $this->client->select('SELECT 1', new JsonCompact(), ['database' => 'non-existent']);
     }
 }

@@ -167,7 +167,6 @@ use SimPod\ClickHouseClient\Output;
 $output = $client->select(
     'SELECT * FROM table',
     new JsonEachRow(),
-    [],
     ['force_primary_key' => 1]
 );
 ```
@@ -191,7 +190,6 @@ $output = $client->selectWithParams(
     'SELECT * FROM :table',
     ['table' => 'table_name'],
     new JsonEachRow(),
-    [],
     ['force_primary_key' => 1]
 );
 ```

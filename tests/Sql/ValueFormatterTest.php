@@ -6,7 +6,7 @@ namespace SimPod\ClickHouseClient\Tests\Sql;
 
 use DateTimeZone;
 use Safe\DateTimeImmutable;
-use SimPod\ClickHouseClient\Exception\UnsupportedValueType;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Sql\Expression;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
@@ -104,7 +104,7 @@ final class ValueFormatterTest extends TestCaseBase
 
     public function testUnsupportedTypeThrows() : void
     {
-        $this->expectException(UnsupportedValueType::class);
+        $this->expectException(UnsupportedValue::class);
 
         (new ValueFormatter())->format(new stdClass());
     }

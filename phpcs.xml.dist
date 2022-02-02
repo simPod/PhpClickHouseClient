@@ -6,7 +6,7 @@
     <arg name="cache" value=".phpcs-cache" />
     <arg name="colors" />
 
-    <config name="php_version" value="80000"/>
+    <config name="php_version" value="80000" />
 
     <!-- Ignore warnings, show progress of the run and show sniff names -->
     <arg value="nps" />
@@ -14,15 +14,7 @@
     <file>src</file>
     <file>tests</file>
 
-    <rule ref="Cdn77">
-        <exclude name="SlevomatCodingStandard.Files.LineLength"/>
-    </rule>
-
-    <rule ref="SlevomatCodingStandard.Files.LineLength">
-        <properties>
-            <property name="ignoreComments" value="true" />
-        </properties>
-    </rule>
+    <rule ref="Cdn77" />
 
     <rule ref="Generic.Formatting.MultipleStatementAlignment" />
     <rule ref="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />

@@ -14,8 +14,10 @@ use const PHP_QUERY_RFC3986;
 
 final class RequestFactory
 {
-    public function __construct(private RequestFactoryInterface $requestFactory, private StreamFactoryInterface $streamFactory)
-    {
+    public function __construct(
+        private RequestFactoryInterface $requestFactory,
+        private StreamFactoryInterface $streamFactory,
+    ) {
     }
 
     public function prepareRequest(RequestOptions $requestOptions): RequestInterface

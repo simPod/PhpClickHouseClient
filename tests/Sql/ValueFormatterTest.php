@@ -16,8 +16,12 @@ use stdClass;
 final class ValueFormatterTest extends TestCaseBase
 {
     /** @dataProvider providerFormat */
-    public function testFormat(string $expectedValue, mixed $value, string|null $paramName = null, string|null $sql = null): void
-    {
+    public function testFormat(
+        string $expectedValue,
+        mixed $value,
+        string|null $paramName = null,
+        string|null $sql = null,
+    ): void {
         self::assertSame(
             $expectedValue,
             (new ValueFormatter(new DateTimeZone('UTC')))->format($value, $paramName, $sql)
@@ -53,7 +57,13 @@ final class ValueFormatterTest extends TestCaseBase
         yield 'array with null' => ['[NULL]', [null]];
         yield 'array for IN' => ["'ping',1,NULL", ['ping', 1, null], 'list', 'SELECT * FROM table WHERE a IN (:list)'];
         yield 'no array for IN without sql' => ["['ping',1,NULL]", ['ping', 1, null], 'list'];
-        yield 'tuples for IN' => ['(1,2),(3,4)', [[1, 2], [3, 4]], 'tuples', 'SELECT * FROM table WHERE (a,b) IN (:tuples)'];
+        yield 'tuples for IN' => [
+            '(1,2),(3,4)',
+            [[1, 2], [3, 4]],
+            'tuples',
+            'SELECT * FROM table WHERE (a,b) IN (:tuples)',
+        ];
+
         yield 'DateTimeImmutable' => ["'2020-01-31 01:23:45'", new DateTimeImmutable('2020-01-31 01:23:45')];
         yield 'DateTimeImmutable different PHP and ClickHouse timezones' => [
             "'2020-01-31 01:23:45'",

@@ -40,4 +40,36 @@ final class UnsupportedValueTest extends TestCaseBase
             new DateTime(),
         ];
     }
+
+    /** @dataProvider providerValue */
+    public function testValue(string $expectedMessage, mixed $value) : void
+    {
+        $exception = UnsupportedValue::value($value);
+
+        self::assertSame($expectedMessage, $exception->getMessage());
+    }
+
+    /** @return iterable<int, array{string, mixed}> */
+    public function providerValue() : iterable
+    {
+        yield [
+            'Value "NULL" is not supported as a parameter',
+            opendir(__DIR__),
+        ];
+
+        yield [
+            'Value "(object) array(
+)" is not supported as a parameter',
+            new stdClass(),
+        ];
+
+        yield [
+            "Value \"Safe\DateTime::__set_state(array(
+   'date' => '2022-02-02 13:31:37.593289',
+   'timezone_type' => 3,
+   'timezone' => 'UTC',
+))\" is not supported as a parameter",
+            new DateTime('2022-02-02 13:31:37.593289'),
+        ];
+    }
 }

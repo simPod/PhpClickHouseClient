@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 
+use function array_key_first;
 use function array_map;
 use function implode;
 use function is_array;
@@ -80,18 +81,24 @@ final class ValueFormatter
                 $paramName !== null && $sql !== null
                 && preg_match(sprintf('~\s+?IN\s+?\\(:%s\\)~', $paramName), $sql) === 1
             ) {
+                if ($value === []) {
+                    throw UnsupportedValue::value($value);
+                }
+
+                $firstValue = $value[array_key_first($value)];
+                $mapper     = is_array($firstValue)
+                    ? fn ($value) : string => sprintf(
+                        '(%s)',
+                        implode(
+                            ',',
+                            array_map(fn ($val) => $this->format($val), $value)
+                        )
+                    )
+                    : fn ($value) : string => $value === null ? 'NULL' : $this->format($value);
+
                 return implode(
                     ',',
-                    array_map(
-                        function ($value) : string {
-                            if ($value === null) {
-                                return 'NULL';
-                            }
-
-                            return $this->format($value);
-                        },
-                        $value
-                    )
+                    array_map($mapper, $value)
                 );
             }
 

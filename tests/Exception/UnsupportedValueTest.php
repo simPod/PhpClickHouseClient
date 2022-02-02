@@ -5,28 +5,28 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Exception;
 
 use Safe\DateTime;
-use SimPod\ClickHouseClient\Exception\UnsupportedValueType;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use stdClass;
 
 use function Safe\opendir;
 
-/** @covers \SimPod\ClickHouseClient\Exception\UnsupportedValueType */
-final class UnsupportedValueTypeTest extends TestCaseBase
+/** @covers \SimPod\ClickHouseClient\Exception\UnsupportedValue */
+final class UnsupportedValueTest extends TestCaseBase
 {
-    /** @dataProvider providerValue */
-    public function testValue(string $expectedMessage, mixed $value) : void
+    /** @dataProvider providerType */
+    public function testType(string $expectedMessage, mixed $value) : void
     {
-        $exception = UnsupportedValueType::value($value);
+        $exception = UnsupportedValue::type($value);
 
         self::assertSame($expectedMessage, $exception->getMessage());
     }
 
     /** @return iterable<int, array{string, mixed}> */
-    public function providerValue() : iterable
+    public function providerType() : iterable
     {
         yield [
-            'Value of type "resource" is not supported as a parameter',
+            'Value of type "resource (stream)" is not supported as a parameter',
             opendir(__DIR__),
         ];
 

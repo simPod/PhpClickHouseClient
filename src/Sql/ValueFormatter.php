@@ -6,7 +6,7 @@ namespace SimPod\ClickHouseClient\Sql;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use SimPod\ClickHouseClient\Exception\UnsupportedValueType;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 
 use function array_map;
 use function implode;
@@ -98,7 +98,7 @@ final class ValueFormatter
             return $this->formatArray($value);
         }
 
-        throw UnsupportedValueType::value($value);
+        throw UnsupportedValue::type($value);
     }
 
     /**

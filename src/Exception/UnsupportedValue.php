@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use function get_debug_type;
 use function is_object;
 use function Safe\sprintf;
+use function var_export;
 
 final class UnsupportedValue extends InvalidArgumentException implements ClickHouseClientException
 {
@@ -18,6 +19,16 @@ final class UnsupportedValue extends InvalidArgumentException implements ClickHo
             sprintf(
                 'Value of type "%s" is not supported as a parameter',
                 is_object($value) ? $value::class : get_debug_type($value)
+            )
+        );
+    }
+
+    public static function value(mixed $value) : self
+    {
+        return new self(
+            sprintf(
+                'Value "%s" is not supported as a parameter',
+                var_export($value, true)
             )
         );
     }

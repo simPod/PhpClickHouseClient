@@ -89,6 +89,7 @@ jobs:
           - "21.10"
           - "21.11"
           - "21.12"
+          - "22.1"
         dependency-versions:
           - "highest"
     env:

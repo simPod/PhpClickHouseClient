@@ -12,7 +12,7 @@ use SimPod\ClickHouseClient\Sql\Expression;
 final class TableSizes
 {
     /** @return array<array<string, mixed>> */
-    public static function run(ClickHouseClient $clickHouseClient, ?string $databaseName = null) : array
+    public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): array
     {
         /**
          * @phpstan-var JsonEachRow<array<string, mixed>> $format
@@ -21,7 +21,7 @@ final class TableSizes
         $format = new JsonEachRow();
 
         return $clickHouseClient->selectWithParams(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 
     name AS table,
     database,

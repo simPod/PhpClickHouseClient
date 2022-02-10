@@ -13,7 +13,7 @@ final class CurrentDatabaseTest extends TestCaseBase
 {
     use WithClient;
 
-    public function testRun() : void
+    public function testRun(): void
     {
         self::assertSame(
             $this->currentDbName,

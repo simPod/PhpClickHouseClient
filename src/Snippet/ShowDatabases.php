@@ -12,22 +12,20 @@ use function array_map;
 final class ShowDatabases
 {
     /** @return array<string> */
-    public static function run(ClickHouseClient $clickHouseClient) : array
+    public static function run(ClickHouseClient $clickHouseClient): array
     {
         /** @var JsonEachRow<array{name: string}> $format */
         $format = new JsonEachRow();
 
         $output = $clickHouseClient->select(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SHOW DATABASES
 CLICKHOUSE,
             $format
         );
 
         return array_map(
-            static function (array $database) : string {
-                return $database['name'];
-            },
+            static fn (array $database): string => $database['name'],
             $output->data
         );
     }

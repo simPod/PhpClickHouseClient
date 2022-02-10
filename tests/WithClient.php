@@ -29,15 +29,15 @@ trait WithClient
     /** @internal */
     private ClickHouseClient $controllerClient;
 
-    private ?string $currentDbName = null;
+    private string|null $currentDbName = null;
 
     /** @before */
-    public function setupClickHouseClient() : void
+    public function setupClickHouseClient(): void
     {
         $this->restartClickHouseClient();
     }
 
-    public function restartClickHouseClient() : void
+    public function restartClickHouseClient(): void
     {
         $databaseName = getenv('CLICKHOUSE_DATABASE');
         $username     = getenv('CLICKHOUSE_USER');
@@ -103,7 +103,7 @@ trait WithClient
     }
 
     /** @after */
-    public function tearDownDataBase() : void
+    public function tearDownDataBase(): void
     {
         $this->controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', $this->currentDbName));
     }

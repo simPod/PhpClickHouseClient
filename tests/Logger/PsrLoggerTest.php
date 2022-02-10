@@ -11,7 +11,7 @@ use SimPod\ClickHouseClient\Logger\PsrLogger;
 /** @covers \SimPod\ClickHouseClient\Logger\PsrLogger */
 final class PsrLoggerTest extends TestCase
 {
-    public function testStartQuery() : void
+    public function testStartQuery(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())

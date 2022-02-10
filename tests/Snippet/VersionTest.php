@@ -13,7 +13,7 @@ final class VersionTest extends TestCaseBase
 {
     use WithClient;
 
-    public function testRun() : void
+    public function testRun(): void
     {
         self::assertMatchesRegularExpression('~(\d+\.)+\d+~', Version::run($this->client));
     }

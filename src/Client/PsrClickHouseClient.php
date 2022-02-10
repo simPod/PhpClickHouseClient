@@ -26,35 +26,25 @@ use function Safe\sprintf;
 
 class PsrClickHouseClient implements ClickHouseClient
 {
-    private ClientInterface $client;
-
-    private RequestFactory $requestFactory;
-
-    /** @var array<string, float|int|string> */
-    private array $defaultSettings;
-
     private ValueFormatter $valueFormatter;
 
     private SqlFactory $sqlFactory;
 
     /** @param array<string, float|int|string> $defaultSettings */
     public function __construct(
-        ClientInterface $client,
-        RequestFactory $requestFactory,
-        array $defaultSettings = [],
-        ?DateTimeZone $clickHouseTimeZone = null,
+        private ClientInterface $client,
+        private RequestFactory $requestFactory,
+        private array $defaultSettings = [],
+        DateTimeZone|null $clickHouseTimeZone = null,
     ) {
-        $this->client          = $client;
-        $this->requestFactory  = $requestFactory;
-        $this->defaultSettings = $defaultSettings;
-        $this->valueFormatter  = new ValueFormatter($clickHouseTimeZone);
-        $this->sqlFactory      = new SqlFactory($this->valueFormatter);
+        $this->valueFormatter = new ValueFormatter($clickHouseTimeZone);
+        $this->sqlFactory     = new SqlFactory($this->valueFormatter);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function executeQuery(string $query, array $settings = []) : void
+    public function executeQuery(string $query, array $settings = []): void
     {
         $this->executeRequest($query, $settings);
     }
@@ -62,7 +52,7 @@ class PsrClickHouseClient implements ClickHouseClient
     /**
      * {@inheritDoc}
      */
-    public function executeQueryWithParams(string $query, array $params, array $settings = []) : void
+    public function executeQueryWithParams(string $query, array $params, array $settings = []): void
     {
         $this->executeQuery($this->sqlFactory->createWithParameters($query, $params), $settings);
     }
@@ -70,7 +60,7 @@ class PsrClickHouseClient implements ClickHouseClient
     /**
      * {@inheritDoc}
      */
-    public function select(string $query, Format $outputFormat, array $settings = []) : Output
+    public function select(string $query, Format $outputFormat, array $settings = []): Output
     {
         $formatClause = $outputFormat::toSql();
 
@@ -88,7 +78,7 @@ CLICKHOUSE,
     /**
      * {@inheritDoc}
      */
-    public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []) : Output
+    public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []): Output
     {
         return $this->select(
             $this->sqlFactory->createWithParameters($query, $params),
@@ -100,7 +90,7 @@ CLICKHOUSE,
     /**
      * {@inheritDoc}
      */
-    public function insert(string $table, array $values, ?array $columns = null) : void
+    public function insert(string $table, array $values, array|null $columns = null): void
     {
         if ($values === []) {
             throw CannotInsert::noValues();
@@ -119,12 +109,10 @@ CLICKHOUSE,
         $valuesSql = implode(
             ',',
             array_map(
-                function (array $map) : string {
-                    return sprintf(
-                        '(%s)',
-                        implode(',', $this->valueFormatter->mapFormat($map))
-                    );
-                },
+                fn (array $map): string => sprintf(
+                    '(%s)',
+                    implode(',', $this->valueFormatter->mapFormat($map))
+                ),
                 $values
             )
         );
@@ -140,7 +128,7 @@ CLICKHOUSE
         );
     }
 
-    public function insertWithFormat(string $table, Format $inputFormat, string $data) : void
+    public function insertWithFormat(string $table, Format $inputFormat, string $data): void
     {
         $formatSql = $inputFormat::toSql();
 
@@ -154,7 +142,7 @@ CLICKHOUSE
     }
 
     /** @param array<string, float|int|string> $settings */
-    private function executeRequest(string $sql, array $settings = []) : ResponseInterface
+    private function executeRequest(string $sql, array $settings = []): ResponseInterface
     {
         $request = $this->requestFactory->prepareRequest(
             new RequestOptions(

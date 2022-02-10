@@ -15,7 +15,7 @@ use function Safe\opendir;
 final class UnsupportedValueTest extends TestCaseBase
 {
     /** @dataProvider providerType */
-    public function testType(string $expectedMessage, mixed $value) : void
+    public function testType(string $expectedMessage, mixed $value): void
     {
         $exception = UnsupportedValue::type($value);
 
@@ -23,7 +23,7 @@ final class UnsupportedValueTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{string, mixed}> */
-    public function providerType() : iterable
+    public function providerType(): iterable
     {
         yield [
             'Value of type "resource (stream)" is not supported as a parameter',
@@ -42,7 +42,7 @@ final class UnsupportedValueTest extends TestCaseBase
     }
 
     /** @dataProvider providerValue */
-    public function testValue(string $expectedMessage, mixed $value) : void
+    public function testValue(string $expectedMessage, mixed $value): void
     {
         $exception = UnsupportedValue::value($value);
 
@@ -50,7 +50,7 @@ final class UnsupportedValueTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{string, mixed}> */
-    public function providerValue() : iterable
+    public function providerValue(): iterable
     {
         yield [
             'Value "NULL" is not supported as a parameter',

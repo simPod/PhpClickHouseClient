@@ -10,39 +10,39 @@ use SimPod\ClickHouseClient\Tests\TestCaseBase;
 /** @covers \SimPod\ClickHouseClient\Output\Json */
 final class JsonTest extends TestCaseBase
 {
-    public function testPropertiesAreSet() : void
+    public function testPropertiesAreSet(): void
     {
         $format = new Json(
-            <<<JSON
+            <<<'JSON'
 {
     "meta":
-	[
-		{
+    [
+        {
             "name": "number",
-			"type": "UInt64"
-		}
-	],
+            "type": "UInt64"
+        }
+    ],
 
-	"data":
-	[
-		{
+    "data":
+    [
+        {
             "number": "0"
-		},
-		{
+        },
+        {
             "number": "1"
-		}
-	],
+        }
+    ],
 
-	"rows": 2,
+    "rows": 2,
 
-	"rows_before_limit_at_least": 2,
+    "rows_before_limit_at_least": 2,
 
-	"statistics":
-	{
+    "statistics":
+    {
         "elapsed": 0.0000342,
-		"rows_read": 2,
-		"bytes_read": 16
-	}
+        "rows_read": 2,
+        "bytes_read": 16
+    }
 }
 
 JSON

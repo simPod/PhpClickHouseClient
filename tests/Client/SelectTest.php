@@ -16,7 +16,7 @@ final class SelectTest extends TestCaseBase
     use WithClient;
 
     /** @dataProvider providerJson */
-    public function testJson(mixed $expectedData, string $sql) : void
+    public function testJson(mixed $expectedData, string $sql): void
     {
         $client = $this->client;
         $output = $client->select($sql, new Json());
@@ -25,11 +25,11 @@ final class SelectTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{mixed, string}> */
-    public function providerJson() : iterable
+    public function providerJson(): iterable
     {
         yield [
             [[1 => 1]],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1
 CLICKHOUSE,
         ];
@@ -39,7 +39,7 @@ CLICKHOUSE,
                 ['number' => '0'],
                 ['number' => '1'],
             ],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE,
         ];
@@ -48,14 +48,14 @@ CLICKHOUSE,
             [
                 ["'ping'" => 'ping'],
             ],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 'ping'
 CLICKHOUSE,
         ];
     }
 
     /** @dataProvider providerJsonCompact */
-    public function testJsonCompact(mixed $expectedData, string $sql) : void
+    public function testJsonCompact(mixed $expectedData, string $sql): void
     {
         $client = $this->client;
         $output = $client->select($sql, new JsonCompact());
@@ -64,11 +64,11 @@ CLICKHOUSE,
     }
 
     /** @return iterable<int, array{mixed, string}> */
-    public function providerJsonCompact() : iterable
+    public function providerJsonCompact(): iterable
     {
         yield [
             [[1]],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1
 CLICKHOUSE,
         ];
@@ -78,7 +78,7 @@ CLICKHOUSE,
                 ['0'],
                 ['1'],
             ],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE,
         ];
@@ -87,14 +87,14 @@ CLICKHOUSE,
             [
                 ['ping'],
             ],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 'ping'
 CLICKHOUSE,
         ];
     }
 
     /** @dataProvider providerJsonEachRow */
-    public function testJsonEachRow(mixed $expectedData, string $sql) : void
+    public function testJsonEachRow(mixed $expectedData, string $sql): void
     {
         $client = $this->client;
         $output = $client->select($sql, new JsonEachRow());
@@ -103,11 +103,11 @@ CLICKHOUSE,
     }
 
     /** @return iterable<int, array{mixed, string}> */
-    public function providerJsonEachRow() : iterable
+    public function providerJsonEachRow(): iterable
     {
         yield [
             [[1 => 1]],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1
 CLICKHOUSE,
         ];
@@ -117,7 +117,7 @@ CLICKHOUSE,
                 ['number' => '0'],
                 ['number' => '1'],
             ],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE,
         ];
@@ -126,13 +126,13 @@ CLICKHOUSE,
             [
                 ["'ping'" => 'ping'],
             ],
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 'ping'
 CLICKHOUSE,
         ];
     }
 
-    public function testSettingsArePassed() : void
+    public function testSettingsArePassed(): void
     {
         self::expectException(ServerError::class);
         $this->expectExceptionMessage("DB::Exception: Database `non-existent` doesn't exist");

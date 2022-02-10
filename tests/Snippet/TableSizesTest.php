@@ -14,10 +14,10 @@ final class TableSizesTest extends TestCaseBase
 {
     use WithClient;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->client->executeQuery(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 CREATE TABLE test (
     a_date  DateTime,
     value   Int8
@@ -29,19 +29,19 @@ CLICKHOUSE
         );
     }
 
-    public function testRun() : void
+    public function testRun(): void
     {
         $this->client->insert('test', [[new DateTimeImmutable(), 1]]);
 
         self::assertCount(1, TableSizes::run($this->client));
     }
 
-    public function testRunOnNonexistentDatabase() : void
+    public function testRunOnNonexistentDatabase(): void
     {
         self::assertSame([], TableSizes::run($this->client, 'does not exist'));
     }
 
-    public function tearDown() : void
+    public function tearDown(): void
     {
         $this->client->executeQuery('DROP TABLE test');
     }

@@ -21,7 +21,7 @@ final class Json implements Output
 
     public int $rows;
 
-    public ?int $rowsBeforeLimitAtLeast = null;
+    public int|null $rowsBeforeLimitAtLeast = null;
 
     /** @var array{elapsed: float, rows_read: int, bytes_read: int} */
     public array $statistics;

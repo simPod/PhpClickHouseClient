@@ -19,7 +19,7 @@ final class ClickHouseVersion
 {
     private const ENV_NAME = 'CLICKHOUSE_VERSION';
 
-    public static function get() : int
+    public static function get(): int
     {
         $versionString = $_ENV[self::ENV_NAME];
         assert(is_string($versionString));

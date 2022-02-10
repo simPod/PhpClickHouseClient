@@ -10,25 +10,25 @@ use SimPod\ClickHouseClient\Logger\SqlLogger;
 
 final class LoggerChainTest extends TestCase
 {
-    public function testLog() : void
+    public function testLog(): void
     {
         $logger = new class implements SqlLogger {
             public string $id;
 
-            public ?string $sql = null;
+            public string|null $sql = null;
 
             public bool $started = false;
 
             public bool $stopped = false;
 
-            public function startQuery(string $id, string $sql) : void
+            public function startQuery(string $id, string $sql): void
             {
                 $this->id      = $id;
                 $this->sql     = $sql;
                 $this->started = true;
             }
 
-            public function stopQuery(string $id) : void
+            public function stopQuery(string $id): void
             {
                 $this->stopped = true;
             }

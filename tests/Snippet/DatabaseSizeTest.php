@@ -15,10 +15,10 @@ final class DatabaseSizeTest extends TestCaseBase
 {
     use WithClient;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->client->executeQuery(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 CREATE TABLE test (
     a_date  DateTime,
     value   Int8
@@ -30,7 +30,7 @@ CLICKHOUSE
         );
     }
 
-    public function testRun() : void
+    public function testRun(): void
     {
         self::assertSame(0, DatabaseSize::run($this->client));
 
@@ -40,7 +40,7 @@ CLICKHOUSE
         self::assertSame($expectedSize, DatabaseSize::run($this->client));
     }
 
-    public function tearDown() : void
+    public function tearDown(): void
     {
         $this->client->executeQuery('DROP TABLE test');
     }

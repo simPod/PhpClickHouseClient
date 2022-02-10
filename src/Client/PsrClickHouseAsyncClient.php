@@ -19,32 +19,22 @@ use SimPod\ClickHouseClient\Sql\ValueFormatter;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
-    private HttpAsyncClient $asyncClient;
-
-    private RequestFactory $requestFactory;
-
-    /** @var array<string, float|int|string> */
-    private array $defaultSettings;
-
     private SqlFactory $sqlFactory;
 
     /** @param array<string, float|int|string> $defaultSettings */
     public function __construct(
-        HttpAsyncClient $asyncClient,
-        RequestFactory $requestFactory,
-        array $defaultSettings = [],
-        ?DateTimeZone $clickHouseTimeZone = null,
+        private HttpAsyncClient $asyncClient,
+        private RequestFactory $requestFactory,
+        private array $defaultSettings = [],
+        DateTimeZone|null $clickHouseTimeZone = null,
     ) {
-        $this->asyncClient     = $asyncClient;
-        $this->requestFactory  = $requestFactory;
-        $this->defaultSettings = $defaultSettings;
-        $this->sqlFactory      = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
+        $this->sqlFactory = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function select(string $sql, Format $outputFormat, array $settings = []) : PromiseInterface
+    public function select(string $sql, Format $outputFormat, array $settings = []): PromiseInterface
     {
         $formatClause = $outputFormat::toSql();
 
@@ -54,9 +44,7 @@ $sql
 $formatClause
 CLICKHOUSE,
             $settings,
-            static function (ResponseInterface $response) use ($outputFormat) : Output {
-                return $outputFormat::output($response->getBody()->__toString());
-            }
+            static fn (ResponseInterface $response): Output => $outputFormat::output($response->getBody()->__toString())
         );
     }
 
@@ -67,8 +55,8 @@ CLICKHOUSE,
         string $sql,
         array $params,
         Format $outputFormat,
-        array $settings = []
-    ) : PromiseInterface {
+        array $settings = [],
+    ): PromiseInterface {
         return $this->select(
             $this->sqlFactory->createWithParameters($sql, $params),
             $outputFormat,
@@ -83,8 +71,8 @@ CLICKHOUSE,
     private function executeRequest(
         string $sql,
         array $settings = [],
-        ?callable $processResponse = null
-    ) : PromiseInterface {
+        callable|null $processResponse = null,
+    ): PromiseInterface {
         $request = $this->requestFactory->prepareRequest(
             new RequestOptions(
                 $sql,

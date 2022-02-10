@@ -8,19 +8,16 @@ use Psr\Log\LoggerInterface;
 
 final class PsrLogger implements SqlLogger
 {
-    private LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
-    public function startQuery(string $id, string $sql) : void
+    public function startQuery(string $id, string $sql): void
     {
         $this->logger->debug($sql);
     }
 
-    public function stopQuery(string $id) : void
+    public function stopQuery(string $id): void
     {
     }
 }

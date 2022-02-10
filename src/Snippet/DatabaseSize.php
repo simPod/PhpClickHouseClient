@@ -10,13 +10,13 @@ use SimPod\ClickHouseClient\Sql\Expression;
 
 final class DatabaseSize
 {
-    public static function run(ClickHouseClient $clickHouseClient, ?string $databaseName = null) : int
+    public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): int
     {
         /** @var JsonEachRow<array{size: string|null}> $format */
         $format = new JsonEachRow();
 
         $currentDatabase = $clickHouseClient->selectWithParams(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT sum(bytes) AS size
 FROM system.parts
 WHERE active AND database=:database

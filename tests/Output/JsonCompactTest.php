@@ -10,35 +10,35 @@ use SimPod\ClickHouseClient\Tests\TestCaseBase;
 /** @covers \SimPod\ClickHouseClient\Output\JsonCompact */
 final class JsonCompactTest extends TestCaseBase
 {
-    public function testPropertiesAreSet() : void
+    public function testPropertiesAreSet(): void
     {
         $format = new JsonCompact(
-            <<<JSON
+            <<<'JSON'
 {
-	"meta":
-	[
-		{
-			"name": "number",
-			"type": "UInt64"
-		}
-	],
+    "meta":
+    [
+        {
+            "name": "number",
+            "type": "UInt64"
+        }
+    ],
 
-	"data":
-	[
-		["0"],
-		["1"]
-	],
+    "data":
+    [
+        ["0"],
+        ["1"]
+    ],
 
-	"rows": 2,
+    "rows": 2,
 
-	"rows_before_limit_at_least": 2,
+    "rows_before_limit_at_least": 2,
 
-	"statistics":
-	{
-		"elapsed": 0.0000504,
-		"rows_read": 2,
-		"bytes_read": 16
-	}
+    "statistics":
+    {
+        "elapsed": 0.0000504,
+        "rows_read": 2,
+        "bytes_read": 16
+    }
 }
 
 JSON

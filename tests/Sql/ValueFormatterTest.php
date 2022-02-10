@@ -16,7 +16,7 @@ use stdClass;
 final class ValueFormatterTest extends TestCaseBase
 {
     /** @dataProvider providerFormat */
-    public function testFormat(string $expectedValue, mixed $value, ?string $paramName = null, ?string $sql = null) : void
+    public function testFormat(string $expectedValue, mixed $value, string|null $paramName = null, string|null $sql = null): void
     {
         self::assertSame(
             $expectedValue,
@@ -25,7 +25,7 @@ final class ValueFormatterTest extends TestCaseBase
     }
 
     /** @return iterable<string, array<mixed>> */
-    public function providerFormat() : iterable
+    public function providerFormat(): iterable
     {
         yield 'boolean' => ['1', true];
         yield 'integer' => ['1', 1];
@@ -39,7 +39,7 @@ final class ValueFormatterTest extends TestCaseBase
             'IS NULL',
             null,
             'null',
-            <<<SQL
+            <<<'SQL'
             SELECT 1 FROM table WHERE
                 1 = 1
                 AND x = :null
@@ -68,7 +68,7 @@ final class ValueFormatterTest extends TestCaseBase
         yield 'Stringable' => [
             "'stringable'",
             new class () {
-                public function __toString() : string
+                public function __toString(): string
                 {
                     return 'stringable';
                 }
@@ -78,7 +78,7 @@ final class ValueFormatterTest extends TestCaseBase
         yield 'Stringable escaped' => [
             "'stringable \\\\n'",
             new class () {
-                public function __toString() : string
+                public function __toString(): string
                 {
                     return 'stringable \n';
                 }
@@ -92,25 +92,25 @@ final class ValueFormatterTest extends TestCaseBase
      *
      * @dataProvider providerMapFormat
      */
-    public function testMapFormat(array $expectedValues, array $values) : void
+    public function testMapFormat(array $expectedValues, array $values): void
     {
         self::assertSame($expectedValues, (new ValueFormatter())->mapFormat($values));
     }
 
     /** @return iterable<string, array<array<mixed>>> */
-    public function providerMapFormat() : iterable
+    public function providerMapFormat(): iterable
     {
         yield 'string' => [["'ping'", "'pong'", 'NULL'], ['ping', 'pong', null]];
     }
 
-    public function testUnsupportedTypeThrows() : void
+    public function testUnsupportedTypeThrows(): void
     {
         $this->expectException(UnsupportedValue::class);
 
         (new ValueFormatter())->format(new stdClass());
     }
 
-    public function testUnsupportedValueThrows() : void
+    public function testUnsupportedValueThrows(): void
     {
         $this->expectException(UnsupportedValue::class);
 

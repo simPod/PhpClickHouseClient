@@ -13,7 +13,7 @@ use function var_export;
 
 final class UnsupportedValue extends InvalidArgumentException implements ClickHouseClientException
 {
-    public static function type(mixed $value) : self
+    public static function type(mixed $value): self
     {
         return new self(
             sprintf(
@@ -23,7 +23,7 @@ final class UnsupportedValue extends InvalidArgumentException implements ClickHo
         );
     }
 
-    public static function value(mixed $value) : self
+    public static function value(mixed $value): self
     {
         return new self(
             sprintf(

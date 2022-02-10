@@ -10,9 +10,9 @@ use SimPod\ClickHouseClient\Tests\TestCaseBase;
 /** @covers \SimPod\ClickHouseClient\Output\TabSeparated */
 final class TabSeparatedTest extends TestCaseBase
 {
-    public function testContentsAreSet() : void
+    public function testContentsAreSet(): void
     {
-        $contents = <<<TEXT
+        $contents = <<<'TEXT'
 1
 
 TEXT;

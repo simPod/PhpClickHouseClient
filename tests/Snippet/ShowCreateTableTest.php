@@ -16,7 +16,7 @@ final class ShowCreateTableTest extends TestCaseBase
 {
     use WithClient;
 
-    public function testRun() : void
+    public function testRun(): void
     {
         $dbName = $this->currentDbName;
         $sql    = <<<CLICKHOUSE

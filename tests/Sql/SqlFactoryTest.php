@@ -17,7 +17,7 @@ final class SqlFactoryTest extends TestCaseBase
      *
      * @dataProvider providerCreateWithParameters
      */
-    public function testCreateWithParameters(string $expectedSql, string $sqlWithPlaceholders, array $parameters) : void
+    public function testCreateWithParameters(string $expectedSql, string $sqlWithPlaceholders, array $parameters): void
     {
         $sql = (new SqlFactory(new ValueFormatter()))->createWithParameters($sqlWithPlaceholders, $parameters);
 
@@ -25,33 +25,33 @@ final class SqlFactoryTest extends TestCaseBase
     }
 
     /** @return iterable<string, array{string, string, array<string, mixed>}> */
-    public function providerCreateWithParameters() : iterable
+    public function providerCreateWithParameters(): iterable
     {
         yield 'empty parameters' => [
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1
 CLICKHOUSE,
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1
 CLICKHOUSE,
             [],
         ];
 
         yield 'string parameter' => [
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 'ping'
 CLICKHOUSE,
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT :ping
 CLICKHOUSE,
             ['ping' => 'ping'],
         ];
 
         yield 'two parameters, 1. name substring of 2.' => [
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1, 2
 CLICKHOUSE,
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT :ping, :pingpong
 CLICKHOUSE,
             [
@@ -61,20 +61,20 @@ CLICKHOUSE,
         ];
 
         yield 'null filter' => [
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1 FROM system.one WHERE dummy IS NULL
 CLICKHOUSE,
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT 1 FROM system.one WHERE dummy = :null
 CLICKHOUSE,
             ['null' => null],
         ];
 
         yield 'escape backslash' => [
-            <<<CLICKHOUSE
-SELECT toIPv6('x\\\\')
+            <<<'CLICKHOUSE'
+SELECT toIPv6('x\\')
 CLICKHOUSE,
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT :ping
 CLICKHOUSE,
             [

@@ -13,17 +13,17 @@ final class Expression
         $this->innerExpression = $expression;
     }
 
-    public static function new(string $expression) : self
+    public static function new(string $expression): self
     {
         return new self($expression);
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->innerExpression;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->innerExpression;
     }

@@ -15,11 +15,11 @@ final class SelectAsyncTest extends TestCaseBase
 {
     use WithClient;
 
-    public function testAsyncSelect() : void
+    public function testAsyncSelect(): void
     {
         $client = $this->asyncClient;
 
-        $sql = <<<CLICKHOUSE
+        $sql = <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE;
 
@@ -43,7 +43,7 @@ CLICKHOUSE;
         self::assertSame($expectedData, $jsonEachRowOutputs[1]->data);
     }
 
-    public function testSelectFromNonExistentTableExpectServerError() : void
+    public function testSelectFromNonExistentTableExpectServerError(): void
     {
         $this->expectException(ServerError::class);
 

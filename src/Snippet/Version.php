@@ -9,13 +9,13 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 final class Version
 {
-    public static function run(ClickHouseClient $clickHouseClient) : string
+    public static function run(ClickHouseClient $clickHouseClient): string
     {
         /** @var JsonEachRow<array{version: string}> $format */
         $format = new JsonEachRow();
 
         $output = $clickHouseClient->select(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT version() AS version
 CLICKHOUSE,
             $format

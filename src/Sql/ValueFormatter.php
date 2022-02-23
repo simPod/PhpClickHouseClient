@@ -24,14 +24,11 @@ use function Safe\sprintf;
 /** @internal */
 final class ValueFormatter
 {
-    private ?DateTimeZone $dateTimeZone = null;
-
-    public function __construct(?DateTimeZone $dateTimeZone = null)
+    public function __construct(private DateTimeZone|null $dateTimeZone = null)
     {
-        $this->dateTimeZone = $dateTimeZone;
     }
 
-    public function format(mixed $value, ?string $paramName = null, ?string $sql = null) : string
+    public function format(mixed $value, string|null $paramName = null, string|null $sql = null): string
     {
         if (is_string($value)) {
             return "'" . Escaper::escape($value) . "'";
@@ -87,14 +84,14 @@ final class ValueFormatter
 
                 $firstValue = $value[array_key_first($value)];
                 $mapper     = is_array($firstValue)
-                    ? fn ($value) : string => sprintf(
+                    ? fn ($value): string => sprintf(
                         '(%s)',
                         implode(
                             ',',
                             array_map(fn ($val) => $this->format($val), $value)
                         )
                     )
-                    : fn ($value) : string => $value === null ? 'NULL' : $this->format($value);
+                    : fn ($value): string => $value === null ? 'NULL' : $this->format($value);
 
                 return implode(
                     ',',
@@ -113,10 +110,10 @@ final class ValueFormatter
      *
      * @return array<string>
      */
-    public function mapFormat(array $values) : array
+    public function mapFormat(array $values): array
     {
         return array_map(
-            function ($value) : string {
+            function ($value): string {
                 if ($value === null) {
                     return 'NULL';
                 }
@@ -128,14 +125,14 @@ final class ValueFormatter
     }
 
     /** @param array<mixed> $value */
-    private function formatArray(array $value) : string
+    private function formatArray(array $value): string
     {
         return sprintf(
             '[%s]',
             implode(
                 ',',
                 array_map(
-                    function ($value) : string {
+                    function ($value): string {
                         if ($value === null) {
                             return 'NULL';
                         }

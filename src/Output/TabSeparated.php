@@ -11,10 +11,7 @@ namespace SimPod\ClickHouseClient\Output;
  */
 final class TabSeparated implements Output
 {
-    public string $contents;
-
-    public function __construct(string $contents)
+    public function __construct(public string $contents)
     {
-        $this->contents = $contents;
     }
 }

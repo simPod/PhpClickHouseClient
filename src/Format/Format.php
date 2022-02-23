@@ -10,7 +10,7 @@ use SimPod\ClickHouseClient\Output\Output;
 interface Format
 {
     /** @return O */
-    public static function output(string $contents) : Output;
+    public static function output(string $contents): Output;
 
-    public static function toSql() : string;
+    public static function toSql(): string;
 }

@@ -9,13 +9,13 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 final class CurrentDatabase
 {
-    public static function run(ClickHouseClient $clickHouseClient) : string
+    public static function run(ClickHouseClient $clickHouseClient): string
     {
         /** @var JsonEachRow<array{database: string}> $format */
         $format = new JsonEachRow();
 
         $currentDatabase = $clickHouseClient->select(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT currentDatabase() AS database
 CLICKHOUSE,
             $format

@@ -16,7 +16,7 @@ final class InsertTest extends TestCaseBase
     use WithClient;
 
     /** @dataProvider providerInsert */
-    public function testInsert(string $tableSql) : void
+    public function testInsert(string $tableSql): void
     {
         $data = [
             ['PageViews' => 5, 'UserID' => 4324182021466249494, 'Duration' => 146, 'Sign' => -1],
@@ -28,7 +28,7 @@ final class InsertTest extends TestCaseBase
         $this->client->insert('UserActivity', $data);
 
         $output = $this->client->select(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE
             ,
@@ -41,7 +41,7 @@ CLICKHOUSE
     }
 
     /** @dataProvider providerInsert */
-    public function testInsertUseColumns(string $tableSql) : void
+    public function testInsertUseColumns(string $tableSql): void
     {
         $expectedData = [
             ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
@@ -60,7 +60,7 @@ CLICKHOUSE
         );
 
         $output = $this->client->select(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE
             ,
@@ -70,10 +70,10 @@ CLICKHOUSE
         self::assertSame($expectedData, $output->data);
     }
 
-    public function testInsertEscaping() : void
+    public function testInsertEscaping(): void
     {
         $this->client->executeQuery(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 CREATE TABLE a (
     b  Nullable(String)
 )
@@ -89,7 +89,7 @@ CLICKHOUSE
         $this->client->insert('a', $expectedData);
 
         $output = $this->client->select(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT * FROM a
 CLICKHOUSE
             ,
@@ -100,9 +100,9 @@ CLICKHOUSE
     }
 
     /** @return iterable<int, array<string>> */
-    public function providerInsert() : iterable
+    public function providerInsert(): iterable
     {
-        $sql = <<<CLICKHOUSE
+        $sql = <<<'CLICKHOUSE'
 CREATE TABLE UserActivity (
     PageViews   UInt32,
     UserID      UInt64,
@@ -115,10 +115,10 @@ CLICKHOUSE;
         yield [$sql];
     }
 
-    public function testInsertWithFormat() : void
+    public function testInsertWithFormat(): void
     {
         $this->client->executeQuery(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 CREATE TABLE UserActivity (
     PageViews   UInt32,
     UserID      UInt64,
@@ -132,14 +132,14 @@ CLICKHOUSE
         $this->client->insertWithFormat(
             'UserActivity',
             new JsonEachRow(),
-            <<<JSONEACHROW
+            <<<'JSONEACHROW'
 {"PageViews":5, "UserID":"4324182021466249494", "Duration":146,"Sign":-1} 
 {"UserID":"4324182021466249494","PageViews":6,"Duration":185,"Sign":1}
 JSONEACHROW
         );
 
         $output = $this->client->select(
-            <<<CLICKHOUSE
+            <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE
             ,
@@ -155,14 +155,14 @@ CLICKHOUSE
         );
     }
 
-    public function testInsertEmptyValuesThrowsException() : void
+    public function testInsertEmptyValuesThrowsException(): void
     {
         $this->expectException(CannotInsert::class);
 
         $this->client->insert('table', []);
     }
 
-    public function testInsertToNonExistentTableExpectServerError() : void
+    public function testInsertToNonExistentTableExpectServerError(): void
     {
         $this->expectException(ServerError::class);
 

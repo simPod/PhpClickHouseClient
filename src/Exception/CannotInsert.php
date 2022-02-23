@@ -8,7 +8,7 @@ use Exception;
 
 final class CannotInsert extends Exception implements ClickHouseClientException
 {
-    public static function noValues() : self
+    public static function noValues(): self
     {
         return new self();
     }

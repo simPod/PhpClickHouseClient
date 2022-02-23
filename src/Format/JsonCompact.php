@@ -12,12 +12,12 @@ use SimPod\ClickHouseClient\Output\Output;
  */
 final class JsonCompact implements Format
 {
-    public static function output(string $contents) : Output
+    public static function output(string $contents): Output
     {
         return new \SimPod\ClickHouseClient\Output\JsonCompact($contents);
     }
 
-    public static function toSql() : string
+    public static function toSql(): string
     {
         return 'FORMAT JSONCompact';
     }

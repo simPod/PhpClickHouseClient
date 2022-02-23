@@ -9,14 +9,11 @@ use function Safe\sprintf;
 
 final class ExpressionFactory
 {
-    private ValueFormatter $valueFormatter;
-
-    public function __construct(ValueFormatter $valueFormatter)
+    public function __construct(private ValueFormatter $valueFormatter)
     {
-        $this->valueFormatter = $valueFormatter;
     }
 
-    public function templateAndValues(string $template, mixed ...$values) : Expression
+    public function templateAndValues(string $template, mixed ...$values): Expression
     {
         return Expression::new(
             sprintf($template, ...array_map([$this->valueFormatter, 'format'], $values))

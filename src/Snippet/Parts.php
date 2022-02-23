@@ -12,7 +12,7 @@ use function Safe\sprintf;
 final class Parts
 {
     /** @return array<array<string, mixed>> */
-    public static function run(ClickHouseClient $clickHouseClient, string $table, ?bool $active = null) : array
+    public static function run(ClickHouseClient $clickHouseClient, string $table, bool|null $active = null): array
     {
         $whereActiveClause = $active === null ? '' : sprintf(' AND active = %d', $active);
 

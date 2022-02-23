@@ -16,18 +16,18 @@ final class LoggerChain implements SqlLogger
     {
         $this->loggers = array_filter(
             $loggers,
-            static fn (SqlLogger $logger) : bool => ! $logger instanceof self
+            static fn (SqlLogger $logger): bool => ! $logger instanceof self
         );
     }
 
-    public function startQuery(string $id, string $sql) : void
+    public function startQuery(string $id, string $sql): void
     {
         foreach ($this->loggers as $logger) {
             $logger->startQuery($id, $sql);
         }
     }
 
-    public function stopQuery(string $id) : void
+    public function stopQuery(string $id): void
     {
         foreach ($this->loggers as $logger) {
             $logger->stopQuery($id);

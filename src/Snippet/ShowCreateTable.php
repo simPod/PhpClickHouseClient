@@ -9,7 +9,7 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 final class ShowCreateTable
 {
-    public static function run(ClickHouseClient $clickHouseClient, string $tableName) : string
+    public static function run(ClickHouseClient $clickHouseClient, string $tableName): string
     {
         /** @var JsonEachRow<array{statement: string}> $format */
         $format = new JsonEachRow();

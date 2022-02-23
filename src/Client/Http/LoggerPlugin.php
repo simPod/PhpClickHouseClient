@@ -15,25 +15,22 @@ use function uniqid;
 
 final class LoggerPlugin implements Plugin
 {
-    private SqlLogger $logger;
-
-    public function __construct(SqlLogger $logger)
+    public function __construct(private SqlLogger $logger)
     {
-        $this->logger = $logger;
     }
 
-    public function handleRequest(RequestInterface $request, callable $next, callable $first) : Promise
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $id = uniqid('', true);
         $this->logger->startQuery($id, (string) $request->getBody());
 
         return $next($request)->then(
-            function (ResponseInterface $response) use ($id) : ResponseInterface {
+            function (ResponseInterface $response) use ($id): ResponseInterface {
                 $this->logger->stopQuery($id);
 
                 return $response;
             },
-            function (Throwable $throwable) use ($id) : void {
+            function (Throwable $throwable) use ($id): void {
                 $this->logger->stopQuery($id);
 
                 throw $throwable;

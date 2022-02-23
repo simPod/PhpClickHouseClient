@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 
 final class ServerError extends Exception
 {
-    public static function fromResponse(ResponseInterface $response) : self
+    public static function fromResponse(ResponseInterface $response): self
     {
         return new self((string) $response->getBody());
     }

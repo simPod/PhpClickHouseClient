@@ -17,7 +17,7 @@ final class ExpressionFactoryTest extends TestCaseBase
      *
      * @dataProvider providerTemplateAndValues
      */
-    public function testTemplateAndValues(string $expectedExpressionString, string $template, array $values) : void
+    public function testTemplateAndValues(string $expectedExpressionString, string $template, array $values): void
     {
         $expressionFactory = new ExpressionFactory(new ValueFormatter(new DateTimeZone('UTC')));
 
@@ -28,7 +28,7 @@ final class ExpressionFactoryTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{string, string, array<mixed>}> */
-    public function providerTemplateAndValues() : iterable
+    public function providerTemplateAndValues(): iterable
     {
         yield [
             "UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')",

@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: actions/checkout@v3
         with:
           fetch-depth: 2
 
@@ -97,7 +97,7 @@ jobs:
 
     steps:
       -   name: "Checkout"
-          uses: "actions/checkout@v2"
+          uses: actions/checkout@v3
           with:
             fetch-depth: 2
 
@@ -134,7 +134,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: actions/checkout@v3
         with:
           fetch-depth: 2
 

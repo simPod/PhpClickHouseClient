@@ -47,7 +47,7 @@
         "phpunit/phpunit": "^9.4",
         "psalm/plugin-phpunit": "0.16.1",
         "roave/infection-static-analysis-plugin": "^1.6",
-        "symfony/http-client": "^5.3",
+        "symfony/http-client": "^6.0",
         "thecodingmachine/phpstan-safe-rule": "^1.0",
         "vimeo/psalm": "^4.13.1"
     },

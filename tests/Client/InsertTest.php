@@ -11,6 +11,14 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+/**
+ * @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory
+ * @covers \SimPod\ClickHouseClient\Client\PsrClickHouseClient
+ * @covers \SimPod\ClickHouseClient\Exception\CannotInsert
+ * @covers \SimPod\ClickHouseClient\Exception\ServerError
+ * @covers \SimPod\ClickHouseClient\Format\JsonEachRow
+ * @covers \SimPod\ClickHouseClient\Format\JsonCompact
+ */
 final class InsertTest extends TestCaseBase
 {
     use WithClient;
@@ -30,8 +38,7 @@ final class InsertTest extends TestCaseBase
         $output = $this->client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
-CLICKHOUSE
-            ,
+CLICKHOUSE,
             new JsonEachRow()
         );
 
@@ -62,8 +69,7 @@ CLICKHOUSE
         $output = $this->client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
-CLICKHOUSE
-            ,
+CLICKHOUSE,
             new JsonEachRow()
         );
 
@@ -91,8 +97,7 @@ CLICKHOUSE
         $output = $this->client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM a
-CLICKHOUSE
-            ,
+CLICKHOUSE,
             new JsonCompact()
         );
 

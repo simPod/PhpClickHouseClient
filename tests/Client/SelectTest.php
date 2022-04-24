@@ -11,6 +11,14 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+/**
+ * @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory
+ * @covers \SimPod\ClickHouseClient\Client\PsrClickHouseClient
+ * @covers \SimPod\ClickHouseClient\Exception\ServerError
+ * @covers \SimPod\ClickHouseClient\Format\Json
+ * @covers \SimPod\ClickHouseClient\Format\JsonEachRow
+ * @covers \SimPod\ClickHouseClient\Format\JsonCompact
+ */
 final class SelectTest extends TestCaseBase
 {
     use WithClient;

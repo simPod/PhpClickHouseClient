@@ -8,6 +8,8 @@
     bootstrap="tests/bootstrap.php"
     colors="true"
     verbose="true"
+    forceCoversAnnotation="true"
+    failOnRisky="true"
 >
     <coverage>
         <include>

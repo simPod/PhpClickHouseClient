@@ -11,6 +11,13 @@ use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+/**
+ * @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory
+ * @covers \SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient
+ * @covers \SimPod\ClickHouseClient\Exception\ServerError
+ * @covers \SimPod\ClickHouseClient\Format\JsonEachRow
+ * @covers \SimPod\ClickHouseClient\Format\TabSeparated
+ */
 final class SelectAsyncTest extends TestCaseBase
 {
     use WithClient;
@@ -24,7 +31,8 @@ SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE;
 
         /** @var JsonEachRow<array{number: string}> $format */
-        $format   = new JsonEachRow();
+        $format = new JsonEachRow();
+
         $promises = [
             $client->select($sql, $format),
             $client->select($sql, $format),

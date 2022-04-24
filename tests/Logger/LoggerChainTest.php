@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Logger;
 
-use PHPUnit\Framework\TestCase;
 use SimPod\ClickHouseClient\Logger\LoggerChain;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
+use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-final class LoggerChainTest extends TestCase
+/** @covers \SimPod\ClickHouseClient\Logger\LoggerChain */
+final class LoggerChainTest extends TestCaseBase
 {
     public function testLog(): void
     {

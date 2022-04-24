@@ -13,7 +13,7 @@ use function array_filter;
 use function array_shift;
 use function array_values;
 use function count;
-use function strpos;
+use function str_starts_with;
 
 /** @covers \SimPod\ClickHouseClient\Snippet\ShowDatabases */
 final class ShowDatabasesTest extends TestCaseBase
@@ -27,7 +27,8 @@ final class ShowDatabasesTest extends TestCaseBase
 
         $databases = array_filter(
             $databases,
-            fn (string $database): bool => strpos($database, 'clickhouse_client_test__') !== 0 || $database === $this->currentDbName
+            fn (string $database): bool => ! str_starts_with($database, 'clickhouse_client_test__')
+                || $database === $this->currentDbName
         );
 
         $databases = array_values($databases);

@@ -18,6 +18,6 @@ final class RequestOptions
      */
     public function __construct(public string $sql, array $defaultSettings, array $querySettings)
     {
-        $this->settings = $defaultSettings + $querySettings;
+        $this->settings = $querySettings + $defaultSettings;
     }
 }

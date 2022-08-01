@@ -8,6 +8,7 @@ use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
+use SimPod\ClickHouseClient\Format\Null_;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -16,8 +17,13 @@ use SimPod\ClickHouseClient\Tests\WithClient;
  * @covers \SimPod\ClickHouseClient\Client\PsrClickHouseClient
  * @covers \SimPod\ClickHouseClient\Exception\ServerError
  * @covers \SimPod\ClickHouseClient\Format\Json
+ * @covers \SimPod\ClickHouseClient\Output\Json
  * @covers \SimPod\ClickHouseClient\Format\JsonEachRow
+ * @covers \SimPod\ClickHouseClient\Output\JsonEachRow
  * @covers \SimPod\ClickHouseClient\Format\JsonCompact
+ * @covers \SimPod\ClickHouseClient\Output\JsonCompact
+ * @covers \SimPod\ClickHouseClient\Format\Null_
+ * @covers \SimPod\ClickHouseClient\Output\Null_
  */
 final class SelectTest extends TestCaseBase
 {
@@ -138,6 +144,14 @@ CLICKHOUSE,
 SELECT 'ping'
 CLICKHOUSE,
         ];
+    }
+
+    public function testNull(): void
+    {
+        $client = $this->client;
+        $client->select('SELECT 1', new Null_());
+
+        self::assertTrue(true);
     }
 
     public function testSettingsArePassed(): void

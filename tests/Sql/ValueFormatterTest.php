@@ -9,6 +9,8 @@ use Safe\DateTimeImmutable;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Sql\Expression;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
+use SimPod\ClickHouseClient\Tests\Sql\Fixture\BackedIntEnum;
+use SimPod\ClickHouseClient\Tests\Sql\Fixture\BackedStringEnum;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use stdClass;
 
@@ -93,6 +95,16 @@ final class ValueFormatterTest extends TestCaseBase
                     return 'stringable \n';
                 }
             },
+        ];
+
+        yield 'String backed enum' => [
+            "'a'",
+            BackedStringEnum::A,
+        ];
+
+        yield 'Int backed enum' => [
+            '0',
+            BackedIntEnum::A,
         ];
     }
 

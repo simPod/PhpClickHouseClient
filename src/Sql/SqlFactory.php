@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Sql;
 
 use function Safe\preg_replace;
-use function Safe\sprintf;
+use function sprintf;
 use function str_replace;
 
 /** @internal */

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Sql;
 
 use function array_map;
-use function Safe\sprintf;
+use function sprintf;
 
 final class ExpressionFactory
 {

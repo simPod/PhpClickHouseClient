@@ -9,7 +9,7 @@ use RuntimeException;
 use function assert;
 use function explode;
 use function is_string;
-use function Safe\sprintf;
+use function sprintf;
 use function str_pad;
 use function strpos;
 

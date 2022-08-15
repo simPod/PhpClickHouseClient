@@ -14,13 +14,12 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.0"
           - "8.1"
         dependency-versions:
           - "highest"
         include:
           - dependency-versions: "lowest"
-            php-version: "8.0"
+            php-version: "8.1"
     env:
       CLICKHOUSE_VERSION: "22.4"
 
@@ -62,7 +61,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.0"
+          - "8.1"
         clickhouse-version:
           - "21.7"
           - "21.8"

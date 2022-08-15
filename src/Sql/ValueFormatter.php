@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Sql;
 
+use BackedEnum;
 use DateTimeImmutable;
 use DateTimeZone;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
@@ -55,6 +56,12 @@ final class ValueFormatter
             }
 
             return 'NULL';
+        }
+
+        if ($value instanceof BackedEnum) {
+            return is_string($value->value)
+                ? "'" . Escaper::escape($value->value) . "'"
+                : (string) $value->value;
         }
 
         if ($value instanceof DateTimeImmutable) {

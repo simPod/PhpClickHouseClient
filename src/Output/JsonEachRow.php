@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Output;
 
 use function Safe\json_decode;
-use function Safe\sprintf;
+use function sprintf;
 use function str_replace;
 
 /**

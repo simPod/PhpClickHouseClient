@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 use function get_debug_type;
 use function is_object;
-use function Safe\sprintf;
+use function sprintf;
 use function var_export;
 
 final class UnsupportedValue extends InvalidArgumentException implements ClickHouseClientException

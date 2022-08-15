@@ -22,7 +22,7 @@ use function array_keys;
 use function array_map;
 use function implode;
 use function is_int;
-use function Safe\sprintf;
+use function sprintf;
 
 class PsrClickHouseClient implements ClickHouseClient
 {

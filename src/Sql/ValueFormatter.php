@@ -19,7 +19,7 @@ use function is_object;
 use function is_string;
 use function method_exists;
 use function Safe\preg_match;
-use function Safe\sprintf;
+use function sprintf;
 
 /** @internal */
 final class ValueFormatter

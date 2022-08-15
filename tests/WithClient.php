@@ -17,7 +17,7 @@ use Symfony\Component\HttpClient\Psr18Client;
 use function assert;
 use function getenv;
 use function is_string;
-use function Safe\sprintf;
+use function sprintf;
 use function time;
 
 trait WithClient

@@ -42,13 +42,15 @@ interface ClickHouseClient
     /**
      * @param array<array<mixed>> $values
      * @param array<string>|null $columns
+     * @param array<string, float|int|string> $settings
      */
-    public function insert(string $table, array $values, array|null $columns = null): void;
+    public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void;
 
     /**
+     * @param array<string, float|int|string> $settings
      * @param Format<O> $inputFormat
      *
      * @template O of Output
      */
-    public function insertWithFormat(string $table, Format $inputFormat, string $data): void;
+    public function insertWithFormat(string $table, Format $inputFormat, string $data, array $settings = []): void;
 }

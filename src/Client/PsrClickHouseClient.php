@@ -90,7 +90,7 @@ CLICKHOUSE,
     /**
      * {@inheritDoc}
      */
-    public function insert(string $table, array $values, array|null $columns = null): void
+    public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void
     {
         if ($values === []) {
             throw CannotInsert::noValues();
@@ -124,11 +124,12 @@ CLICKHOUSE,
 INSERT INTO $table
 $columnsSql
 VALUES $valuesSql
-CLICKHOUSE
+CLICKHOUSE,
+            $settings
         );
     }
 
-    public function insertWithFormat(string $table, Format $inputFormat, string $data): void
+    public function insertWithFormat(string $table, Format $inputFormat, string $data, array $settings = []): void
     {
         $formatSql = $inputFormat::toSql();
 
@@ -137,7 +138,8 @@ CLICKHOUSE
         $this->executeRequest(
             <<<CLICKHOUSE
 INSERT INTO $table $formatSql $data
-CLICKHOUSE
+CLICKHOUSE,
+            $settings
         );
     }
 

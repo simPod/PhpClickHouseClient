@@ -45,7 +45,7 @@
         "phpstan/phpstan-phpunit": "^1.0.0",
         "phpstan/phpstan-strict-rules": "^1.0.0",
         "phpunit/phpunit": "^9.4",
-        "psalm/plugin-phpunit": "0.17.0",
+        "psalm/plugin-phpunit": "0.18.0",
         "roave/infection-static-analysis-plugin": "^1.6",
         "symfony/http-client": "^6.0",
         "thecodingmachine/phpstan-safe-rule": "^1.0",

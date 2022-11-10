@@ -11,7 +11,7 @@ jobs:
   Infection:
     runs-on: ubuntu-18.04
     env:
-      CLICKHOUSE_VERSION: "22.4"
+      CLICKHOUSE_VERSION: "22.10"
 
     steps:
       - uses: actions/checkout@v3

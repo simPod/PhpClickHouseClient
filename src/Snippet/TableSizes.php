@@ -8,16 +8,13 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
-/** @psalm-type entry = array{name: string, database: string, size: string, min_date: string, max_date: string} */
+/** @phpstan-type Entry array{table: string, database: string, size: string, min_date: string, max_date: string} */
 final class TableSizes
 {
     /** @return array<array<string, mixed>> */
     public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): array
     {
-        /**
-         * @phpstan-var JsonEachRow<array<string, mixed>> $format
-         * @var JsonEachRow<entry> $format
-         */
+        /** @var JsonEachRow<Entry> $format */
         $format = new JsonEachRow();
 
         return $clickHouseClient->selectWithParams(

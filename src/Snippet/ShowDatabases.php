@@ -11,7 +11,7 @@ use function array_map;
 
 final class ShowDatabases
 {
-    /** @return array<string> */
+    /** @return list<string> */
     public static function run(ClickHouseClient $clickHouseClient): array
     {
         /** @var JsonEachRow<array{name: string}> $format */

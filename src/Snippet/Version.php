@@ -16,8 +16,8 @@ final class Version
 
         $output = $clickHouseClient->select(
             <<<'CLICKHOUSE'
-SELECT version() AS version
-CLICKHOUSE,
+            SELECT version() AS version
+            CLICKHOUSE,
             $format
         );
 

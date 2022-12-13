@@ -26,7 +26,7 @@ final class RequestFactory
             $requestOptions->settings,
             '',
             '&',
-            PHP_QUERY_RFC3986
+            PHP_QUERY_RFC3986,
         );
 
         return $this->requestFactory->createRequest('POST', $query === '' ? '' : '?' . $query)

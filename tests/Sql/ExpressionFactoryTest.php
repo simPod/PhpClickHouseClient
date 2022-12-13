@@ -23,7 +23,7 @@ final class ExpressionFactoryTest extends TestCaseBase
 
         self::assertSame(
             $expectedExpressionString,
-            (string) $expressionFactory->templateAndValues($template, ...$values)
+            (string) $expressionFactory->templateAndValues($template, ...$values),
         );
     }
 

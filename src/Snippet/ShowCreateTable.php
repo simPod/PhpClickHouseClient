@@ -18,7 +18,7 @@ final class ShowCreateTable
             <<<CLICKHOUSE
 SHOW CREATE TABLE $tableName
 CLICKHOUSE,
-            $format
+            $format,
         );
 
         return $output->data[0]['statement'];

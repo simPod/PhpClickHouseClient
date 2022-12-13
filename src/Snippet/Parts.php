@@ -27,7 +27,7 @@ WHERE table=:table $whereActiveClause
 ORDER BY max_date
 CLICKHOUSE,
             ['table' => $table],
-            $format
+            $format,
         );
 
         return $output->data;

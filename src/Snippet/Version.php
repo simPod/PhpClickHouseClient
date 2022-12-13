@@ -18,7 +18,7 @@ final class Version
             <<<'CLICKHOUSE'
             SELECT version() AS version
             CLICKHOUSE,
-            $format
+            $format,
         );
 
         return $output->data[0]['version'];

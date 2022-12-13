@@ -45,7 +45,7 @@ final class JsonTest extends TestCaseBase
     }
 }
 
-JSON
+JSON,
         );
 
         self::assertSame(2, $format->rows);
@@ -57,7 +57,7 @@ JSON
                     'type' => 'UInt64',
                 ],
             ],
-            $format->meta
+            $format->meta,
         );
         self::assertSame([['number' => '0'], ['number' => '1']], $format->data);
         self::assertSame(
@@ -66,7 +66,7 @@ JSON
                 'rows_read'  => 2,
                 'bytes_read' => 16,
             ],
-            $format->statistics
+            $format->statistics,
         );
     }
 }

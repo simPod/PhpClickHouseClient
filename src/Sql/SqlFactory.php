@@ -23,7 +23,7 @@ final class SqlFactory
             $query = preg_replace(
                 sprintf('~:%s(?!\w)~', $name),
                 str_replace('\\', '\\\\', $this->valueFormatter->format($value, $name, $query)),
-                $query
+                $query,
             );
         }
 

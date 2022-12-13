@@ -69,7 +69,7 @@ class PsrClickHouseClient implements ClickHouseClient
 $query
 $formatClause
 CLICKHOUSE,
-            $settings
+            $settings,
         );
 
         return $outputFormat::output($response->getBody()->__toString());
@@ -83,7 +83,7 @@ CLICKHOUSE,
         return $this->select(
             $this->sqlFactory->createWithParameters($query, $params),
             $outputFormat,
-            $settings
+            $settings,
         );
     }
 
@@ -111,10 +111,10 @@ CLICKHOUSE,
             array_map(
                 fn (array $map): string => sprintf(
                     '(%s)',
-                    implode(',', $this->valueFormatter->mapFormat($map))
+                    implode(',', $this->valueFormatter->mapFormat($map)),
                 ),
-                $values
-            )
+                $values,
+            ),
         );
 
         $table = Escaper::quoteIdentifier($table);
@@ -125,7 +125,7 @@ INSERT INTO $table
 $columnsSql
 VALUES $valuesSql
 CLICKHOUSE,
-            $settings
+            $settings,
         );
     }
 
@@ -139,7 +139,7 @@ CLICKHOUSE,
             <<<CLICKHOUSE
 INSERT INTO $table $formatSql $data
 CLICKHOUSE,
-            $settings
+            $settings,
         );
     }
 
@@ -150,8 +150,8 @@ CLICKHOUSE,
             new RequestOptions(
                 $sql,
                 $this->defaultSettings,
-                $settings
-            )
+                $settings,
+            ),
         );
 
         $response = $this->client->sendRequest($request);

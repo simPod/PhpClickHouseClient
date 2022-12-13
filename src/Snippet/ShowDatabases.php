@@ -21,12 +21,12 @@ final class ShowDatabases
             <<<'CLICKHOUSE'
 SHOW DATABASES
 CLICKHOUSE,
-            $format
+            $format,
         );
 
         return array_map(
             static fn (array $database): string => $database['name'],
-            $output->data
+            $output->data,
         );
     }
 }

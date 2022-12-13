@@ -41,7 +41,7 @@ WHERE database = :database AND storage_policy <> ''
 GROUP BY table, database
 CLICKHOUSE,
             ['database' => $databaseName ?? Expression::new('currentDatabase()')],
-            $format
+            $format,
         )->data;
     }
 }

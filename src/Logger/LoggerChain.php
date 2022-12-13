@@ -16,7 +16,7 @@ final class LoggerChain implements SqlLogger
     {
         $this->loggers = array_filter(
             $loggers,
-            static fn (SqlLogger $logger): bool => ! $logger instanceof self
+            static fn (SqlLogger $logger): bool => ! $logger instanceof self,
         );
     }
 

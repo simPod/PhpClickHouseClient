@@ -34,8 +34,8 @@ CLICKHOUSE;
             preg_replace(
                 '!\s+!',
                 ' ',
-                str_replace('\n', ' ', $createTableSql)
-            )
+                str_replace('\n', ' ', $createTableSql),
+            ),
         );
 
         self::assertSame($sql, $createTableSql);

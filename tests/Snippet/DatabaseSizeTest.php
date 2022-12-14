@@ -26,7 +26,7 @@ CREATE TABLE test (
 ENGINE = MergeTree
     PARTITION BY toDate(a_date)
     ORDER BY (value)
-CLICKHOUSE
+CLICKHOUSE,
         );
     }
 

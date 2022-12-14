@@ -15,7 +15,7 @@ final class RequestOptionsTest extends TestCaseBase
         $requestOptions = new RequestOptions(
             '',
             ['database' => 'foo', 'a' => 1],
-            ['database' => 'bar', 'b' => 2]
+            ['database' => 'bar', 'b' => 2],
         );
 
         self::assertSame('bar', $requestOptions->settings['database']);

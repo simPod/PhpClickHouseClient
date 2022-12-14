@@ -17,7 +17,7 @@ final class JsonEachRowTest extends TestCaseBase
 {"number":"0"}
 {"number":"1"}
 
-JSON
+JSON,
         );
 
         self::assertSame([['number' => '0'], ['number' => '1']], $format->data);

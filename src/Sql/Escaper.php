@@ -17,7 +17,7 @@ final class Escaper
             // phpcs:ignore SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace.SpaceBeforeArrayClose
             ['\\',   "\n",  "\t",  "\b",  "\f", "\r",  "\0",  "'",   '`'  ],
             ['\\\\', "\\n", "\\t", "\\b", "\f", "\\r", "\\0", "\\'", '\\`'],
-            $s
+            $s,
         );
     }
 

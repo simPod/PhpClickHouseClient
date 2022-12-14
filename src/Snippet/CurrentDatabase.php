@@ -18,7 +18,7 @@ final class CurrentDatabase
             <<<'CLICKHOUSE'
 SELECT currentDatabase() AS database
 CLICKHOUSE,
-            $format
+            $format,
         );
 
         return $currentDatabase->data[0]['database'];

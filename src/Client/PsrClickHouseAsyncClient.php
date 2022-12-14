@@ -60,7 +60,7 @@ CLICKHOUSE,
         return $this->select(
             $this->sqlFactory->createWithParameters($sql, $params),
             $outputFormat,
-            $settings
+            $settings,
         );
     }
 
@@ -77,8 +77,8 @@ CLICKHOUSE,
             new RequestOptions(
                 $sql,
                 $this->defaultSettings,
-                $settings
-            )
+                $settings,
+            ),
         );
 
         return Create::promiseFor($this->asyncClient->sendAsyncRequest($request))->then(
@@ -92,7 +92,7 @@ CLICKHOUSE,
                 }
 
                 return $processResponse($response);
-            }
+            },
         );
     }
 }

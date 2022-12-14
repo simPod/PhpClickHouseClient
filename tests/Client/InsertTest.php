@@ -39,7 +39,7 @@ final class InsertTest extends TestCaseBase
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
-            new JsonEachRow()
+            new JsonEachRow(),
         );
 
         $data[0]['UserID'] = (string) $data[0]['UserID'];
@@ -63,14 +63,14 @@ CLICKHOUSE,
                 [5, 4324182021466249494, 146, -1],
                 [6, 4324182021466249494, 185, 1],
             ],
-            ['PageViews', 'UserID', 'Duration', 'Sign']
+            ['PageViews', 'UserID', 'Duration', 'Sign'],
         );
 
         $output = $this->client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
-            new JsonEachRow()
+            new JsonEachRow(),
         );
 
         self::assertSame($expectedData, $output->data);
@@ -84,7 +84,7 @@ CREATE TABLE a (
     b  Nullable(String)
 )
 ENGINE Memory
-CLICKHOUSE
+CLICKHOUSE,
         );
 
         $expectedData = [
@@ -98,7 +98,7 @@ CLICKHOUSE
             <<<'CLICKHOUSE'
 SELECT * FROM a
 CLICKHOUSE,
-            new JsonCompact()
+            new JsonCompact(),
         );
 
         self::assertSame($expectedData, $output->data);
@@ -131,7 +131,7 @@ CREATE TABLE UserActivity (
     Sign        Int8
 )
 ENGINE Memory
-CLICKHOUSE
+CLICKHOUSE,
         );
 
         $this->client->insertWithFormat(
@@ -140,7 +140,7 @@ CLICKHOUSE
             <<<'JSONEACHROW'
 {"PageViews":5, "UserID":"4324182021466249494", "Duration":146,"Sign":-1} 
 {"UserID":"4324182021466249494","PageViews":6,"Duration":185,"Sign":1}
-JSONEACHROW
+JSONEACHROW,
         );
 
         $output = $this->client->select(
@@ -148,7 +148,7 @@ JSONEACHROW
 SELECT * FROM UserActivity
 CLICKHOUSE
             ,
-            new JsonEachRow()
+            new JsonEachRow(),
         );
 
         self::assertSame(
@@ -156,7 +156,7 @@ CLICKHOUSE
                 ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
                 ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
             ],
-            $output->data
+            $output->data,
         );
     }
 

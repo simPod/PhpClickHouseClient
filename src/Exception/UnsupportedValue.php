@@ -18,8 +18,8 @@ final class UnsupportedValue extends InvalidArgumentException implements ClickHo
         return new self(
             sprintf(
                 'Value of type "%s" is not supported as a parameter',
-                is_object($value) ? $value::class : get_debug_type($value)
-            )
+                is_object($value) ? $value::class : get_debug_type($value),
+            ),
         );
     }
 
@@ -28,8 +28,8 @@ final class UnsupportedValue extends InvalidArgumentException implements ClickHo
         return new self(
             sprintf(
                 'Value "%s" is not supported as a parameter',
-                var_export($value, true)
-            )
+                var_export($value, true),
+            ),
         );
     }
 }

@@ -62,7 +62,7 @@ trait WithClient
                     'base_uri' => $endpoint,
                     'headers' => $headers,
                     'query' => ['database' => $databaseName],
-                ])
+                ]),
             ),
             new RequestFactory(
                 new Psr17Factory(),
@@ -76,7 +76,7 @@ trait WithClient
                     'base_uri' => $endpoint,
                     'headers' => $headers,
                     'query' => ['database' => $this->currentDbName],
-                ])
+                ]),
             ),
             new RequestFactory(
                 new Psr17Factory(),
@@ -90,7 +90,7 @@ trait WithClient
                     'base_uri' => $endpoint,
                     'headers' => $headers,
                     'query' => ['database' => $this->currentDbName],
-                ])
+                ]),
             ),
             new RequestFactory(
                 new Psr17Factory(),

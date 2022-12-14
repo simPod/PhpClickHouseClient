@@ -34,7 +34,7 @@ final class LoggerPlugin implements Plugin
                 $this->logger->stopQuery($id);
 
                 throw $throwable;
-            }
+            },
         );
     }
 }

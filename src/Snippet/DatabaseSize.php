@@ -22,7 +22,7 @@ FROM system.parts
 WHERE active AND database=:database
 CLICKHOUSE,
             ['database' => $databaseName ?? Expression::new('currentDatabase()')],
-            $format
+            $format,
         );
 
         return (int) $currentDatabase->data[0]['size'];

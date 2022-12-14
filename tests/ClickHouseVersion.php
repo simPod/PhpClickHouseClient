@@ -17,11 +17,11 @@ use const STR_PAD_LEFT;
 
 final class ClickHouseVersion
 {
-    private const ENV_NAME = 'CLICKHOUSE_VERSION';
+    private const EnvName = 'CLICKHOUSE_VERSION';
 
     public static function get(): int
     {
-        $versionString = $_ENV[self::ENV_NAME];
+        $versionString = $_ENV[self::EnvName];
         assert(is_string($versionString));
 
         if (strpos($versionString, '.') === false) {

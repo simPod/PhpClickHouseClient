@@ -75,7 +75,7 @@ final class UnsupportedValueTest extends TestCaseBase
    'timezone_type' => 3,
    'timezone' => 'UTC',
 ))\" is not supported as a parameter",
-                $prefix
+                $prefix,
             ),
             new DateTime('2022-02-02 13:31:37.593289'),
         ];

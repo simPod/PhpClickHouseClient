@@ -26,7 +26,7 @@ final class ValueFormatterTest extends TestCaseBase
     ): void {
         self::assertSame(
             $expectedValue,
-            (new ValueFormatter(new DateTimeZone('UTC')))->format($value, $paramName, $sql)
+            (new ValueFormatter(new DateTimeZone('UTC')))->format($value, $paramName, $sql),
         );
     }
 

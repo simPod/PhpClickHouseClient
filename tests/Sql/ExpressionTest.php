@@ -14,7 +14,7 @@ final class ExpressionTest extends TestCaseBase
     {
         self::assertSame(
             "UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')",
-            (string) Expression::new("UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')")
+            (string) Expression::new("UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')"),
         );
     }
 
@@ -22,11 +22,11 @@ final class ExpressionTest extends TestCaseBase
     {
         self::assertSame(
             "UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')",
-            (string) Expression::new("UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')")
+            (string) Expression::new("UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')"),
         );
         self::assertSame(
             "UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')",
-            Expression::new("UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')")->toString()
+            Expression::new("UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')")->toString(),
         );
     }
 }

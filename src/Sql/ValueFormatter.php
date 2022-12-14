@@ -95,14 +95,14 @@ final class ValueFormatter
                         '(%s)',
                         implode(
                             ',',
-                            array_map(fn ($val) => $this->format($val), $value)
-                        )
+                            array_map(fn ($val) => $this->format($val), $value),
+                        ),
                     )
                     : fn ($value): string => $value === null ? 'NULL' : $this->format($value);
 
                 return implode(
                     ',',
-                    array_map($mapper, $value)
+                    array_map($mapper, $value),
                 );
             }
 
@@ -127,7 +127,7 @@ final class ValueFormatter
 
                 return $this->format($value);
             },
-            $values
+            $values,
         );
     }
 
@@ -150,9 +150,9 @@ final class ValueFormatter
 
                         return $this->format($value);
                     },
-                    $value
-                )
-            )
+                    $value,
+                ),
+            ),
         );
     }
 }

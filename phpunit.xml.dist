@@ -4,12 +4,11 @@
     xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
     beStrictAboutChangesToGlobalState="true"
     beStrictAboutOutputDuringTests="true"
-    beStrictAboutTodoAnnotatedTests="true"
     bootstrap="tests/bootstrap.php"
     colors="true"
-    verbose="true"
-    forceCoversAnnotation="true"
+    requireCoverageMetadata="true"
     failOnRisky="true"
+    cacheDirectory=".phpunit.cache"
 >
     <coverage>
         <include>

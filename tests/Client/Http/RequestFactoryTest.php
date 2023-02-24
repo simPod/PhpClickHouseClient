@@ -15,7 +15,12 @@ final class RequestFactoryTest extends TestCaseBase
     public function testPrepareRequest(): void
     {
         $psr17Factory   = new Psr17Factory();
-        $requestFactory = new RequestFactory($psr17Factory, $psr17Factory);
+        $requestFactory = new RequestFactory(
+            $psr17Factory,
+            $psr17Factory,
+            $psr17Factory,
+            'http://localhost:8123?format=JSON',
+        );
 
         $request = $requestFactory->prepareRequest(new RequestOptions(
             'SELECT 1',
@@ -24,7 +29,10 @@ final class RequestFactoryTest extends TestCaseBase
         ));
 
         self::assertSame('POST', $request->getMethod());
-        self::assertSame('?database=database&max_block_size=1', $request->getUri()->__toString());
+        self::assertSame(
+            'http://localhost:8123?format=JSON&database=database&max_block_size=1',
+            $request->getUri()->__toString(),
+        );
         self::assertSame('SELECT 1', $request->getBody()->__toString());
     }
 }

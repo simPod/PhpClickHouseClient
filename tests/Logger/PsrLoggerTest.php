@@ -16,7 +16,7 @@ final class PsrLoggerTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())
             ->method('debug')
-            ->withConsecutive(['SELECT 1', []]);
+            ->with('SELECT 1', []);
 
         $psrLogger = new PsrLogger($logger);
         $psrLogger->startQuery('oioi', 'SELECT 1');

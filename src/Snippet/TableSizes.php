@@ -11,7 +11,7 @@ use SimPod\ClickHouseClient\Sql\Expression;
 /** @phpstan-type Entry array{table: string, database: string, size: string, min_date: string, max_date: string} */
 final class TableSizes
 {
-    /** @return array<array<string, mixed>> */
+    /** @return array<Entry> */
     public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): array
     {
         /** @var JsonEachRow<Entry> $format */

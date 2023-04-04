@@ -10,7 +10,7 @@ on:
 jobs:
   static-analysis-phpstan:
     name: "Static Analysis with PHPStan"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -36,7 +36,7 @@ jobs:
 
   static-analysis-psalm:
     name: "Static Analysis with Psalm"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:

@@ -10,7 +10,7 @@ on:
 jobs:
   phpunit:
     name: "PHPUnit"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     strategy:
       matrix:
         php-version:
@@ -58,7 +58,7 @@ jobs:
 
   phpunit-with-clickhouse:
     name: "PHPUnit"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     strategy:
       matrix:
         php-version:
@@ -121,7 +121,7 @@ jobs:
 
   upload_coverage:
     name: "Upload coverage to Codecov"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     needs:
       - "phpunit"
 

@@ -39,7 +39,7 @@ final class SelectTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{mixed, string}> */
-    public function providerJson(): iterable
+    public static function providerJson(): iterable
     {
         yield [
             [[1 => 1]],
@@ -78,7 +78,7 @@ CLICKHOUSE,
     }
 
     /** @return iterable<int, array{mixed, string}> */
-    public function providerJsonCompact(): iterable
+    public static function providerJsonCompact(): iterable
     {
         yield [
             [[1]],
@@ -117,7 +117,7 @@ CLICKHOUSE,
     }
 
     /** @return iterable<int, array{mixed, string}> */
-    public function providerJsonEachRow(): iterable
+    public static function providerJsonEachRow(): iterable
     {
         yield [
             [[1 => 1]],

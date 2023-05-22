@@ -25,7 +25,7 @@ final class SqlFactoryTest extends TestCaseBase
     }
 
     /** @return iterable<string, array{string, string, array<string, mixed>}> */
-    public function providerCreateWithParameters(): iterable
+    public static function providerCreateWithParameters(): iterable
     {
         yield 'empty parameters' => [
             <<<'CLICKHOUSE'

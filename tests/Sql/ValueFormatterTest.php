@@ -31,7 +31,7 @@ final class ValueFormatterTest extends TestCaseBase
     }
 
     /** @return iterable<string, array<mixed>> */
-    public function providerFormat(): iterable
+    public static function providerFormat(): iterable
     {
         yield 'boolean' => ['1', true];
         yield 'integer' => ['1', 1];
@@ -120,7 +120,7 @@ final class ValueFormatterTest extends TestCaseBase
     }
 
     /** @return iterable<string, array<array<mixed>>> */
-    public function providerMapFormat(): iterable
+    public static function providerMapFormat(): iterable
     {
         yield 'string' => [["'ping'", "'pong'", 'NULL'], ['ping', 'pong', null]];
     }

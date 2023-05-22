@@ -26,7 +26,7 @@ final class UnsupportedValueTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{string, mixed}> */
-    public function providerType(): iterable
+    public static function providerType(): iterable
     {
         yield [
             'Value of type "resource (stream)" is not supported as a parameter',
@@ -53,7 +53,7 @@ final class UnsupportedValueTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{string, mixed}> */
-    public function providerValue(): iterable
+    public static function providerValue(): iterable
     {
         yield [
             'Value "NULL" is not supported as a parameter',

@@ -28,7 +28,7 @@ final class ExpressionFactoryTest extends TestCaseBase
     }
 
     /** @return iterable<int, array{string, string, array<mixed>}> */
-    public function providerTemplateAndValues(): iterable
+    public static function providerTemplateAndValues(): iterable
     {
         yield [
             "UUIDStringToNum('6d38d288-5b13-4714-b6e4-faa59ffd49d8')",

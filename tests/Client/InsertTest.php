@@ -105,7 +105,7 @@ CLICKHOUSE,
     }
 
     /** @return iterable<int, array<string>> */
-    public function providerInsert(): iterable
+    public static function providerInsert(): iterable
     {
         $sql = <<<'CLICKHOUSE'
 CREATE TABLE UserActivity (

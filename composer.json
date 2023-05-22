@@ -28,7 +28,7 @@
     },
     "require": {
         "php": "^8.1",
-        "guzzlehttp/promises": "^1.4",
+        "guzzlehttp/promises": "^1.5.3 || ^2.0",
         "php-http/client-common": "^2.0",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",

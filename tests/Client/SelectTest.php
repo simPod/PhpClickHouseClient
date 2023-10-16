@@ -157,7 +157,7 @@ CLICKHOUSE,
     public function testSettingsArePassed(): void
     {
         self::expectException(ServerError::class);
-        $this->expectExceptionMessage("DB::Exception: Database `non-existent` doesn't exist");
+        $this->expectExceptionMessageMatches("~DB::Exception: Database `non-existent` (doesn't|does not) exist~");
 
         $this->client->select('SELECT 1', new JsonCompact(), ['database' => 'non-existent']);
     }

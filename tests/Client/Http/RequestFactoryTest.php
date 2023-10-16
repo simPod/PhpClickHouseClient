@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client\Http;
 
+use Generator;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
@@ -12,14 +13,15 @@ use SimPod\ClickHouseClient\Tests\TestCaseBase;
 /** @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory */
 final class RequestFactoryTest extends TestCaseBase
 {
-    public function testPrepareRequest(): void
+    /** @dataProvider providerPrepareRequest */
+    public function testPrepareRequest(string $uri, string $expectedUri): void
     {
         $psr17Factory   = new Psr17Factory();
         $requestFactory = new RequestFactory(
             $psr17Factory,
             $psr17Factory,
             $psr17Factory,
-            'http://localhost:8123?format=JSON',
+            $uri,
         );
 
         $request = $requestFactory->prepareRequest(new RequestOptions(
@@ -30,9 +32,28 @@ final class RequestFactoryTest extends TestCaseBase
 
         self::assertSame('POST', $request->getMethod());
         self::assertSame(
-            'http://localhost:8123?format=JSON&database=database&max_block_size=1',
+            $expectedUri,
             $request->getUri()->__toString(),
         );
         self::assertSame('SELECT 1', $request->getBody()->__toString());
+    }
+
+    /** @return Generator<string, array{string, string}> */
+    public static function providerPrepareRequest(): Generator
+    {
+        yield 'uri with query' => [
+            'http://localhost:8123?format=JSON',
+            'http://localhost:8123?format=JSON&database=database&max_block_size=1',
+        ];
+
+        yield 'uri without query' => [
+            'http://localhost:8123',
+            'http://localhost:8123?database=database&max_block_size=1',
+        ];
+
+        yield 'empty uri' => [
+            '',
+            '?database=database&max_block_size=1',
+        ];
     }
 }

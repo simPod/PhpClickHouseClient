@@ -31,9 +31,6 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         $this->sqlFactory = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function select(string $sql, Format $outputFormat, array $settings = []): PromiseInterface
     {
         $formatClause = $outputFormat::toSql();
@@ -48,9 +45,6 @@ CLICKHOUSE,
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function selectWithParams(
         string $sql,
         array $params,

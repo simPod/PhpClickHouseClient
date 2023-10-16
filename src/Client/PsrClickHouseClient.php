@@ -41,25 +41,16 @@ class PsrClickHouseClient implements ClickHouseClient
         $this->sqlFactory     = new SqlFactory($this->valueFormatter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function executeQuery(string $query, array $settings = []): void
     {
         $this->executeRequest($query, $settings);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function executeQueryWithParams(string $query, array $params, array $settings = []): void
     {
         $this->executeQuery($this->sqlFactory->createWithParameters($query, $params), $settings);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function select(string $query, Format $outputFormat, array $settings = []): Output
     {
         $formatClause = $outputFormat::toSql();
@@ -75,9 +66,6 @@ CLICKHOUSE,
         return $outputFormat::output($response->getBody()->__toString());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []): Output
     {
         return $this->select(
@@ -87,9 +75,6 @@ CLICKHOUSE,
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void
     {
         if ($values === []) {

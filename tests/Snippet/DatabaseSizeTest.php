@@ -36,7 +36,14 @@ CLICKHOUSE,
 
         $this->client->insert('test', [[new DateTimeImmutable('2020-08-01 00:11:22'), 1]]);
 
-        $expectedSize = ClickHouseVersion::get() > 2009 ? 150 : 166;
+        if (ClickHouseVersion::get() >= 2307) {
+            $expectedSize = 316;
+        } elseif (ClickHouseVersion::get() >= 2305) {
+            $expectedSize = 162;
+        } else {
+            $expectedSize = 150;
+        }
+
         self::assertSame($expectedSize, DatabaseSize::run($this->client));
     }
 

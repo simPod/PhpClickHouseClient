@@ -7,6 +7,7 @@ namespace SimPod\ClickHouseClient\Sql;
 use BackedEnum;
 use DateTimeImmutable;
 use DateTimeZone;
+use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 
 use function array_key_first;
@@ -29,6 +30,10 @@ final class ValueFormatter
     {
     }
 
+    /**
+     * @throws PcreException
+     * @throws UnsupportedValue
+     */
     public function format(mixed $value, string|null $paramName = null, string|null $sql = null): string
     {
         if (is_string($value)) {

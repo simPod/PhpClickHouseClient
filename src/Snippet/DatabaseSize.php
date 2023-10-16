@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Snippet;
 
+use Psr\Http\Client\ClientExceptionInterface;
+use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
+use SimPod\ClickHouseClient\Exception\ServerError;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
 final class DatabaseSize
 {
+    /**
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
+     * @throws UnsupportedValue
+     */
     public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): int
     {
         /** @var JsonEachRow<array{size: string|null}> $format */

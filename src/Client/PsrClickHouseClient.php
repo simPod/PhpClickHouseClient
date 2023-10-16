@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use DateTimeZone;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
@@ -128,7 +129,12 @@ CLICKHOUSE,
         );
     }
 
-    /** @param array<string, float|int|string> $settings */
+    /**
+     * @param array<string, float|int|string> $settings
+     *
+     * @throws ServerError
+     * @throws ClientExceptionInterface
+     */
     private function executeRequest(string $sql, array $settings = []): ResponseInterface
     {
         $request = $this->requestFactory->prepareRequest(

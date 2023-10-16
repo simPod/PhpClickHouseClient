@@ -19,6 +19,7 @@ final class ClickHouseVersion
 {
     private const EnvName = 'CLICKHOUSE_VERSION';
 
+    /** @throws RuntimeException */
     public static function get(): int
     {
         $versionString = $_ENV[self::EnvName];

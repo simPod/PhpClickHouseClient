@@ -4,17 +4,33 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
+use Psr\Http\Client\ClientExceptionInterface;
+use Safe\Exceptions\PcreException;
+use SimPod\ClickHouseClient\Exception\CannotInsert;
+use SimPod\ClickHouseClient\Exception\ServerError;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 
 interface ClickHouseClient
 {
-    /** @param array<string, float|int|string> $settings */
+    /**
+     * @param array<string, float|int|string> $settings
+     *
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
+     */
     public function executeQuery(string $query, array $settings = []): void;
 
     /**
      * @param array<string, mixed> $params
      * @param array<string, float|int|string> $settings
+     *
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
+     * @throws UnsupportedValue
      */
     public function executeQueryWithParams(string $query, array $params, array $settings = []): void;
 
@@ -23,6 +39,10 @@ interface ClickHouseClient
      * @param Format<O> $outputFormat
      *
      * @return O
+     *
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
      *
      * @template O of Output
      */
@@ -35,6 +55,11 @@ interface ClickHouseClient
      *
      * @return O
      *
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
+     * @throws UnsupportedValue
+     *
      * @template O of Output
      */
     public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []): Output;
@@ -43,12 +68,20 @@ interface ClickHouseClient
      * @param array<array<mixed>> $values
      * @param array<string>|null $columns
      * @param array<string, float|int|string> $settings
+     *
+     * @throws CannotInsert
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
      */
     public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void;
 
     /**
      * @param array<string, float|int|string> $settings
      * @param Format<O> $inputFormat
+     *
+     * @throws ClientExceptionInterface
+     * @throws ServerError
      *
      * @template O of Output
      */

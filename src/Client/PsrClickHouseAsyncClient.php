@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use DateTimeZone;
+use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use Http\Client\HttpAsyncClient;
@@ -31,6 +32,11 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         $this->sqlFactory = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
     public function select(string $sql, Format $outputFormat, array $settings = []): PromiseInterface
     {
         $formatClause = $outputFormat::toSql();
@@ -45,6 +51,11 @@ CLICKHOUSE,
         );
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
     public function selectWithParams(
         string $sql,
         array $params,
@@ -61,6 +72,8 @@ CLICKHOUSE,
     /**
      * @param array<string, float|int|string> $settings
      * @param (callable(ResponseInterface):mixed)|null $processResponse
+     *
+     * @throws Exception
      */
     private function executeRequest(
         string $sql,
@@ -75,18 +88,21 @@ CLICKHOUSE,
             ),
         );
 
-        return Create::promiseFor($this->asyncClient->sendAsyncRequest($request))->then(
-            static function (ResponseInterface $response) use ($processResponse) {
-                if ($response->getStatusCode() !== 200) {
-                    throw ServerError::fromResponse($response);
-                }
+        return Create::promiseFor(
+            $this->asyncClient->sendAsyncRequest($request),
+        )
+            ->then(
+                static function (ResponseInterface $response) use ($processResponse) {
+                    if ($response->getStatusCode() !== 200) {
+                        throw ServerError::fromResponse($response);
+                    }
 
-                if ($processResponse === null) {
-                    return $response;
-                }
+                    if ($processResponse === null) {
+                        return $response;
+                    }
 
-                return $processResponse($response);
-            },
-        );
+                    return $processResponse($response);
+                },
+            );
     }
 }

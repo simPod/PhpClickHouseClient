@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Sql;
 
+use Safe\Exceptions\PcreException;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+
 use function Safe\preg_replace;
 use function sprintf;
 use function str_replace;
@@ -15,7 +18,12 @@ final class SqlFactory
     {
     }
 
-    /** @param array<string, mixed> $parameters */
+    /**
+     * @param array<string, mixed> $parameters
+     *
+     * @throws PcreException
+     * @throws UnsupportedValue
+     */
     public function createWithParameters(string $query, array $parameters): string
     {
         /** @var mixed $value */

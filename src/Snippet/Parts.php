@@ -4,14 +4,25 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Snippet;
 
+use Psr\Http\Client\ClientExceptionInterface;
+use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
+use SimPod\ClickHouseClient\Exception\ServerError;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 use function sprintf;
 
 final class Parts
 {
-    /** @return array<array<string, mixed>> */
+    /**
+     * @return array<array<string, mixed>>
+     *
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
+     * @throws UnsupportedValue
+     */
     public static function run(ClickHouseClient $clickHouseClient, string $table, bool|null $active = null): array
     {
         $whereActiveClause = $active === null ? '' : sprintf(' AND active = %d', $active);

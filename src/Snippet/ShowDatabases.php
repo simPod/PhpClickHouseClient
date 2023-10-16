@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Snippet;
 
+use Psr\Http\Client\ClientExceptionInterface;
+use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
+use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 use function array_map;
 
 final class ShowDatabases
 {
-    /** @return list<string> */
+    /**
+     * @return list<string>
+     *
+     * @throws ClientExceptionInterface
+     * @throws PcreException
+     * @throws ServerError
+     */
     public static function run(ClickHouseClient $clickHouseClient): array
     {
         /** @var JsonEachRow<array{name: string}> $format */

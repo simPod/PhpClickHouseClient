@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Output;
 
+use Safe\Exceptions\JsonException;
+
 use function Safe\json_decode;
 
 /**
@@ -26,6 +28,7 @@ final class Json implements Output
     /** @var array{elapsed: float, rows_read: int, bytes_read: int} */
     public array $statistics;
 
+    /** @throws JsonException */
     public function __construct(string $contentsJson)
     {
         // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong

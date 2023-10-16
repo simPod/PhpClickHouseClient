@@ -4,20 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Logger;
 
-use function array_filter;
-
 final class LoggerChain implements SqlLogger
 {
-    /** @var SqlLogger[] */
-    private array $loggers;
-
     /** @param SqlLogger[] $loggers */
-    public function __construct(array $loggers = [])
+    public function __construct(private array $loggers = [])
     {
-        $this->loggers = array_filter(
-            $loggers,
-            static fn (SqlLogger $logger): bool => ! $logger instanceof self,
-        );
     }
 
     public function startQuery(string $id, string $sql): void

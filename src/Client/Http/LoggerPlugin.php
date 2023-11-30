@@ -19,6 +19,14 @@ final class LoggerPlugin implements Plugin
     {
     }
 
+    /**
+     * @see RequestInterface
+     *
+     * @param callable(RequestInterface): Promise<ResponseInterface> $next
+     * @param callable(RequestInterface): Promise<ResponseInterface> $first
+     *
+     * @return Promise<ResponseInterface>
+     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $id = uniqid('', true);

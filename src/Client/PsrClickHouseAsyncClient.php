@@ -37,15 +37,15 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
      *
      * @throws Exception
      */
-    public function select(string $sql, Format $outputFormat, array $settings = []): PromiseInterface
+    public function select(string $query, Format $outputFormat, array $settings = []): PromiseInterface
     {
         $formatClause = $outputFormat::toSql();
 
         return $this->executeRequest(
             <<<CLICKHOUSE
-$sql
-$formatClause
-CLICKHOUSE,
+            $query
+            $formatClause
+            CLICKHOUSE,
             $settings,
             static fn (ResponseInterface $response): Output => $outputFormat::output($response->getBody()->__toString())
         );
@@ -57,13 +57,13 @@ CLICKHOUSE,
      * @throws Exception
      */
     public function selectWithParams(
-        string $sql,
+        string $query,
         array $params,
         Format $outputFormat,
         array $settings = [],
     ): PromiseInterface {
         return $this->select(
-            $this->sqlFactory->createWithParameters($sql, $params),
+            $this->sqlFactory->createWithParameters($query, $params),
             $outputFormat,
             $settings,
         );

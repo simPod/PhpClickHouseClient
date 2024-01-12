@@ -58,9 +58,9 @@ class PsrClickHouseClient implements ClickHouseClient
 
         $response = $this->executeRequest(
             <<<CLICKHOUSE
-$query
-$formatClause
-CLICKHOUSE,
+            $query
+            $formatClause
+            CLICKHOUSE,
             $settings,
         );
 
@@ -107,10 +107,10 @@ CLICKHOUSE,
 
         $this->executeRequest(
             <<<CLICKHOUSE
-INSERT INTO $table
-$columnsSql
-VALUES $valuesSql
-CLICKHOUSE,
+            INSERT INTO $table
+            $columnsSql
+            VALUES $valuesSql
+            CLICKHOUSE,
             $settings,
         );
     }
@@ -123,8 +123,8 @@ CLICKHOUSE,
 
         $this->executeRequest(
             <<<CLICKHOUSE
-INSERT INTO $table $formatSql $data
-CLICKHOUSE,
+            INSERT INTO $table $formatSql $data
+            CLICKHOUSE,
             $settings,
         );
     }

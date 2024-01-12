@@ -17,7 +17,7 @@ interface ClickHouseAsyncClient
      *
      * @template O of Output
      */
-    public function select(string $sql, Format $outputFormat, array $settings = []): PromiseInterface;
+    public function select(string $query, Format $outputFormat, array $settings = []): PromiseInterface;
 
     /**
      * @param array<string, mixed>            $params
@@ -27,7 +27,7 @@ interface ClickHouseAsyncClient
      * @template O of Output
      */
     public function selectWithParams(
-        string $sql,
+        string $query,
         array $params,
         Format $outputFormat,
         array $settings = [],

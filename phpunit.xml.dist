@@ -9,6 +9,11 @@
     requireCoverageMetadata="true"
     failOnRisky="true"
     cacheDirectory=".phpunit.cache"
+    displayDetailsOnTestsThatTriggerDeprecations="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    failOnWarning="true"
+    failOnIncomplete="true"
+    failOnEmptyTestSuite="true"
 >
     <testsuites>
         <testsuite name="Tests">

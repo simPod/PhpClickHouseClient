@@ -8,7 +8,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Sql\Expression;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 use SimPod\ClickHouseClient\Tests\Sql\Fixture\BackedIntEnum;
@@ -128,14 +128,14 @@ final class ValueFormatterTest extends TestCaseBase
 
     public function testUnsupportedTypeThrows(): void
     {
-        $this->expectException(UnsupportedValue::class);
+        $this->expectException(UnsupportedParamValue::class);
 
         (new ValueFormatter())->format(new stdClass());
     }
 
     public function testUnsupportedValueThrows(): void
     {
-        $this->expectException(UnsupportedValue::class);
+        $this->expectException(UnsupportedParamValue::class);
 
         (new ValueFormatter())->format([], 'list', 'SELECT * FROM table WHERE a IN (:list)');
     }

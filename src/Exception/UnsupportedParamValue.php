@@ -11,7 +11,7 @@ use function is_object;
 use function sprintf;
 use function var_export;
 
-final class UnsupportedValue extends InvalidArgumentException implements ClickHouseClientException
+final class UnsupportedParamValue extends InvalidArgumentException implements ClickHouseClientException
 {
     public static function type(mixed $value): self
     {

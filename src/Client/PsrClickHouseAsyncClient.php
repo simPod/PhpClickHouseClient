@@ -62,12 +62,16 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             $sql
             $formatClause
             CLICKHOUSE,
-            $settings,
-            static fn (ResponseInterface $response): Output => $outputFormat::output($response->getBody()->__toString())
+            params: $params,
+            settings: $settings,
+            processResponse: static fn (ResponseInterface $response): Output => $outputFormat::output(
+                $response->getBody()->__toString(),
+            )
         );
     }
 
     /**
+     * @param array<string, mixed> $params
      * @param array<string, float|int|string> $settings
      * @param (callable(ResponseInterface):mixed)|null $processResponse
      *
@@ -75,12 +79,14 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
      */
     private function executeRequest(
         string $sql,
+        array $params,
         array $settings = [],
         callable|null $processResponse = null,
     ): PromiseInterface {
         $request = $this->requestFactory->prepareRequest(
             new RequestOptions(
                 $sql,
+                $params,
                 $this->defaultSettings,
                 $settings,
             ),

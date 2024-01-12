@@ -13,6 +13,7 @@ use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\Null_;
+use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -30,6 +31,14 @@ use SimPod\ClickHouseClient\Tests\WithClient;
 final class SelectTest extends TestCaseBase
 {
     use WithClient;
+
+    public function testSelectWithParams(): void
+    {
+        $client = self::$client;
+        $output = $client->selectWithParams('SELECT {p1:UInt8} AS data', ['p1' => 3], new TabSeparated());
+
+        self::assertSame("3\n", $output->contents);
+    }
 
     #[DataProvider('providerJson')]
     public function testJson(mixed $expectedData, string $sql): void

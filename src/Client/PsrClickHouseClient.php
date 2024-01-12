@@ -12,7 +12,8 @@ use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
-use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\Escaper;
@@ -46,13 +47,18 @@ class PsrClickHouseClient implements ClickHouseClient
 
     public function executeQuery(string $query, array $settings = []): void
     {
-        $this->executeRequest($query, settings: $settings);
+        try {
+            $this->executeRequest($query, params: [], settings: $settings);
+        } catch (UnsupportedParamType) {
+            absurd();
+        }
     }
 
     public function executeQueryWithParams(string $query, array $params, array $settings = []): void
     {
         $this->executeRequest(
             $this->sqlFactory->createWithParameters($query, $params),
+            params: $params,
             settings: $settings,
         );
     }
@@ -61,7 +67,7 @@ class PsrClickHouseClient implements ClickHouseClient
     {
         try {
             return $this->selectWithParams($query, params: [], outputFormat: $outputFormat, settings: $settings);
-        } catch (UnsupportedValue) {
+        } catch (UnsupportedParamValue | UnsupportedParamType) {
             absurd();
         }
     }
@@ -77,6 +83,7 @@ class PsrClickHouseClient implements ClickHouseClient
             $sql
             $formatClause
             CLICKHOUSE,
+            params: $params,
             settings: $settings,
         );
 
@@ -112,14 +119,19 @@ class PsrClickHouseClient implements ClickHouseClient
 
         $table = Escaper::quoteIdentifier($table);
 
-        $this->executeRequest(
-            <<<CLICKHOUSE
-            INSERT INTO $table
-            $columnsSql
-            VALUES $valuesSql
-            CLICKHOUSE,
-            settings: $settings,
-        );
+        try {
+            $this->executeRequest(
+                <<<CLICKHOUSE
+                INSERT INTO $table
+                $columnsSql
+                VALUES $valuesSql
+                CLICKHOUSE,
+                params: [],
+                settings: $settings,
+            );
+        } catch (UnsupportedParamType) {
+            absurd();
+        }
     }
 
     public function insertWithFormat(string $table, Format $inputFormat, string $data, array $settings = []): void
@@ -128,25 +140,33 @@ class PsrClickHouseClient implements ClickHouseClient
 
         $table = Escaper::quoteIdentifier($table);
 
-        $this->executeRequest(
-            <<<CLICKHOUSE
-            INSERT INTO $table $formatSql $data
-            CLICKHOUSE,
-            settings: $settings,
-        );
+        try {
+            $this->executeRequest(
+                <<<CLICKHOUSE
+                INSERT INTO $table $formatSql $data
+                CLICKHOUSE,
+                params: [],
+                settings: $settings,
+            );
+        } catch (UnsupportedParamType) {
+            absurd();
+        }
     }
 
     /**
+     * @param array<string, mixed> $params
      * @param array<string, float|int|string> $settings
      *
      * @throws ServerError
      * @throws ClientExceptionInterface
+     * @throws UnsupportedParamType
      */
-    private function executeRequest(string $sql, array $settings): ResponseInterface
+    private function executeRequest(string $sql, array $params, array $settings): ResponseInterface
     {
         $request = $this->requestFactory->prepareRequest(
             new RequestOptions(
                 $sql,
+                $params,
                 $this->defaultSettings,
                 $settings,
             ),

@@ -6,9 +6,6 @@ namespace SimPod\ClickHouseClient\Client\Http;
 
 final class RequestOptions
 {
-    /** @var array<string, string|array<string>> */
-    public array $headers;
-
     /** @var array<string, float|int|string> */
     public array $settings;
 

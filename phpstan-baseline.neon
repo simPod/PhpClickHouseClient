@@ -1,16 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Parameter \\#2 \\$next \\(callable\\(Psr\\\\Http\\\\Message\\\\RequestInterface\\)\\: Http\\\\Promise\\\\Promise\\<Psr\\\\Http\\\\Message\\\\ResponseInterface\\>\\) of method SimPod\\\\ClickHouseClient\\\\Client\\\\Http\\\\LoggerPlugin\\:\\:handleRequest\\(\\) should be contravariant with parameter \\$next \\(callable\\(Psr\\\\Http\\\\Message\\\\RequestInterface\\)\\: Http\\\\Promise\\\\Promise\\) of method Http\\\\Client\\\\Common\\\\Plugin\\:\\:handleRequest\\(\\)$#"
-			count: 1
-			path: src/Client/Http/LoggerPlugin.php
-
-		-
-			message: "#^Parameter \\#3 \\$first \\(callable\\(Psr\\\\Http\\\\Message\\\\RequestInterface\\)\\: Http\\\\Promise\\\\Promise\\<Psr\\\\Http\\\\Message\\\\ResponseInterface\\>\\) of method SimPod\\\\ClickHouseClient\\\\Client\\\\Http\\\\LoggerPlugin\\:\\:handleRequest\\(\\) should be contravariant with parameter \\$first \\(callable\\(Psr\\\\Http\\\\Message\\\\RequestInterface\\)\\: Http\\\\Promise\\\\Promise\\) of method Http\\\\Client\\\\Common\\\\Plugin\\:\\:handleRequest\\(\\)$#"
-			count: 1
-			path: src/Client/Http/LoggerPlugin.php
-
-		-
 			message: "#^Constructor of class SimPod\\\\ClickHouseClient\\\\Output\\\\Null_ has an unused parameter \\$_\\.$#"
 			count: 1
 			path: src/Output/Null_.php

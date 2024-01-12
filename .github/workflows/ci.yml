@@ -53,7 +53,7 @@ jobs:
       - name: "Upload coverage file"
         uses: actions/upload-artifact@v3
         with:
-          name: "phpunit-${{ matrix.dependencies }}-${{ matrix.php-version }}.coverage"
+          name: "phpunit-${{ matrix.dependency-versions }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-with-clickhouse:

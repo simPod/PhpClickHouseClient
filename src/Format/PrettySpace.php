@@ -11,7 +11,7 @@ use SimPod\ClickHouseClient\Output\Output;
  * @template T
  * @implements Format<Basic<T>>
  */
-final class TabSeparated implements Format
+final class PrettySpace implements Format
 {
     public static function output(string $contents): Output
     {
@@ -20,6 +20,6 @@ final class TabSeparated implements Format
 
     public static function toSql(): string
     {
-        return 'FORMAT TabSeparated';
+        return 'FORMAT PrettySpace';
     }
 }

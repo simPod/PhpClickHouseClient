@@ -9,7 +9,7 @@ namespace SimPod\ClickHouseClient\Output;
  * @template T
  * @implements Output<T>
  */
-final class TabSeparated implements Output
+final class Basic implements Output
 {
     public function __construct(public string $contents)
     {

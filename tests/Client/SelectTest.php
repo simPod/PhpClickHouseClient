@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use SimPod\ClickHouseClient\Client\Http\RequestFactory;
+use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
@@ -12,24 +16,22 @@ use SimPod\ClickHouseClient\Format\Null_;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-/**
- * @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory
- * @covers \SimPod\ClickHouseClient\Client\PsrClickHouseClient
- * @covers \SimPod\ClickHouseClient\Exception\ServerError
- * @covers \SimPod\ClickHouseClient\Format\Json
- * @covers \SimPod\ClickHouseClient\Output\Json
- * @covers \SimPod\ClickHouseClient\Format\JsonEachRow
- * @covers \SimPod\ClickHouseClient\Output\JsonEachRow
- * @covers \SimPod\ClickHouseClient\Format\JsonCompact
- * @covers \SimPod\ClickHouseClient\Output\JsonCompact
- * @covers \SimPod\ClickHouseClient\Format\Null_
- * @covers \SimPod\ClickHouseClient\Output\Null_
- */
+#[CoversClass(RequestFactory::class)]
+#[CoversClass(PsrClickHouseClient::class)]
+#[CoversClass(ServerError::class)]
+#[CoversClass(Json::class)]
+#[CoversClass(\SimPod\ClickHouseClient\Output\Json::class)]
+#[CoversClass(JsonEachRow::class)]
+#[CoversClass(\SimPod\ClickHouseClient\Output\JsonEachRow::class)]
+#[CoversClass(JsonCompact::class)]
+#[CoversClass(\SimPod\ClickHouseClient\Output\JsonCompact::class)]
+#[CoversClass(Null_::class)]
+#[CoversClass(\SimPod\ClickHouseClient\Output\Null_::class)]
 final class SelectTest extends TestCaseBase
 {
     use WithClient;
 
-    /** @dataProvider providerJson */
+    #[DataProvider('providerJson')]
     public function testJson(mixed $expectedData, string $sql): void
     {
         $client = $this->client;
@@ -68,7 +70,7 @@ CLICKHOUSE,
         ];
     }
 
-    /** @dataProvider providerJsonCompact */
+    #[DataProvider('providerJsonCompact')]
     public function testJsonCompact(mixed $expectedData, string $sql): void
     {
         $client = $this->client;
@@ -107,7 +109,7 @@ CLICKHOUSE,
         ];
     }
 
-    /** @dataProvider providerJsonEachRow */
+    #[DataProvider('providerJsonEachRow')]
     public function testJsonEachRow(mixed $expectedData, string $sql): void
     {
         $client = $this->client;

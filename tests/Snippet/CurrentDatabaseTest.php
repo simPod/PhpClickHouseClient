@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Snippet;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Snippet\CurrentDatabase;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-/** @covers \SimPod\ClickHouseClient\Snippet\CurrentDatabase */
+#[CoversClass(CurrentDatabase::class)]
 final class CurrentDatabaseTest extends TestCaseBase
 {
     use WithClient;

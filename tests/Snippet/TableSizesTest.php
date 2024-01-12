@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Snippet;
 
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Snippet\TableSizes;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-/** @covers \SimPod\ClickHouseClient\Snippet\TableSizes */
+#[CoversClass(TableSizes::class)]
 final class TableSizesTest extends TestCaseBase
 {
     use WithClient;

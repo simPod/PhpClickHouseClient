@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Output;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Output\Json;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Output\Json */
+#[CoversClass(Json::class)]
 final class JsonTest extends TestCaseBase
 {
     public function testPropertiesAreSet(): void

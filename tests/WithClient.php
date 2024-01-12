@@ -6,6 +6,8 @@ namespace SimPod\ClickHouseClient\Tests;
 
 use InvalidArgumentException;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Psr\Http\Client\ClientExceptionInterface;
 use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Client\ClickHouseAsyncClient;
@@ -35,13 +37,13 @@ trait WithClient
 
     private string|null $currentDbName = null;
 
-    /** @before */
+    #[Before]
     public function setupClickHouseClient(): void
     {
         $this->restartClickHouseClient();
     }
 
-    /** @after */
+    #[After]
     public function tearDownDataBase(): void
     {
         $this->controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', $this->currentDbName));

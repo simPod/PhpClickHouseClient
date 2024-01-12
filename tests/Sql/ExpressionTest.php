@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Sql\Expression;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Sql\Expression */
+#[CoversClass(Expression::class)]
 final class ExpressionTest extends TestCaseBase
 {
     public function testNew(): void

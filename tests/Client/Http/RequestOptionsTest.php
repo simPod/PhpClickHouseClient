@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client\Http;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Client\Http\RequestOptions */
+#[CoversClass(RequestOptions::class)]
 final class RequestOptionsTest extends TestCaseBase
 {
     public function testMergeSettings(): void

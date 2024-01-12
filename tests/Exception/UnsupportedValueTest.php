@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Safe\DateTime;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
@@ -14,10 +16,10 @@ use function sprintf;
 
 use const PHP_VERSION_ID;
 
-/** @covers \SimPod\ClickHouseClient\Exception\UnsupportedValue */
+#[CoversClass(UnsupportedValue::class)]
 final class UnsupportedValueTest extends TestCaseBase
 {
-    /** @dataProvider providerType */
+    #[DataProvider('providerType')]
     public function testType(string $expectedMessage, mixed $value): void
     {
         $exception = UnsupportedValue::type($value);
@@ -44,7 +46,7 @@ final class UnsupportedValueTest extends TestCaseBase
         ];
     }
 
-    /** @dataProvider providerValue */
+    #[DataProvider('providerValue')]
     public function testValue(string $expectedMessage, mixed $value): void
     {
         $exception = UnsupportedValue::value($value);

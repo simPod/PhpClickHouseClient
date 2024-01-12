@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Output;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Output\Basic;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Output\Basic */
+#[CoversClass(Basic::class)]
 final class BasicTest extends TestCaseBase
 {
     public function testContentsAreSet(): void

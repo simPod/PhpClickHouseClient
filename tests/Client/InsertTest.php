@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use SimPod\ClickHouseClient\Client\Http\RequestFactory;
+use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonCompact;
@@ -11,19 +15,17 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-/**
- * @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory
- * @covers \SimPod\ClickHouseClient\Client\PsrClickHouseClient
- * @covers \SimPod\ClickHouseClient\Exception\CannotInsert
- * @covers \SimPod\ClickHouseClient\Exception\ServerError
- * @covers \SimPod\ClickHouseClient\Format\JsonEachRow
- * @covers \SimPod\ClickHouseClient\Format\JsonCompact
- */
+#[CoversClass(RequestFactory::class)]
+#[CoversClass(PsrClickHouseClient::class)]
+#[CoversClass(CannotInsert::class)]
+#[CoversClass(ServerError::class)]
+#[CoversClass(JsonEachRow::class)]
+#[CoversClass(JsonCompact::class)]
 final class InsertTest extends TestCaseBase
 {
     use WithClient;
 
-    /** @dataProvider providerInsert */
+    #[DataProvider('providerInsert')]
     public function testInsert(string $tableSql): void
     {
         $data = [
@@ -47,7 +49,7 @@ CLICKHOUSE,
         self::assertSame($data, $output->data);
     }
 
-    /** @dataProvider providerInsert */
+    #[DataProvider('providerInsert')]
     public function testInsertUseColumns(string $tableSql): void
     {
         $expectedData = [

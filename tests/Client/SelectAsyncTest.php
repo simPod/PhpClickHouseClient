@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Client;
 
 use GuzzleHttp\Promise\Utils;
+use PHPUnit\Framework\Attributes\CoversClass;
+use SimPod\ClickHouseClient\Client\Http\RequestFactory;
+use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-/**
- * @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory
- * @covers \SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient
- * @covers \SimPod\ClickHouseClient\Exception\ServerError
- * @covers \SimPod\ClickHouseClient\Format\JsonEachRow
- * @covers \SimPod\ClickHouseClient\Format\TabSeparated
- */
+#[CoversClass(RequestFactory::class)]
+#[CoversClass(PsrClickHouseAsyncClient::class)]
+#[CoversClass(ServerError::class)]
+#[CoversClass(JsonEachRow::class)]
+#[CoversClass(TabSeparated::class)]
 final class SelectAsyncTest extends TestCaseBase
 {
     use WithClient;

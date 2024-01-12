@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Snippet;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Snippet\ShowDatabases;
 use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
@@ -15,7 +16,7 @@ use function array_values;
 use function count;
 use function str_starts_with;
 
-/** @covers \SimPod\ClickHouseClient\Snippet\ShowDatabases */
+#[CoversClass(ShowDatabases::class)]
 final class ShowDatabasesTest extends TestCaseBase
 {
     use WithClient;

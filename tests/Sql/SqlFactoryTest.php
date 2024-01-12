@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SimPod\ClickHouseClient\Sql\Expression;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Sql\SqlFactory */
+#[CoversClass(SqlFactory::class)]
 final class SqlFactoryTest extends TestCaseBase
 {
-    /**
-     * @param array<string, mixed> $parameters
-     *
-     * @dataProvider providerCreateWithParameters
-     */
+    /** @param array<string, mixed> $parameters */
+    #[DataProvider('providerCreateWithParameters')]
     public function testCreateWithParameters(string $expectedSql, string $sqlWithPlaceholders, array $parameters): void
     {
         $sql = (new SqlFactory(new ValueFormatter()))->createWithParameters($sqlWithPlaceholders, $parameters);

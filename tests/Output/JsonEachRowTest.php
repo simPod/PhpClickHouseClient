@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Output;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Output\JsonEachRow;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Output\JsonEachRow */
+#[CoversClass(JsonEachRow::class)]
 final class JsonEachRowTest extends TestCaseBase
 {
     public function testPropertiesAreSet(): void

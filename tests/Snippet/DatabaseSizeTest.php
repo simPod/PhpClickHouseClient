@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Snippet;
 
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Snippet\DatabaseSize;
 use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-/** @covers \SimPod\ClickHouseClient\Snippet\DatabaseSize */
+#[CoversClass(DatabaseSize::class)]
 final class DatabaseSizeTest extends TestCaseBase
 {
     use WithClient;

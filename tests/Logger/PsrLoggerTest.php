@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Logger;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use SimPod\ClickHouseClient\Logger\PsrLogger;
 
-/** @covers \SimPod\ClickHouseClient\Logger\PsrLogger */
+#[CoversClass(PsrLogger::class)]
 final class PsrLoggerTest extends TestCase
 {
     public function testStartQuery(): void

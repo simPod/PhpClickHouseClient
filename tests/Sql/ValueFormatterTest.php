@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
 use DateTimeZone;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Safe\DateTimeImmutable;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Sql\Expression;
@@ -14,10 +16,10 @@ use SimPod\ClickHouseClient\Tests\Sql\Fixture\BackedStringEnum;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use stdClass;
 
-/** @covers \SimPod\ClickHouseClient\Sql\ValueFormatter */
+#[CoversClass(ValueFormatter::class)]
 final class ValueFormatterTest extends TestCaseBase
 {
-    /** @dataProvider providerFormat */
+    #[DataProvider('providerFormat')]
     public function testFormat(
         string $expectedValue,
         mixed $value,
@@ -111,9 +113,8 @@ final class ValueFormatterTest extends TestCaseBase
     /**
      * @param array<mixed> $expectedValues
      * @param array<mixed> $values
-     *
-     * @dataProvider providerMapFormat
      */
+    #[DataProvider('providerMapFormat')]
     public function testMapFormat(array $expectedValues, array $values): void
     {
         self::assertSame($expectedValues, (new ValueFormatter())->mapFormat($values));

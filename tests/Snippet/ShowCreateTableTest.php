@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Snippet;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Snippet\ShowCreateTable;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
@@ -11,7 +12,7 @@ use SimPod\ClickHouseClient\Tests\WithClient;
 use function Safe\preg_replace;
 use function str_replace;
 
-/** @covers \SimPod\ClickHouseClient\Snippet\ShowCreateTable */
+#[CoversClass(ShowCreateTable::class)]
 final class ShowCreateTableTest extends TestCaseBase
 {
     use WithClient;

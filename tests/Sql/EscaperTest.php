@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Sql\Escaper */
+#[CoversClass(Escaper::class)]
 final class EscaperTest extends TestCaseBase
 {
     public function testEscape(): void

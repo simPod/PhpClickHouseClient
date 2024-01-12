@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
 use DateTimeZone;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SimPod\ClickHouseClient\Sql\ExpressionFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Sql\ExpressionFactory */
+#[CoversClass(ExpressionFactory::class)]
 final class ExpressionFactoryTest extends TestCaseBase
 {
-    /**
-     * @param array<mixed> $values
-     *
-     * @dataProvider providerTemplateAndValues
-     */
+    /** @param array<mixed> $values */
+    #[DataProvider('providerTemplateAndValues')]
     public function testTemplateAndValues(string $expectedExpressionString, string $template, array $values): void
     {
         $expressionFactory = new ExpressionFactory(new ValueFormatter(new DateTimeZone('UTC')));

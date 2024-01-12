@@ -6,14 +6,16 @@ namespace SimPod\ClickHouseClient\Tests\Client\Http;
 
 use Generator;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-/** @covers \SimPod\ClickHouseClient\Client\Http\RequestFactory */
+#[CoversClass(RequestFactory::class)]
 final class RequestFactoryTest extends TestCaseBase
 {
-    /** @dataProvider providerPrepareRequest */
+    #[DataProvider('providerPrepareRequest')]
     public function testPrepareRequest(string $uri, string $expectedUri): void
     {
         $psr17Factory   = new Psr17Factory();

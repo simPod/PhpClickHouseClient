@@ -15,9 +15,6 @@ parameters:
         # There's no other way to test-pass without assertions while counting it towards coverage https://github.com/sebastianbergmann/phpunit/issues/3016
         - '~Call to static method PHPUnit\\Framework\\Assert::assertTrue\(\) with true will always evaluate to true~'
 
-        # Adds unnecessary maintanence overhead. We rather rely on PHPStan telling us the method returns unhandled FALSE
-        - "~Class DateTime(Immutable)? is unsafe to use. Its methods can return FALSE instead of throwing an exception. Please add 'use Safe\\\\DateTime(Immutable)?;' at the beginning of the file to use the variant provided by the 'thecodingmachine/safe' library~"
-
         # No need to have @throws in some phpunit related methods
         - message: "~Method SimPod\\\\ClickHouseClient\\\\Tests\\\\.+?Test(CaseBase)?::(test.+?|provider.+?|setUp(BeforeClass)?|tearDown|setupClickHouseClient|tearDownDataBase)\\(\\) throws checked exception .+? but it's missing from the PHPDoc @throws tag~"
           path: tests

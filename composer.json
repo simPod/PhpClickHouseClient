@@ -48,7 +48,6 @@
         "psalm/plugin-phpunit": "0.18.4",
         "roave/infection-static-analysis-plugin": "^1.6",
         "symfony/http-client": "^7.0",
-        "thecodingmachine/phpstan-safe-rule": "^1.0",
         "vimeo/psalm": "^5.0.0"
     },
     "autoload": {

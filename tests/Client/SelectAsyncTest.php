@@ -25,7 +25,7 @@ final class SelectAsyncTest extends TestCaseBase
 
     public function testAsyncSelect(): void
     {
-        $client = $this->asyncClient;
+        $client = self::$asyncClient;
 
         $sql = <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
@@ -56,6 +56,6 @@ CLICKHOUSE;
     {
         $this->expectException(ServerError::class);
 
-        $this->asyncClient->select('table', new TabSeparated())->wait();
+        self::$asyncClient->select('table', new TabSeparated())->wait();
     }
 }

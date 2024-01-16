@@ -21,14 +21,14 @@ final class ShowCreateTableTest extends TestCaseBase
 
     public function testRun(): void
     {
-        $dbName = $this->currentDbName;
+        $dbName = self::$currentDbName;
         $sql    = <<<CLICKHOUSE
 CREATE TABLE $dbName.test (`date` Date) ENGINE = Memory
 CLICKHOUSE;
 
-        $this->client->executeQuery($sql);
+        self::$client->executeQuery($sql);
 
-        $createTableSql = ShowCreateTable::run($this->client, 'test');
+        $createTableSql = ShowCreateTable::run(self::$client, 'test');
 
         // BC
         $replaced = preg_replace(

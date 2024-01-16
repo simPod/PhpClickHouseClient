@@ -34,7 +34,7 @@ final class SelectTest extends TestCaseBase
     #[DataProvider('providerJson')]
     public function testJson(mixed $expectedData, string $sql): void
     {
-        $client = $this->client;
+        $client = self::$client;
         $output = $client->select($sql, new Json());
 
         self::assertSame($expectedData, $output->data);
@@ -73,7 +73,7 @@ CLICKHOUSE,
     #[DataProvider('providerJsonCompact')]
     public function testJsonCompact(mixed $expectedData, string $sql): void
     {
-        $client = $this->client;
+        $client = self::$client;
         $output = $client->select($sql, new JsonCompact());
 
         self::assertSame($expectedData, $output->data);
@@ -112,8 +112,7 @@ CLICKHOUSE,
     #[DataProvider('providerJsonEachRow')]
     public function testJsonEachRow(mixed $expectedData, string $sql): void
     {
-        $client = $this->client;
-        $output = $client->select($sql, new JsonEachRow());
+        $output = self::$client->select($sql, new JsonEachRow());
 
         self::assertSame($expectedData, $output->data);
     }
@@ -150,8 +149,7 @@ CLICKHOUSE,
 
     public function testNull(): void
     {
-        $client = $this->client;
-        $client->select('SELECT 1', new Null_());
+        self::$client->select('SELECT 1', new Null_());
 
         self::assertTrue(true);
     }
@@ -161,6 +159,6 @@ CLICKHOUSE,
         self::expectException(ServerError::class);
         $this->expectExceptionMessageMatches("~DB::Exception: Database `non-existent` (doesn't|does not) exist~");
 
-        $this->client->select('SELECT 1', new JsonCompact(), ['database' => 'non-existent']);
+        self::$client->select('SELECT 1', new JsonCompact(), ['database' => 'non-existent']);
     }
 }

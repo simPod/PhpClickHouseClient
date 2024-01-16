@@ -18,7 +18,7 @@ final class DatabaseSizeTest extends TestCaseBase
 
     public function setUp(): void
     {
-        $this->client->executeQuery(
+        self::$client->executeQuery(
             <<<'CLICKHOUSE'
 CREATE TABLE test (
     a_date  DateTime,
@@ -33,9 +33,9 @@ CLICKHOUSE,
 
     public function testRun(): void
     {
-        self::assertSame(0, DatabaseSize::run($this->client));
+        self::assertSame(0, DatabaseSize::run(self::$client));
 
-        $this->client->insert('test', [[new DateTimeImmutable('2020-08-01 00:11:22'), 1]]);
+        self::$client->insert('test', [[new DateTimeImmutable('2020-08-01 00:11:22'), 1]]);
 
         if (ClickHouseVersion::get() >= 2307) {
             $expectedSize = 316;
@@ -45,11 +45,11 @@ CLICKHOUSE,
             $expectedSize = 150;
         }
 
-        self::assertSame($expectedSize, DatabaseSize::run($this->client));
+        self::assertSame($expectedSize, DatabaseSize::run(self::$client));
     }
 
     public function tearDown(): void
     {
-        $this->client->executeQuery('DROP TABLE test');
+        self::$client->executeQuery('DROP TABLE test');
     }
 }

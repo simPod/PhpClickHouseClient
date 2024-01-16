@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Client\ClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
@@ -27,25 +28,29 @@ use function time;
 
 trait WithClient
 {
-    private ClickHouseClient $client;
+    private static ClickHouseClient $client;
 
-    private ClickHouseAsyncClient $asyncClient;
+    private static ClickHouseAsyncClient $asyncClient;
 
     /** @internal */
-    private ClickHouseClient $controllerClient;
+    private static ClickHouseClient $controllerClient;
 
-    private string|null $currentDbName = null;
+    private static string|null $currentDbName = null;
 
+    #[BeforeClass]
     #[Before]
-    public function setupClickHouseClient(): void
+    public static function setupClickHouseClient(): void
     {
-        $this->restartClickHouseClient();
+        static::restartClickHouseClient();
     }
 
     #[After]
     public function tearDownDataBase(): void
     {
-        $this->controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', $this->currentDbName));
+        static::$controllerClient->executeQuery(sprintf(
+            'DROP DATABASE IF EXISTS "%s"',
+            static::$currentDbName,
+        ));
     }
 
     /**
@@ -53,7 +58,7 @@ trait WithClient
      * @throws InvalidArgumentException
      * @throws ServerError
      */
-    private function restartClickHouseClient(): void
+    private static function restartClickHouseClient(): void
     {
         $databaseName = getenv('CLICKHOUSE_DATABASE');
         $username     = getenv('CLICKHOUSE_USER');
@@ -65,14 +70,14 @@ trait WithClient
         assert(is_string($endpoint));
         assert(is_string($password));
 
-        $this->currentDbName = 'clickhouse_client_test__' . time();
+        static::$currentDbName = 'clickhouse_client_test__' . time();
 
         $headers = [
             'X-ClickHouse-User' => $username,
             'X-ClickHouse-Key' => $password,
         ];
 
-        $this->controllerClient = new PsrClickHouseClient(
+        static::$controllerClient = new PsrClickHouseClient(
             new Psr18Client(
                 new CurlHttpClient([
                     'base_uri' => $endpoint,
@@ -86,12 +91,12 @@ trait WithClient
             ),
         );
 
-        $this->client = new PsrClickHouseClient(
+        static::$client = new PsrClickHouseClient(
             new Psr18Client(
                 new CurlHttpClient([
                     'base_uri' => $endpoint,
                     'headers' => $headers,
-                    'query' => ['database' => $this->currentDbName],
+                    'query' => ['database' => static::$currentDbName],
                 ]),
             ),
             new RequestFactory(
@@ -100,12 +105,12 @@ trait WithClient
             ),
         );
 
-        $this->asyncClient = new PsrClickHouseAsyncClient(
+        static::$asyncClient = new PsrClickHouseAsyncClient(
             new HttplugClient(
                 new CurlHttpClient([
                     'base_uri' => $endpoint,
                     'headers' => $headers,
-                    'query' => ['database' => $this->currentDbName],
+                    'query' => ['database' => static::$currentDbName],
                 ]),
             ),
             new RequestFactory(
@@ -114,7 +119,7 @@ trait WithClient
             ),
         );
 
-        $this->controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', $this->currentDbName));
-        $this->controllerClient->executeQuery(sprintf('CREATE DATABASE "%s"', $this->currentDbName));
+        static::$controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', static::$currentDbName));
+        static::$controllerClient->executeQuery(sprintf('CREATE DATABASE "%s"', static::$currentDbName));
     }
 }

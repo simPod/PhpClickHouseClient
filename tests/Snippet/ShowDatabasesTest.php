@@ -23,13 +23,13 @@ final class ShowDatabasesTest extends TestCaseBase
 
     public function testRun(): void
     {
-        $databases = ShowDatabases::run($this->client);
+        $databases = ShowDatabases::run(self::$client);
         self::assertGreaterThan(2, count($databases)); // Default, system, at least one test database
 
         $databases = array_filter(
             $databases,
-            fn (string $database): bool => ! str_starts_with($database, 'clickhouse_client_test__')
-                || $database === $this->currentDbName
+            static fn (string $database): bool => ! str_starts_with($database, 'clickhouse_client_test__')
+                || $database === self::$currentDbName
         );
 
         $databases = array_values($databases);
@@ -42,13 +42,13 @@ final class ShowDatabasesTest extends TestCaseBase
         $expected = ClickHouseVersion::get() >= 2111
             ? [
                 'INFORMATION_SCHEMA',
-                $this->currentDbName,
+                self::$currentDbName,
                 'default',
                 'information_schema',
                 'system',
             ]
             : [
-                $this->currentDbName,
+                self::$currentDbName,
                 'default',
                 'system',
             ];

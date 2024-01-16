@@ -33,11 +33,11 @@ final class InsertTest extends TestCaseBase
             ['PageViews' => 6, 'UserID' => 4324182021466249494, 'Duration' => 185, 'Sign' => 1],
         ];
 
-        $this->client->executeQuery($tableSql);
+        self::$client->executeQuery($tableSql);
 
-        $this->client->insert('UserActivity', $data);
+        self::$client->insert('UserActivity', $data);
 
-        $output = $this->client->select(
+        $output = self::$client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
@@ -57,9 +57,9 @@ CLICKHOUSE,
             ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
         ];
 
-        $this->client->executeQuery($tableSql);
+        self::$client->executeQuery($tableSql);
 
-        $this->client->insert(
+        self::$client->insert(
             'UserActivity',
             [
                 [5, 4324182021466249494, 146, -1],
@@ -68,7 +68,7 @@ CLICKHOUSE,
             ['PageViews', 'UserID', 'Duration', 'Sign'],
         );
 
-        $output = $this->client->select(
+        $output = self::$client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
@@ -80,7 +80,7 @@ CLICKHOUSE,
 
     public function testInsertEscaping(): void
     {
-        $this->client->executeQuery(
+        self::$client->executeQuery(
             <<<'CLICKHOUSE'
 CREATE TABLE a (
     b  Nullable(String)
@@ -94,9 +94,9 @@ CLICKHOUSE,
             ["\t"],
         ];
 
-        $this->client->insert('a', $expectedData);
+        self::$client->insert('a', $expectedData);
 
-        $output = $this->client->select(
+        $output = self::$client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM a
 CLICKHOUSE,
@@ -124,7 +124,7 @@ CLICKHOUSE;
 
     public function testInsertWithFormat(): void
     {
-        $this->client->executeQuery(
+        self::$client->executeQuery(
             <<<'CLICKHOUSE'
 CREATE TABLE UserActivity (
     PageViews   UInt32,
@@ -136,7 +136,7 @@ ENGINE Memory
 CLICKHOUSE,
         );
 
-        $this->client->insertWithFormat(
+        self::$client->insertWithFormat(
             'UserActivity',
             new JsonEachRow(),
             <<<'JSONEACHROW'
@@ -145,7 +145,7 @@ CLICKHOUSE,
 JSONEACHROW,
         );
 
-        $output = $this->client->select(
+        $output = self::$client->select(
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE
@@ -166,14 +166,14 @@ CLICKHOUSE
     {
         $this->expectException(CannotInsert::class);
 
-        $this->client->insert('table', []);
+        self::$client->insert('table', []);
     }
 
     public function testInsertToNonExistentTableExpectServerError(): void
     {
         $this->expectException(ServerError::class);
 
-        $this->client->insert('table', [[1]]);
+        self::$client->insert('table', [[1]]);
     }
 
     public function testInsertWithWrongColumns(): void
@@ -188,12 +188,12 @@ CLICKHOUSE
             ENGINE Memory
             CLICKHOUSE;
 
-        $this->client->executeQuery($tableSql);
+        self::$client->executeQuery($tableSql);
 
         $this->expectException(ServerError::class);
         $this->expectExceptionMessage('SYNTAX_ERROR');
 
-        $this->client->insert(
+        self::$client->insert(
             'UserActivity',
             [
                 [5],

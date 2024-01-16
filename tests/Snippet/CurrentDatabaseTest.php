@@ -17,8 +17,8 @@ final class CurrentDatabaseTest extends TestCaseBase
     public function testRun(): void
     {
         self::assertSame(
-            $this->currentDbName,
-            CurrentDatabase::run($this->client),
+            self::$currentDbName,
+            CurrentDatabase::run(self::$client),
         );
     }
 }

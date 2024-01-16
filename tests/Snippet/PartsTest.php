@@ -16,6 +16,6 @@ final class PartsTest extends TestCaseBase
 
     public function testRun(): void
     {
-        self::assertSame([], Parts::run($this->client, 'system.query_log'));
+        self::assertSame([], Parts::run(self::$client, 'system.query_log'));
     }
 }

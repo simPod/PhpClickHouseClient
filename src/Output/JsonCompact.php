@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Output;
 
-use Safe\Exceptions\JsonException;
+use JsonException;
 
-use function Safe\json_decode;
+use function json_decode;
+
+use const JSON_THROW_ON_ERROR;
 
 /**
  * @psalm-immutable
@@ -41,7 +43,7 @@ final class JsonCompact implements Output
          * } $contents
          * @psalm-suppress ImpureFunctionCall
          */
-        $contents                     = json_decode($contentsJson, true);
+        $contents                     = json_decode($contentsJson, true, flags: JSON_THROW_ON_ERROR);
         $this->data                   = $contents['data'];
         $this->meta                   = $contents['meta'];
         $this->rows                   = $contents['rows'];

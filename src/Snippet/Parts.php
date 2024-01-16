@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Snippet;
 
 use Psr\Http\Client\ClientExceptionInterface;
-use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
@@ -19,7 +18,6 @@ final class Parts
      * @return array<array<string, mixed>>
      *
      * @throws ClientExceptionInterface
-     * @throws PcreException
      * @throws ServerError
      * @throws UnsupportedValue
      */

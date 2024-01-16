@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Format;
 
-use Safe\Exceptions\JsonException;
+use JsonException;
 use SimPod\ClickHouseClient\Output\Output;
 
 /**

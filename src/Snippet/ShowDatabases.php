@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Snippet;
 
 use Psr\Http\Client\ClientExceptionInterface;
-use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
@@ -18,7 +17,6 @@ final class ShowDatabases
      * @return list<string>
      *
      * @throws ClientExceptionInterface
-     * @throws PcreException
      * @throws ServerError
      */
     public static function run(ClickHouseClient $clickHouseClient): array

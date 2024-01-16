@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Exception;
 
+use DateTime;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Safe\DateTime;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use stdClass;
 
-use function Safe\opendir;
+use function opendir;
 use function sprintf;
 
 use const PHP_VERSION_ID;
@@ -41,7 +41,7 @@ final class UnsupportedValueTest extends TestCaseBase
         ];
 
         yield [
-            'Value of type "Safe\DateTime" is not supported as a parameter',
+            'Value of type "DateTime" is not supported as a parameter',
             new DateTime(),
         ];
     }
@@ -72,7 +72,7 @@ final class UnsupportedValueTest extends TestCaseBase
 
         yield [
             sprintf(
-                "Value \"%sSafe\DateTime::__set_state(array(
+                "Value \"%sDateTime::__set_state(array(
    'date' => '2022-02-02 13:31:37.593289',
    'timezone_type' => 3,
    'timezone' => 'UTC',

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use Psr\Http\Client\ClientExceptionInterface;
-use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
@@ -18,7 +17,6 @@ interface ClickHouseClient
      * @param array<string, float|int|string> $settings
      *
      * @throws ClientExceptionInterface
-     * @throws PcreException
      * @throws ServerError
      */
     public function executeQuery(string $query, array $settings = []): void;
@@ -28,7 +26,6 @@ interface ClickHouseClient
      * @param array<string, float|int|string> $settings
      *
      * @throws ClientExceptionInterface
-     * @throws PcreException
      * @throws ServerError
      * @throws UnsupportedValue
      */
@@ -41,7 +38,6 @@ interface ClickHouseClient
      * @return O
      *
      * @throws ClientExceptionInterface
-     * @throws PcreException
      * @throws ServerError
      *
      * @template O of Output
@@ -56,7 +52,6 @@ interface ClickHouseClient
      * @return O
      *
      * @throws ClientExceptionInterface
-     * @throws PcreException
      * @throws ServerError
      * @throws UnsupportedValue
      *
@@ -71,7 +66,6 @@ interface ClickHouseClient
      *
      * @throws CannotInsert
      * @throws ClientExceptionInterface
-     * @throws PcreException
      * @throws ServerError
      */
     public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void;

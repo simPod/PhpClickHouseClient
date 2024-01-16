@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
+use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Safe\DateTimeImmutable;
 use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Sql\Expression;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;

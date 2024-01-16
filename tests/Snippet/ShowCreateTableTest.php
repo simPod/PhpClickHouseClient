@@ -9,7 +9,9 @@ use SimPod\ClickHouseClient\Snippet\ShowCreateTable;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-use function Safe\preg_replace;
+use function assert;
+use function is_string;
+use function preg_replace;
 use function str_replace;
 
 #[CoversClass(ShowCreateTable::class)]
@@ -29,14 +31,16 @@ CLICKHOUSE;
         $createTableSql = ShowCreateTable::run($this->client, 'test');
 
         // BC
+        $replaced = preg_replace(
+            '!\s+!',
+            ' ',
+            str_replace('\n', ' ', $createTableSql),
+        );
+        assert(is_string($replaced));
         $createTableSql = str_replace(
             ['( ', ' )'],
             ['(', ')'],
-            preg_replace(
-                '!\s+!',
-                ' ',
-                str_replace('\n', ' ', $createTableSql),
-            ),
+            $replaced,
         );
 
         self::assertSame($sql, $createTableSql);

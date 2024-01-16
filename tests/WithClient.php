@@ -9,7 +9,6 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use Psr\Http\Client\ClientExceptionInterface;
-use Safe\Exceptions\PcreException;
 use SimPod\ClickHouseClient\Client\ClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
@@ -52,7 +51,6 @@ trait WithClient
     /**
      * @throws ClientExceptionInterface
      * @throws InvalidArgumentException
-     * @throws PcreException
      * @throws ServerError
      */
     private function restartClickHouseClient(): void

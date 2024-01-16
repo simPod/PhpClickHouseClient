@@ -175,4 +175,31 @@ CLICKHOUSE
 
         $this->client->insert('table', [[1]]);
     }
+
+    public function testInsertWithWrongColumns(): void
+    {
+        $tableSql = <<<'CLICKHOUSE'
+            CREATE TABLE UserActivity (
+                PageViews   UInt32,
+                UserID      UInt64,
+                Duration    UInt32,
+                Sign        Int8
+            )
+            ENGINE Memory
+            CLICKHOUSE;
+
+        $this->client->executeQuery($tableSql);
+
+        $this->expectException(ServerError::class);
+        $this->expectExceptionMessage('SYNTAX_ERROR');
+
+        $this->client->insert(
+            'UserActivity',
+            [
+                [5],
+                [6],
+            ],
+            ['PageViews', 'UserID'],
+        );
+    }
 }

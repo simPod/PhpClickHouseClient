@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
+use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
 #[CoversClass(RequestFactory::class)]
@@ -20,6 +21,7 @@ final class RequestFactoryTest extends TestCaseBase
     {
         $psr17Factory   = new Psr17Factory();
         $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
             $psr17Factory,
             $psr17Factory,
             $uri,
@@ -27,6 +29,7 @@ final class RequestFactoryTest extends TestCaseBase
 
         $request = $requestFactory->prepareRequest(new RequestOptions(
             'SELECT 1',
+            [],
             ['max_block_size' => 1],
             ['database' => 'database'],
         ));

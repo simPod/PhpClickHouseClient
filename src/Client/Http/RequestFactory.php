@@ -10,9 +10,15 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
+use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
+use SimPod\ClickHouseClient\Sql\Type;
 
+use function array_keys;
+use function array_reduce;
 use function http_build_query;
 use function is_string;
+use function preg_match_all;
 use function SimPod\ClickHouseClient\absurd;
 
 use const PHP_QUERY_RFC3986;
@@ -23,6 +29,7 @@ final class RequestFactory
 
     /** @throws InvalidArgumentException */
     public function __construct(
+        private ParamValueConverterRegistry $paramValueConverterRegistry,
         private RequestFactoryInterface $requestFactory,
         UriFactoryInterface|null $uriFactory = null,
         UriInterface|string $uri = '',
@@ -40,6 +47,7 @@ final class RequestFactory
         $this->uri = $uri;
     }
 
+    /** @throws UnsupportedParamType */
     public function prepareRequest(RequestOptions $requestOptions): RequestInterface
     {
         $query = http_build_query(
@@ -62,7 +70,30 @@ final class RequestFactory
 
         $request = $this->requestFactory->createRequest('POST', $uri);
 
+        preg_match_all('~\{([a-zA-Z\d]+):([a-zA-Z\d ]+(\(.+\))?)}~', $requestOptions->sql, $matches);
+
+        $typeToParam = array_reduce(
+            array_keys($matches[1]),
+            static function (array $acc, string|int $k) use ($matches) {
+                $acc[$matches[1][$k]] = Type::fromString($matches[2][$k]);
+
+                return $acc;
+            },
+            [],
+        );
+
         $streamElements = [['name' => 'query', 'contents' => $requestOptions->sql]];
+        foreach ($requestOptions->params as $name => $value) {
+            $type = $typeToParam[$name] ?? null;
+            if ($type === null) {
+                continue;
+            }
+
+            $streamElements[] = [
+                'name' => 'param_' . $name,
+                'contents' => $this->paramValueConverterRegistry->get($type)($value, $type, false),
+            ];
+        }
 
         try {
             $body    = new MultipartStream($streamElements);

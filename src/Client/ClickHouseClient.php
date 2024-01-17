@@ -7,7 +7,8 @@ namespace SimPod\ClickHouseClient\Client;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
-use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 
@@ -27,7 +28,8 @@ interface ClickHouseClient
      *
      * @throws ClientExceptionInterface
      * @throws ServerError
-     * @throws UnsupportedValue
+     * @throws UnsupportedParamType
+     * @throws UnsupportedParamValue
      */
     public function executeQueryWithParams(string $query, array $params, array $settings = []): void;
 
@@ -53,7 +55,8 @@ interface ClickHouseClient
      *
      * @throws ClientExceptionInterface
      * @throws ServerError
-     * @throws UnsupportedValue
+     * @throws UnsupportedParamType
+     * @throws UnsupportedParamValue
      *
      * @template O of Output
      */

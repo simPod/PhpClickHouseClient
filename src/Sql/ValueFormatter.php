@@ -7,7 +7,7 @@ namespace SimPod\ClickHouseClient\Sql;
 use BackedEnum;
 use DateTimeImmutable;
 use DateTimeZone;
-use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 
 use function array_key_first;
 use function array_map;
@@ -22,14 +22,17 @@ use function method_exists;
 use function preg_match;
 use function sprintf;
 
-/** @internal */
+/**
+ * @internal
+ * @deprecated
+ */
 final class ValueFormatter
 {
     public function __construct(private DateTimeZone|null $dateTimeZone = null)
     {
     }
 
-    /** @throws UnsupportedValue */
+    /** @throws UnsupportedParamValue */
     public function format(mixed $value, string|null $paramName = null, string|null $sql = null): string
     {
         if (is_string($value)) {
@@ -87,7 +90,7 @@ final class ValueFormatter
                 && preg_match(sprintf('~\s+?IN\s+?\\(:%s\\)~', $paramName), $sql) === 1
             ) {
                 if ($value === []) {
-                    throw UnsupportedValue::value($value);
+                    throw UnsupportedParamValue::value($value);
                 }
 
                 $firstValue = $value[array_key_first($value)];
@@ -110,7 +113,7 @@ final class ValueFormatter
             return $this->formatArray($value);
         }
 
-        throw UnsupportedValue::type($value);
+        throw UnsupportedParamValue::type($value);
     }
 
     /**

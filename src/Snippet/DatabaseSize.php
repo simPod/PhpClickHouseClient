@@ -7,7 +7,8 @@ namespace SimPod\ClickHouseClient\Snippet;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
-use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
@@ -16,7 +17,8 @@ final class DatabaseSize
     /**
      * @throws ClientExceptionInterface
      * @throws ServerError
-     * @throws UnsupportedValue
+     * @throws UnsupportedParamType
+     * @throws UnsupportedParamValue
      */
     public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): int
     {

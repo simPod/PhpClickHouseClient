@@ -10,11 +10,16 @@ final class RequestOptions
     public array $settings;
 
     /**
+     * @param array<string, mixed> $params
      * @param array<string, float|int|string> $defaultSettings
      * @param array<string, float|int|string> $querySettings
      */
-    public function __construct(public string $sql, array $defaultSettings, array $querySettings)
-    {
+    public function __construct(
+        public string $sql,
+        public array $params,
+        array $defaultSettings,
+        array $querySettings,
+    ) {
         $this->settings = $querySettings + $defaultSettings;
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Sql;
 
-use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 
 use function assert;
 use function is_string;
@@ -12,7 +12,10 @@ use function preg_replace;
 use function sprintf;
 use function str_replace;
 
-/** @internal */
+/**
+ * @internal
+ * @deprecated
+ */
 final class SqlFactory
 {
     public function __construct(private ValueFormatter $valueFormatter)
@@ -22,7 +25,7 @@ final class SqlFactory
     /**
      * @param array<string, mixed> $parameters
      *
-     * @throws UnsupportedValue
+     * @throws UnsupportedParamValue
      */
     public function createWithParameters(string $query, array $parameters): string
     {

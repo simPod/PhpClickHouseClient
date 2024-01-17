@@ -7,7 +7,7 @@ namespace SimPod\ClickHouseClient\Tests\Exception;
 use DateTime;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use SimPod\ClickHouseClient\Exception\UnsupportedValue;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use stdClass;
 
@@ -16,13 +16,13 @@ use function sprintf;
 
 use const PHP_VERSION_ID;
 
-#[CoversClass(UnsupportedValue::class)]
-final class UnsupportedValueTest extends TestCaseBase
+#[CoversClass(UnsupportedParamValue::class)]
+final class UnsupportedParamValueTest extends TestCaseBase
 {
     #[DataProvider('providerType')]
     public function testType(string $expectedMessage, mixed $value): void
     {
-        $exception = UnsupportedValue::type($value);
+        $exception = UnsupportedParamValue::type($value);
 
         self::assertSame($expectedMessage, $exception->getMessage());
     }
@@ -49,7 +49,7 @@ final class UnsupportedValueTest extends TestCaseBase
     #[DataProvider('providerValue')]
     public function testValue(string $expectedMessage, mixed $value): void
     {
-        $exception = UnsupportedValue::value($value);
+        $exception = UnsupportedParamValue::value($value);
 
         self::assertSame($expectedMessage, $exception->getMessage());
     }

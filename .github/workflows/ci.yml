@@ -22,7 +22,7 @@ jobs:
           - dependency-versions: "lowest"
             php-version: "8.2"
     env:
-      CLICKHOUSE_VERSION: "22.4"
+      CLICKHOUSE_VERSION: "23.12"
 
     steps:
       - name: "Checkout"

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client\Http;
 
+use GuzzleHttp\Psr7\MultipartStream;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -24,7 +24,6 @@ final class RequestFactory
     /** @throws InvalidArgumentException */
     public function __construct(
         private RequestFactoryInterface $requestFactory,
-        private StreamFactoryInterface $streamFactory,
         UriFactoryInterface|null $uriFactory = null,
         UriInterface|string $uri = '',
     ) {
@@ -50,8 +49,6 @@ final class RequestFactory
             PHP_QUERY_RFC3986,
         );
 
-        $body = $this->streamFactory->createStream($requestOptions->sql);
-
         if ($this->uri === null) {
             $uri = $query === '' ? '' : '?' . $query;
         } else {
@@ -64,8 +61,14 @@ final class RequestFactory
         }
 
         $request = $this->requestFactory->createRequest('POST', $uri);
+
+        $streamElements = [['name' => 'query', 'contents' => $requestOptions->sql]];
+
         try {
-            $request = $request->withBody($body);
+            $body    = new MultipartStream($streamElements);
+            $request = $request
+                ->withHeader('Content-Type', 'multipart/form-data; boundary=' . $body->getBoundary())
+                ->withBody($body);
         } catch (InvalidArgumentException) {
             absurd();
         }

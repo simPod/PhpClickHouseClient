@@ -22,7 +22,6 @@ final class RequestFactoryTest extends TestCaseBase
         $requestFactory = new RequestFactory(
             $psr17Factory,
             $psr17Factory,
-            $psr17Factory,
             $uri,
         );
 
@@ -37,7 +36,7 @@ final class RequestFactoryTest extends TestCaseBase
             $expectedUri,
             $request->getUri()->__toString(),
         );
-        self::assertSame('SELECT 1', $request->getBody()->__toString());
+        self::assertStringContainsString('SELECT 1', $request->getBody()->__toString());
     }
 
     /** @return Generator<string, array{string, string}> */

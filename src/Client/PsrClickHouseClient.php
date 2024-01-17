@@ -12,6 +12,7 @@ use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
+use SimPod\ClickHouseClient\Exception\UnsupportedValue;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\Escaper;
@@ -23,6 +24,7 @@ use function array_keys;
 use function array_map;
 use function implode;
 use function is_int;
+use function SimPod\ClickHouseClient\absurd;
 use function sprintf;
 
 class PsrClickHouseClient implements ClickHouseClient
@@ -44,36 +46,41 @@ class PsrClickHouseClient implements ClickHouseClient
 
     public function executeQuery(string $query, array $settings = []): void
     {
-        $this->executeRequest($query, $settings);
+        $this->executeRequest($query, settings: $settings);
     }
 
     public function executeQueryWithParams(string $query, array $params, array $settings = []): void
     {
-        $this->executeQuery($this->sqlFactory->createWithParameters($query, $params), $settings);
+        $this->executeRequest(
+            $this->sqlFactory->createWithParameters($query, $params),
+            settings: $settings,
+        );
     }
 
     public function select(string $query, Format $outputFormat, array $settings = []): Output
     {
-        $formatClause = $outputFormat::toSql();
-
-        $response = $this->executeRequest(
-            <<<CLICKHOUSE
-            $query
-            $formatClause
-            CLICKHOUSE,
-            $settings,
-        );
-
-        return $outputFormat::output($response->getBody()->__toString());
+        try {
+            return $this->selectWithParams($query, params: [], outputFormat: $outputFormat, settings: $settings);
+        } catch (UnsupportedValue) {
+            absurd();
+        }
     }
 
     public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []): Output
     {
-        return $this->select(
-            $this->sqlFactory->createWithParameters($query, $params),
-            $outputFormat,
-            $settings,
+        $formatClause = $outputFormat::toSql();
+
+        $sql = $this->sqlFactory->createWithParameters($query, $params);
+
+        $response = $this->executeRequest(
+            <<<CLICKHOUSE
+            $sql
+            $formatClause
+            CLICKHOUSE,
+            settings: $settings,
         );
+
+        return $outputFormat::output($response->getBody()->__toString());
     }
 
     public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void
@@ -111,7 +118,7 @@ class PsrClickHouseClient implements ClickHouseClient
             $columnsSql
             VALUES $valuesSql
             CLICKHOUSE,
-            $settings,
+            settings: $settings,
         );
     }
 
@@ -125,7 +132,7 @@ class PsrClickHouseClient implements ClickHouseClient
             <<<CLICKHOUSE
             INSERT INTO $table $formatSql $data
             CLICKHOUSE,
-            $settings,
+            settings: $settings,
         );
     }
 
@@ -135,7 +142,7 @@ class PsrClickHouseClient implements ClickHouseClient
      * @throws ServerError
      * @throws ClientExceptionInterface
      */
-    private function executeRequest(string $sql, array $settings = []): ResponseInterface
+    private function executeRequest(string $sql, array $settings): ResponseInterface
     {
         $request = $this->requestFactory->prepareRequest(
             new RequestOptions(

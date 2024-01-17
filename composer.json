@@ -53,7 +53,8 @@
     "autoload": {
         "psr-4": {
             "SimPod\\ClickHouseClient\\": "src/"
-        }
+        },
+        "files": ["src/functions.php"]
     },
     "autoload-dev": {
         "psr-4": {

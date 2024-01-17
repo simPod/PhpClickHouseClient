@@ -10,10 +10,10 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
-use RuntimeException;
 
 use function http_build_query;
 use function is_string;
+use function SimPod\ClickHouseClient\absurd;
 
 use const PHP_QUERY_RFC3986;
 
@@ -59,7 +59,7 @@ final class RequestFactory
             try {
                 $uri = $this->uri->withQuery($uriQuery . ($uriQuery !== '' && $query !== '' ? '&' : '') . $query);
             } catch (InvalidArgumentException) {
-                $this->absurd();
+                absurd();
             }
         }
 
@@ -67,15 +67,9 @@ final class RequestFactory
         try {
             $request = $request->withBody($body);
         } catch (InvalidArgumentException) {
-            $this->absurd();
+            absurd();
         }
 
         return $request;
-    }
-
-    /** @psalm-return never */
-    private function absurd(): void
-    {
-        throw new RuntimeException('Called `absurd` function which should never be called');
     }
 }

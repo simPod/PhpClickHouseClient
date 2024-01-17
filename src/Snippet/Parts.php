@@ -21,8 +21,12 @@ final class Parts
      * @throws ServerError
      * @throws UnsupportedValue
      */
-    public static function run(ClickHouseClient $clickHouseClient, string $table, bool|null $active = null): array
-    {
+    public static function run(
+        ClickHouseClient $clickHouseClient,
+        string $database,
+        string $table,
+        bool|null $active = null,
+    ): array {
         $whereActiveClause = $active === null ? '' : sprintf(' AND active = %d', $active);
 
         /** @var JsonEachRow<array<string, mixed>> $format */
@@ -32,10 +36,15 @@ final class Parts
             <<<CLICKHOUSE
 SELECT *
 FROM system.parts
-WHERE table=:table $whereActiveClause
+WHERE
+    database = :database
+    AND table = :table $whereActiveClause
 ORDER BY max_date
 CLICKHOUSE,
-            ['table' => $table],
+            [
+                'database' => $database,
+                'table' => $table,
+            ],
             $format,
         );
 

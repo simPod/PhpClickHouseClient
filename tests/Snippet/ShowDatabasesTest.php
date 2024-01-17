@@ -6,7 +6,6 @@ namespace SimPod\ClickHouseClient\Tests\Snippet;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Snippet\ShowDatabases;
-use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -39,19 +38,13 @@ final class ShowDatabasesTest extends TestCaseBase
             array_shift($databases);
         }
 
-        $expected = ClickHouseVersion::get() >= 2111
-            ? [
-                'INFORMATION_SCHEMA',
-                self::$currentDbName,
-                'default',
-                'information_schema',
-                'system',
-            ]
-            : [
-                self::$currentDbName,
-                'default',
-                'system',
-            ];
+        $expected = [
+            'INFORMATION_SCHEMA',
+            self::$currentDbName,
+            'default',
+            'information_schema',
+            'system',
+        ];
 
         self::assertSame($expected, $databases);
     }

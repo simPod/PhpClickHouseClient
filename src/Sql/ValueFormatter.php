@@ -22,10 +22,7 @@ use function method_exists;
 use function preg_match;
 use function sprintf;
 
-/**
- * @internal
- * @deprecated
- */
+/** @internal */
 final class ValueFormatter
 {
     public function __construct(private DateTimeZone|null $dateTimeZone = null)

@@ -64,7 +64,7 @@ interface ClickHouseClient
 
     /**
      * @param array<array<mixed>> $values
-     * @param array<string>|null $columns
+     * @param list<string>|null $columns
      * @param array<string, float|int|string> $settings
      *
      * @throws CannotInsert

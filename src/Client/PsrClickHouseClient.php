@@ -130,19 +130,15 @@ class PsrClickHouseClient implements ClickHouseClient
                 ),
             );
 
-            try {
-                $this->executeRequest(
-                    <<<CLICKHOUSE
-                    INSERT INTO $table
-                    $columnsSql
-                    VALUES $valuesSql
-                    CLICKHOUSE,
-                    params: $params,
-                    settings: $settings,
-                );
-            } catch (UnsupportedParamType) {
-                absurd();
-            }
+            $this->executeRequest(
+                <<<CLICKHOUSE
+                INSERT INTO $table
+                $columnsSql
+                VALUES $valuesSql
+                CLICKHOUSE,
+                params: $params,
+                settings: $settings,
+            );
 
             return;
         }

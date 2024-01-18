@@ -78,6 +78,35 @@ CLICKHOUSE,
         self::assertSame($expectedData, $output->data);
     }
 
+    #[DataProvider('providerInsert')]
+    public function testInsertUseColumnsWithTypes(string $tableSql): void
+    {
+        $expectedData = [
+            ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
+        ];
+
+        self::$client->executeQuery($tableSql);
+
+        self::$client->insert(
+            'UserActivity',
+            [
+                [5, 4324182021466249494, 146, -1],
+                [6, 4324182021466249494, 185, 1],
+            ],
+            ['PageViews' => 'UInt32', 'UserID' => 'UInt64', 'Duration' => 'UInt32', 'Sign' => 'Int8'],
+        );
+
+        $output = self::$client->select(
+            <<<'CLICKHOUSE'
+            SELECT * FROM UserActivity
+            CLICKHOUSE,
+            new JsonEachRow(),
+        );
+
+        self::assertSame($expectedData, $output->data);
+    }
+
     public function testInsertEscaping(): void
     {
         self::$client->executeQuery(

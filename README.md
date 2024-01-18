@@ -15,6 +15,7 @@ Naming used here is the same as in ClickHouse docs.
 - Works with any HTTP Client implementation ([PSR-18 compliant](https://www.php-fig.org/psr/psr-18/))
 - All [ClickHouse Formats](https://clickhouse.yandex/docs/en/interfaces/formats/) support
 - Logging ([PSR-3 compliant](https://www.php-fig.org/psr/psr-3/))
+- SQL Factory for [parameters "binding"](#parameters-binding)
 - [Native query parameters](#native-query-parameters) support
 
 ## Contents
@@ -231,10 +232,7 @@ If not provided they're not passed either:
 
 ### Select
 
-## Native Query Parameters
-
-> [!TIP]
-> [Official docs](https://clickhouse.com/docs/en/interfaces/http#cli-queries-with-parameters)
+## Parameters "binding"
 
 ```php
 <?php
@@ -245,11 +243,35 @@ use SimPod\ClickHouseClient\Sql\ValueFormatter;
 $sqlFactory = new SqlFactory(new ValueFormatter());
 
 $sql = $sqlFactory->createWithParameters(
+    'SELECT :param',
+    ['param' => 'value']
+);
+```
+This produces `SELECT 'value'` and it can be passed to `ClickHouseClient::select()`.
+
+Supported types are:
+- scalars
+- DateTimeImmutable (`\DateTime` is not supported because `ValueFormatter` might modify its timezone so it's not considered safe)
+- [Expression](#expression)
+- objects implementing `__toString()`
+
+## Native Query Parameters
+
+> [!TIP]
+> [Official docs](https://clickhouse.com/docs/en/interfaces/http#cli-queries-with-parameters)
+
+```php
+<?php
+
+use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
+
+$client = new PsrClickHouseClient(...);
+
+$output = $client->selectWithParams(
     'SELECT {p1:String}',
     ['param' => 'value']
 );
 ```
-This produces `SELECT 'value'` in ClickHouse and it can be passed to `ClickHouseClient::select()`.
 
 All types are supported (except `AggregateFunction`, `SimpleAggregateFunction` and `Nothing` by design).
 You can also pass `DateTimeInterface` into `Date*` types or native array into `Array`, `Tuple`, `Native` and `Geo` types

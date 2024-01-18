@@ -24,6 +24,7 @@ final class RequestFactoryTest extends TestCaseBase
             new ParamValueConverterRegistry(),
             $psr17Factory,
             $psr17Factory,
+            $psr17Factory,
             $uri,
         );
 

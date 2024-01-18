@@ -90,6 +90,7 @@ trait WithClient
                 new ParamValueConverterRegistry(),
                 new Psr17Factory(),
                 new Psr17Factory(),
+                new Psr17Factory(),
             ),
         );
 
@@ -105,6 +106,7 @@ trait WithClient
                 new ParamValueConverterRegistry(),
                 new Psr17Factory(),
                 new Psr17Factory(),
+                new Psr17Factory(),
             ),
         );
 
@@ -118,6 +120,7 @@ trait WithClient
             ),
             new RequestFactory(
                 new ParamValueConverterRegistry(),
+                new Psr17Factory(),
                 new Psr17Factory(),
                 new Psr17Factory(),
             ),

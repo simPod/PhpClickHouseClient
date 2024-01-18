@@ -20,10 +20,13 @@ use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 
+use function array_is_list;
 use function array_key_first;
 use function array_keys;
 use function array_map;
+use function array_values;
 use function implode;
+use function is_array;
 use function is_int;
 use function SimPod\ClickHouseClient\absurd;
 use function sprintf;
@@ -96,6 +99,54 @@ class PsrClickHouseClient implements ClickHouseClient
             throw CannotInsert::noValues();
         }
 
+        $table = Escaper::quoteIdentifier($table);
+
+        if (is_array($columns) && ! array_is_list($columns)) {
+            $columnsSql = sprintf('(%s)', implode(',', array_keys($columns)));
+
+            $types = array_values($columns);
+
+            $params = [];
+            $pN     = 1;
+            foreach ($values as $row) {
+                foreach ($row as $value) {
+                    $params['p' . $pN++] = $value;
+                }
+            }
+
+            $pN        = 1;
+            $valuesSql = implode(
+                ',',
+                array_map(
+                    static function (array $row) use (&$pN, $types): string {
+                        return sprintf(
+                            '(%s)',
+                            implode(',', array_map(static function ($i) use (&$pN, $types) {
+                                return sprintf('{p%d:%s}', $pN++, $types[$i]);
+                            }, array_keys($row))),
+                        );
+                    },
+                    $values,
+                ),
+            );
+
+            try {
+                $this->executeRequest(
+                    <<<CLICKHOUSE
+                    INSERT INTO $table
+                    $columnsSql
+                    VALUES $valuesSql
+                    CLICKHOUSE,
+                    params: $params,
+                    settings: $settings,
+                );
+            } catch (UnsupportedParamType) {
+                absurd();
+            }
+
+            return;
+        }
+
         if ($columns === null) {
             $firstRow = $values[array_key_first($values)];
             $columns  = array_keys($firstRow);
@@ -116,8 +167,6 @@ class PsrClickHouseClient implements ClickHouseClient
                 $values,
             ),
         );
-
-        $table = Escaper::quoteIdentifier($table);
 
         try {
             $this->executeRequest(

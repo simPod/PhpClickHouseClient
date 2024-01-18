@@ -207,6 +207,10 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 $client->insert('table', $data, $columnNames);
 ```
 
+If `$columnNames` is provided and is key->value array column names are generated based on it and values are passed as parameters:
+
+`$client->insert( 'table', [[1,2]], ['a' => 'Int8, 'b' => 'String'] );` generates `INSERT INTO table (a,b) VALUES ({p1:Int8},{p2:String})` and values are passed along the query.
+
 If `$columnNames` is provided column names are generated based on it:
 
 `$client->insert( 'table', [[1,2]], ['a', 'b'] );` generates `INSERT INTO table (a,b) VALUES (1,2)`.

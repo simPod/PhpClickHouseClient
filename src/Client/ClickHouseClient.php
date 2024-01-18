@@ -70,6 +70,7 @@ interface ClickHouseClient
      * @throws CannotInsert
      * @throws ClientExceptionInterface
      * @throws ServerError
+     * @throws UnsupportedParamType
      */
     public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void;
 

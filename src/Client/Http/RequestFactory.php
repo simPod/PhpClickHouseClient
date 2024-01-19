@@ -73,39 +73,44 @@ final class RequestFactory
         $request = $this->requestFactory->createRequest('POST', $uri);
 
         preg_match_all('~\{([a-zA-Z\d]+):([a-zA-Z\d ]+(\(.+\))?)}~', $requestOptions->sql, $matches);
-        if ($matches === []) {
+        if ($matches[0] === []) {
             $body = $this->streamFactory->createStream($requestOptions->sql);
-        } else {
-            $typeToParam = array_reduce(
-                array_keys($matches[1]),
-                static function (array $acc, string|int $k) use ($matches) {
-                    $acc[$matches[1][$k]] = Type::fromString($matches[2][$k]);
-
-                    return $acc;
-                },
-                [],
-            );
-
-            $streamElements = [['name' => 'query', 'contents' => $requestOptions->sql]];
-            foreach ($requestOptions->params as $name => $value) {
-                $type = $typeToParam[$name] ?? null;
-                if ($type === null) {
-                    continue;
-                }
-
-                $streamElements[] = [
-                    'name' => 'param_' . $name,
-                    'contents' => $this->paramValueConverterRegistry->get($type)($value, $type, false),
-                ];
-            }
-
             try {
-                $body    = new MultipartStream($streamElements);
-                $request = $request->withBody($body)
-                    ->withHeader('Content-Type', 'multipart/form-data; boundary=' . $body->getBoundary());
+                return $request->withBody($body);
             } catch (InvalidArgumentException) {
                 absurd();
             }
+        }
+
+        $typeToParam = array_reduce(
+            array_keys($matches[1]),
+            static function (array $acc, string|int $k) use ($matches) {
+                $acc[$matches[1][$k]] = Type::fromString($matches[2][$k]);
+
+                return $acc;
+            },
+            [],
+        );
+
+        $streamElements = [['name' => 'query', 'contents' => $requestOptions->sql]];
+        foreach ($requestOptions->params as $name => $value) {
+            $type = $typeToParam[$name] ?? null;
+            if ($type === null) {
+                continue;
+            }
+
+            $streamElements[] = [
+                'name' => 'param_' . $name,
+                'contents' => $this->paramValueConverterRegistry->get($type)($value, $type, false),
+            ];
+        }
+
+        try {
+            $body    = new MultipartStream($streamElements);
+            $request = $request->withBody($body)
+                ->withHeader('Content-Type', 'multipart/form-data; boundary=' . $body->getBoundary());
+        } catch (InvalidArgumentException) {
+            absurd();
         }
 
         return $request;

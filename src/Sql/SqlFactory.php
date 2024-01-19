@@ -12,10 +12,7 @@ use function preg_replace;
 use function sprintf;
 use function str_replace;
 
-/**
- * @internal
- * @deprecated
- */
+/** @internal */
 final class SqlFactory
 {
     public function __construct(private ValueFormatter $valueFormatter)

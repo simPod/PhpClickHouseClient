@@ -33,6 +33,6 @@ jobs:
       - name: Run Infection
         run: |
           export $ENV
-          vendor/bin/roave-infection-static-analysis-plugin --threads=$(nproc)
+          vendor/bin/infection --threads=$(nproc)
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

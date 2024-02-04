@@ -11,7 +11,7 @@ use function json_decode;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @psalm-immutable
+ * @phpstan-immutable
  * @template T
  * @implements Output<T>
  */
@@ -41,7 +41,6 @@ final class JsonCompact implements Output
          *     rows_before_limit_at_least?: int,
          *     statistics: array{elapsed: float, rows_read: int, bytes_read: int}
          * } $contents
-         * @psalm-suppress ImpureFunctionCall
          */
         $contents                     = json_decode($contentsJson, true, flags: JSON_THROW_ON_ERROR);
         $this->data                   = $contents['data'];

@@ -6,5 +6,4 @@
 /phpcs.xml
 /phpunit.xml
 /phpstan.neon
-/psalm.xml.dist
 /vendor/

@@ -3,7 +3,6 @@
 [![Build Status](https://github.com/simPod/PhpClickHouseClient/workflows/CI/badge.svg?branch=master)](https://github.com/simPod/PhpClickHouseClient/actions)
 [![Code Coverage][Coverage image]][CodeCov Master]
 [![Downloads](https://poser.pugx.org/simpod/clickhouse-client/d/total.svg)](https://packagist.org/packages/simpod/clickhouse-client)
-[![Type Coverage](https://shepherd.dev/github/simPod/PhpClickHouseClient/coverage.svg)](https://shepherd.dev/github/simPod/PhpClickHouseClient)
 [![Infection MSI](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FsimPod%2FPhpClickHouseClient%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/simPod/PhpClickHouseClient/master)
 
 ## Motivation

@@ -13,7 +13,7 @@ use function str_replace;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @psalm-immutable
+ * @phpstan-immutable
  * @template T
  * @implements Output<T>
  */
@@ -25,10 +25,7 @@ final class JsonEachRow implements Output
     /** @throws JsonException */
     public function __construct(string $contentsJson)
     {
-        /**
-         * @var list<T> $contents
-         * @psalm-suppress ImpureFunctionCall
-         */
+        /** @var list<T> $contents */
         $contents   = json_decode(
             sprintf('[%s]', str_replace("}\n{", '},{', $contentsJson)),
             true,

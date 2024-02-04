@@ -7,7 +7,7 @@ namespace SimPod\ClickHouseClient\Output;
 // phpcs:disable Squiz.Classes.ValidClassName.NotCamelCaps
 
 /**
- * @psalm-immutable
+ * @phpstan-immutable
  * @template T
  * @implements Output<T>
  */

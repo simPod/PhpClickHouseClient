@@ -11,7 +11,7 @@ use function json_decode;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @psalm-immutable
+ * @phpstan-immutable
  * @template T
  * @implements Output<T>
  */
@@ -33,10 +33,14 @@ final class Json implements Output
     /** @throws JsonException */
     public function __construct(string $contentsJson)
     {
-        // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
         /**
-         * @var array{data: list<T>, meta: array<mixed>, rows: int, rows_before_limit_at_least?: int, statistics: array{elapsed: float, rows_read: int, bytes_read: int}} $contents
-         * @psalm-suppress ImpureFunctionCall
+         * @var array{
+         *     data: list<T>,
+         *     meta: array<mixed>,
+         *     rows: int,
+         *     rows_before_limit_at_least?: int,
+         *     statistics: array{elapsed: float, rows_read: int, bytes_read: int}
+         *  } $contents
          */
         $contents                     = json_decode($contentsJson, true, flags: JSON_THROW_ON_ERROR);
         $this->data                   = $contents['data'];

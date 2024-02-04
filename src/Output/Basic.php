@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Output;
 
 /**
- * @psalm-immutable
+ * @phpstan-immutable
  * @template T
  * @implements Output<T>
  */

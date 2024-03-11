@@ -28,7 +28,7 @@ final class ShowDatabasesTest extends TestCaseBase
         $databases = array_filter(
             $databases,
             static fn (string $database): bool => ! str_starts_with($database, 'clickhouse_client_test__')
-                || $database === self::$currentDbName
+                || $database === self::$currentDbName,
         );
 
         $databases = array_values($databases);

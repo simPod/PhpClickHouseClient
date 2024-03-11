@@ -22,7 +22,7 @@ final class ClickHouseVersion
     /** @throws RuntimeException */
     public static function get(): int
     {
-        $versionString = $_ENV[self::EnvName];
+        $versionString = $_ENV[self::EnvName] ?? '23.12';
         assert(is_string($versionString));
 
         if (strpos($versionString, '.') === false) {

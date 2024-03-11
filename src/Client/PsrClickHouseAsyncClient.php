@@ -66,7 +66,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             settings: $settings,
             processResponse: static fn (ResponseInterface $response): Output => $outputFormat::output(
                 $response->getBody()->__toString(),
-            )
+            ),
         );
     }
 

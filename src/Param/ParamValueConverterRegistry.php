@@ -175,6 +175,19 @@ final class ParamValueConverterRegistry
                     array_map(fn (mixed $i) => $this->get($types[$i])($v[$i], null, true), array_keys($v)),
                 ) . ')';
             },
+            'Variant' => function (array|string $v, Type $type) {
+            // TODO
+                if (is_string($v)) {
+                    return $v;
+                }
+
+                $types = array_map(static fn ($p) => trim($p), explode(',', $type->params));
+
+                return '(' . implode(
+                    ',',
+                    array_map(fn (mixed $i) => $this->get($types[$i])($v[$i], null, true), array_keys($v)),
+                ) . ')';
+            },
         ];
         $this->registry = $registry;
     }

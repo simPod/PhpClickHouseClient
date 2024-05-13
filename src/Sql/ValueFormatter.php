@@ -23,7 +23,7 @@ use function preg_match;
 use function sprintf;
 
 /** @internal */
-final class ValueFormatter
+final readonly class ValueFormatter
 {
     public function __construct(private DateTimeZone|null $dateTimeZone = null)
     {
@@ -117,6 +117,8 @@ final class ValueFormatter
      * @param array<mixed> $values
      *
      * @return array<string>
+     *
+     * @throws UnsupportedParamValue
      */
     public function mapFormat(array $values): array
     {
@@ -132,7 +134,11 @@ final class ValueFormatter
         );
     }
 
-    /** @param array<mixed> $value */
+    /**
+     * @param array<mixed> $value
+     *
+     * @throws UnsupportedParamValue
+     */
     private function formatArray(array $value): string
     {
         return sprintf(

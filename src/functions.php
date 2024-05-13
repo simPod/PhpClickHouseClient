@@ -6,7 +6,11 @@ namespace SimPod\ClickHouseClient;
 
 use RuntimeException;
 
-/** @phpstan-return never */
+/**
+ * @internal
+ *
+ * @phpstan-return never
+ */
 function absurd(): never
 {
     throw new RuntimeException('Called `absurd` function which should never be called');

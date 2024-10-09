@@ -30,8 +30,8 @@ jobs:
         with:
           fetch-depth: 2
 
-      -   name: "Build the docker-compose stack"
-          run: "docker-compose -f tests/docker-compose.yaml up -d"
+      -   name: "Build the docker compose stack"
+          run: "docker compose -f tests/docker-compose.yaml up -d"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -96,8 +96,8 @@ jobs:
           with:
             fetch-depth: 2
 
-      -   name: "Build the docker-compose stack"
-          run: "docker-compose -f tests/docker-compose.yaml up -d"
+      -   name: "Build the docker compose stack"
+          run: "docker compose -f tests/docker-compose.yaml up -d"
 
       -   name: "Install PHP"
           uses: "shivammathur/setup-php@v2"

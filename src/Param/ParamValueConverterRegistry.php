@@ -161,7 +161,11 @@ final class ParamValueConverterRegistry
                 ? $v
                 : sprintf('[%s]', implode(
                     ',',
-                    array_map(fn (mixed $v) => $this->get($type->params)($v, $type, true), $v),
+                    array_map(function (mixed $v) use ($type) {
+                        $innerType = Type::fromString($type->params);
+
+                        return $this->get($innerType)($v, $innerType, true);
+                    }, $v),
                 )),
             'Tuple' => function (array|string $v, Type $type) {
                 if (is_string($v)) {

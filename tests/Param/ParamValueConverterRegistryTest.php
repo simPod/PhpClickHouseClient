@@ -110,7 +110,9 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
     public static function providerConvert(): Generator
     {
         yield 'Array' => ['Array(String)', "['foo','bar']", "['foo','bar']"];
+        yield 'Array LC' => ['Array(LowCardinality(String))', "['foo','bar']", "['foo','bar']"];
         yield 'Array (array)' => ['Array(String)', ['foo', 'bar'], "['foo','bar']"];
+        yield 'Array Tuple' => ['Array(Tuple(String, String))', [['foo', 'bar']], "[('foo','bar')]"];
         yield 'Tuple' => ['Tuple(String, Int8)', "('k',1)", "('k',1)"];
         yield 'Tuple (array)' => ['Tuple(String, Int8)', ['k', 1], "('k',1)"];
 
@@ -250,7 +252,7 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'IPv6' => ['IPv6', '2001:0000:130F:0000:0000:09C0:876A:130B', '2001:0:130f::9c0:876a:130b'];
     }
 
-    public function testThrowsOnUknownType(): void
+    public function testThrowsOnUnknownType(): void
     {
         $registry = new ParamValueConverterRegistry();
 

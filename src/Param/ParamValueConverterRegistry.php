@@ -15,10 +15,12 @@ use function array_map;
 use function explode;
 use function implode;
 use function in_array;
+use function is_array;
 use function is_string;
 use function json_encode;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function strtolower;
 use function trim;
 
@@ -101,7 +103,7 @@ final class ParamValueConverterRegistry
                     return $v;
                 }
 
-                $types = array_map(static fn ($type) => explode(' ', trim($type))[1], explode(',', $type->params));
+                $types = array_map(static fn ($type) => explode(' ', trim($type))[1], $this->splitTypes($type->params));
 
                 return sprintf('[%s]', implode(',', array_map(
                     fn (array $row) => sprintf('(%s)', implode(',', array_map(
@@ -167,17 +169,23 @@ final class ParamValueConverterRegistry
                         return $this->get($innerType)($v, $innerType, true);
                     }, $v),
                 )),
-            'Tuple' => function (array|string $v, Type $type) {
-                if (is_string($v)) {
+            'Tuple' => function (mixed $v, Type $type) {
+                if (! is_array($v)) {
                     return $v;
                 }
 
-                $types = array_map(static fn ($p) => trim($p), explode(',', $type->params));
+                $innerTypes = $this->splitTypes($type->params);
 
-                return '(' . implode(
+                $innerExpression = implode(
                     ',',
-                    array_map(fn (mixed $i) => $this->get($types[$i])($v[$i], null, true), array_keys($v)),
-                ) . ')';
+                    array_map(function (int $i) use ($innerTypes, $v) {
+                        $innerType = Type::fromString($innerTypes[$i]);
+
+                        return $this->get($innerType)($v[$i], $innerType, true);
+                    }, array_keys($v)),
+                );
+
+                return '(' . $innerExpression . ')';
             },
         ];
         $this->registry = $registry;
@@ -253,5 +261,37 @@ final class ParamValueConverterRegistry
     private static function dateIntervalConverter(): Closure
     {
         return static fn (int|float $v) => $v;
+    }
+
+    /** @return list<string> */
+    private function splitTypes(string $types): array
+    {
+        $result  = [];
+        $depth   = 0;
+        $current = '';
+
+        for ($i = 0; $i < strlen($types); $i++) {
+            $char = $types[$i];
+            if ($char === '(') {
+                $depth++;
+            } elseif ($char === ')') {
+                $depth--;
+            } elseif ($char === ',' && $depth === 0) {
+                $result[] = $current;
+                $current  = '';
+
+                continue;
+            }
+
+            $current .= $char;
+        }
+
+        $current = trim($current);
+
+        if ($current !== '') {
+            $result[] = $current;
+        }
+
+        return $result;
     }
 }

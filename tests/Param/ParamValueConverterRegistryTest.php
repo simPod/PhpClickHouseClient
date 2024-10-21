@@ -113,6 +113,12 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'Array LC' => ['Array(LowCardinality(String))', "['foo','bar']", "['foo','bar']"];
         yield 'Array (array)' => ['Array(String)', ['foo', 'bar'], "['foo','bar']"];
         yield 'Array Tuple' => ['Array(Tuple(String, String))', [['foo', 'bar']], "[('foo','bar')]"];
+        yield 'Array Tuple Complex' => [
+            'Array(Tuple(Tuple(UInt32, UUID), String))',
+            [[[1, '084caa96-915b-449d-8fc6-0292c73d6399'], 'bar']],
+            "[((1,'084caa96-915b-449d-8fc6-0292c73d6399'),'bar')]",
+        ];
+
         yield 'Tuple' => ['Tuple(String, Int8)', "('k',1)", "('k',1)"];
         yield 'Tuple (array)' => ['Tuple(String, Int8)', ['k', 1], "('k',1)"];
 

@@ -11,6 +11,7 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 
 use function array_key_first;
 use function array_map;
+use function assert;
 use function implode;
 use function is_array;
 use function is_bool;
@@ -92,13 +93,17 @@ final readonly class ValueFormatter
 
                 $firstValue = $value[array_key_first($value)];
                 $mapper     = is_array($firstValue)
-                    ? fn ($value): string => sprintf(
-                        '(%s)',
-                        implode(
-                            ',',
-                            array_map(fn ($val) => $this->format($val), $value),
-                        ),
-                    )
+                    ? function ($value): string {
+                        assert(is_array($value));
+
+                        return sprintf(
+                            '(%s)',
+                            implode(
+                                ',',
+                                array_map(fn ($val) => $this->format($val), $value),
+                            ),
+                        );
+                    }
                     : fn ($value): string => $value === null ? 'NULL' : $this->format($value);
 
                 return implode(

@@ -12,9 +12,6 @@ use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use stdClass;
 
 use function opendir;
-use function sprintf;
-
-use const PHP_VERSION_ID;
 
 #[CoversClass(UnsupportedParamValue::class)]
 final class UnsupportedParamValueTest extends TestCaseBase
@@ -68,17 +65,12 @@ final class UnsupportedParamValueTest extends TestCaseBase
             new stdClass(),
         ];
 
-        $prefix = PHP_VERSION_ID >= 80200 ? '\\' : '';
-
         yield [
-            sprintf(
-                "Value \"%sDateTime::__set_state(array(
+            "Value \"\DateTime::__set_state(array(
    'date' => '2022-02-02 13:31:37.593289',
    'timezone_type' => 3,
    'timezone' => 'UTC',
 ))\" is not supported as a parameter",
-                $prefix,
-            ),
             new DateTime('2022-02-02 13:31:37.593289'),
         ];
     }

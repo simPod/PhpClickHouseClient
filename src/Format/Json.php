@@ -16,7 +16,10 @@ final class Json implements Format
     /** @throws JsonException */
     public static function output(string $contents): Output
     {
-        return new \SimPod\ClickHouseClient\Output\Json($contents);
+        /** @var \SimPod\ClickHouseClient\Output\Json<T> $output */
+        $output = new \SimPod\ClickHouseClient\Output\Json($contents);
+
+        return $output;
     }
 
     public static function toSql(): string

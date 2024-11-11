@@ -16,7 +16,10 @@ final class JsonEachRow implements Format
     /** @throws JsonException */
     public static function output(string $contents): Output
     {
-        return new \SimPod\ClickHouseClient\Output\JsonEachRow($contents);
+        /** @var \SimPod\ClickHouseClient\Output\JsonEachRow<T> $output */
+        $output = new \SimPod\ClickHouseClient\Output\JsonEachRow($contents);
+
+        return $output;
     }
 
     public static function toSql(): string

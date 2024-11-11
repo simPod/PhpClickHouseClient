@@ -39,6 +39,12 @@ CLICKHOUSE;
             $client->select($sql, $format),
         ];
 
+        /**
+         * @var array{
+         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: string}>,
+         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: string}>
+         * } $jsonEachRowOutputs
+         */
         $jsonEachRowOutputs = Utils::all($promises)->wait();
 
         $expectedData = [
@@ -46,8 +52,6 @@ CLICKHOUSE;
             ['number' => '1'],
         ];
 
-        self::assertIsArray($jsonEachRowOutputs);
-        self::assertCount(2, $jsonEachRowOutputs);
         self::assertSame($expectedData, $jsonEachRowOutputs[0]->data);
         self::assertSame($expectedData, $jsonEachRowOutputs[1]->data);
     }

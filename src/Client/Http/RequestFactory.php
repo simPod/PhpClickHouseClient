@@ -82,7 +82,8 @@ final class RequestFactory
             }
         }
 
-        $typeToParam = array_reduce(
+        /** @var array<string, Type> $paramToType */
+        $paramToType = array_reduce(
             array_keys($matches[1]),
             static function (array $acc, string|int $k) use ($matches) {
                 $acc[$matches[1][$k]] = Type::fromString($matches[2][$k]);
@@ -94,7 +95,7 @@ final class RequestFactory
 
         $streamElements = [['name' => 'query', 'contents' => $requestOptions->sql]];
         foreach ($requestOptions->params as $name => $value) {
-            $type = $typeToParam[$name] ?? null;
+            $type = $paramToType[$name] ?? null;
             if ($type === null) {
                 continue;
             }

@@ -25,7 +25,7 @@ final class JsonCompact implements Output
 
     public int $rows;
 
-    public int|null $rowsBeforeLimitAtLeast = null;
+    public int|null $rowsBeforeLimitAtLeast;
 
     /** @var array{elapsed: float, rows_read: int, bytes_read: int} */
     public array $statistics;

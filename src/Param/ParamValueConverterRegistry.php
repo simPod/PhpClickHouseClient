@@ -50,15 +50,23 @@ final class ParamValueConverterRegistry
 
     public function __construct()
     {
-        $formatPoint   = static fn (array $point) => sprintf('(%s)', implode(',', $point));
-        $formatRing    = static fn (array $v) => sprintf('[%s]', implode(
-            ',',
-            array_map($formatPoint, $v),
-        ));
-        $formatPolygon = static fn (array $v) => sprintf('[%s]', implode(
-            ',',
-            array_map($formatRing, $v),
-        ));
+        $formatPoint = static fn (array $point) => sprintf('(%s)', implode(',', $point));
+        // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
+        $formatRing = static function (array $v) use ($formatPoint) {
+            /** @phpstan-var array<array<string>> $v */
+            return sprintf('[%s]', implode(
+                ',',
+                array_map($formatPoint, $v),
+            ));
+        };
+        // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
+        $formatPolygon = static function (array $v) use ($formatRing) {
+            /** @phpstan-var array<array<string>> $v */
+            return sprintf('[%s]', implode(
+                ',',
+                array_map($formatRing, $v),
+            ));
+        };
 
         /** @phpstan-var array<string, Converter> $registry */
         $registry       = [
@@ -105,6 +113,7 @@ final class ParamValueConverterRegistry
 
                 $types = array_map(static fn ($type) => explode(' ', trim($type))[1], $this->splitTypes($type->params));
 
+                /** @phpstan-var array<array<string>> $v */
                 return sprintf('[%s]', implode(',', array_map(
                     fn (array $row) => sprintf('(%s)', implode(',', array_map(
                         fn (int|string $i) => $this->get($types[$i])($row[$i], $types[$i], true),
@@ -154,10 +163,14 @@ final class ParamValueConverterRegistry
                     : $formatPolygon($v),
             'MultiPolygon' => static fn (string|array $v) => is_string($v)
                 ? $v
-                : (static fn (array $vv) => sprintf('[%s]', implode(
-                    ',',
-                    array_map($formatPolygon, $vv),
-                )))($v),
+                // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
+                : (static function (array $vv) use ($formatPolygon) {
+                    /** @phpstan-var array<array<string>> $vv */
+                    return sprintf('[%s]', implode(
+                        ',',
+                        array_map($formatPolygon, $vv),
+                    ));
+                })($v),
 
             'Array' => fn (array|string $v, Type $type) => is_string($v)
                 ? $v
@@ -194,7 +207,7 @@ final class ParamValueConverterRegistry
     /**
      * @phpstan-return Converter
      *
-     * @throws UnsupportedParamType;
+     * @throws UnsupportedParamType
      */
     public function get(Type|string $type): Closure
     {

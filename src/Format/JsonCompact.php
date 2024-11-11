@@ -16,7 +16,10 @@ final class JsonCompact implements Format
     /** @throws JsonException */
     public static function output(string $contents): Output
     {
-        return new \SimPod\ClickHouseClient\Output\JsonCompact($contents);
+        /** @var \SimPod\ClickHouseClient\Output\JsonCompact<T> $output */
+        $output = new \SimPod\ClickHouseClient\Output\JsonCompact($contents);
+
+        return $output;
     }
 
     public static function toSql(): string

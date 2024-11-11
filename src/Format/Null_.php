@@ -16,7 +16,10 @@ final class Null_ implements Format
 {
     public static function output(string $contents): Output
     {
-        return new \SimPod\ClickHouseClient\Output\Null_($contents);
+        /** @var \SimPod\ClickHouseClient\Output\Null_<T> $output */
+        $output = new \SimPod\ClickHouseClient\Output\Null_($contents);
+
+        return $output;
     }
 
     public static function toSql(): string

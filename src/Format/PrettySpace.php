@@ -15,7 +15,10 @@ final class PrettySpace implements Format
 {
     public static function output(string $contents): Output
     {
-        return new Basic($contents);
+        /** @var Basic<T> $output */
+        $output = new Basic($contents);
+
+        return $output;
     }
 
     public static function toSql(): string

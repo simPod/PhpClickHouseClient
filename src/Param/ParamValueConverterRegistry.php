@@ -290,6 +290,7 @@ final class ParamValueConverterRegistry
             } elseif ($char === ')') {
                 $depth--;
             } elseif ($char === ',' && $depth === 0) {
+                $current  = trim($current);
                 $result[] = $current;
                 $current  = '';
 

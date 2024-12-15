@@ -121,6 +121,11 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 
         yield 'Tuple' => ['Tuple(String, Int8)', "('k',1)", "('k',1)"];
         yield 'Tuple (array)' => ['Tuple(String, Int8)', ['k', 1], "('k',1)"];
+        yield 'Tuple (array complex)' => [
+            'Tuple(Tuple(UInt32, String), UInt64, UInt8)',
+            [[1, 'k'], 1 , 2],
+            "((1,'k'),1,2)",
+        ];
 
         if (ClickHouseVersion::get() >= self::VersionIntervalJsonObject) {
             yield 'JSON' => ['JSON', '{"k":"v"}', '{"k":"v"}'];

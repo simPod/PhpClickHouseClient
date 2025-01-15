@@ -93,6 +93,7 @@ final class ParamValueConverterRegistry
                 ? $value->format('Y-m-d H:i:s.u')
                 : $value,
 
+            'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),
 
             'IPv4' => self::noopConverter(),

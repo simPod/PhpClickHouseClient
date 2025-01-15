@@ -239,6 +239,20 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'Point (array)' => ['Point', [1, 2], '(1,2)'];
         yield 'Ring' => ['Ring', '[(1,2),(3,4)]', '[(1,2),(3,4)]'];
         yield 'Ring (array)' => ['Ring', [[1, 2], [3, 4]], '[(1,2),(3,4)]'];
+        yield 'LineString' => ['LineString', '[(1,2),(3,4)]', '[(1,2),(3,4)]'];
+        yield 'LineString (array)' => ['LineString', [[1, 2], [3, 4]], '[(1,2),(3,4)]'];
+        yield 'MultiLineString' => [
+            'MultiLineString',
+            '[[(1,2),(3,4)],[(5,6),(7,8)]]',
+            '[[(1,2),(3,4)],[(5,6),(7,8)]]',
+        ];
+
+        yield 'MultiLineString (array)' => [
+            'MultiLineString',
+            [[[1, 2], [3, 4]], [[5, 6], [7, 8]]],
+            '[[(1,2),(3,4)],[(5,6),(7,8)]]',
+        ];
+
         yield 'Polygon' => ['Polygon', '[[(1,2),(3,4)],[(5,6),(7,8)]]', '[[(1,2),(3,4)],[(5,6),(7,8)]]'];
         yield 'Polygon (array)' => ['Polygon', [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], '[[(1,2),(3,4)],[(5,6),(7,8)]]'];
         yield 'MultiPolygon' => [

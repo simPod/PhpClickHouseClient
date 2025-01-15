@@ -51,7 +51,7 @@ final class ParamValueConverterRegistry
     {
         $formatPoint = static fn (array $point) => sprintf('(%s)', implode(',', $point));
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
-        $formatRing = static function (array $v) use ($formatPoint) {
+        $formatRingOrLineString = static function (array $v) use ($formatPoint) {
             /** @phpstan-var array<array<string>> $v */
             return sprintf('[%s]', implode(
                 ',',
@@ -59,11 +59,11 @@ final class ParamValueConverterRegistry
             ));
         };
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
-        $formatPolygon = static function (array $v) use ($formatRing) {
+        $formatPolygonOrMultiLineString = static function (array $v) use ($formatRingOrLineString) {
             /** @phpstan-var array<array<string>> $v */
             return sprintf('[%s]', implode(
                 ',',
-                array_map($formatRing, $v),
+                array_map($formatRingOrLineString, $v),
             ));
         };
 
@@ -158,18 +158,24 @@ final class ParamValueConverterRegistry
                 : $formatPoint($v),
             'Ring' => static fn (string|array $v) => is_string($v)
                     ? $v
-                    : $formatRing($v),
+                    : $formatRingOrLineString($v),
+            'LineString' => static fn (string|array $v) => is_string($v)
+                    ? $v
+                    : $formatRingOrLineString($v),
+            'MultiLineString' => static fn (string|array $v) => is_string($v)
+                    ? $v
+                    : $formatPolygonOrMultiLineString($v),
             'Polygon' => static fn (string|array $v) => is_string($v)
                     ? $v
-                    : $formatPolygon($v),
+                    : $formatPolygonOrMultiLineString($v),
             'MultiPolygon' => static fn (string|array $v) => is_string($v)
                 ? $v
                 // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
-                : (static function (array $vv) use ($formatPolygon) {
+                : (static function (array $vv) use ($formatPolygonOrMultiLineString) {
                     /** @phpstan-var array<array<string>> $vv */
                     return sprintf('[%s]', implode(
                         ',',
-                        array_map($formatPolygon, $vv),
+                        array_map($formatPolygonOrMultiLineString, $vv),
                     ));
                 })($v),
 

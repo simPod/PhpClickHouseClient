@@ -30,7 +30,7 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 {
     use WithClient;
 
-    private const VersionIntervalJsonObject = 2211;
+    private const VersionIntervalJson = 2301;
 
     /** @var array<string> */
     private static array $types = [];
@@ -72,6 +72,7 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
             'AggregateFunction',
             'SimpleAggregateFunction',
             'Nothing',
+            'Object',
         ];
 
         $registry = new ParamValueConverterRegistry();
@@ -127,11 +128,9 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
             "((1,'k'),1,2)",
         ];
 
-        if (ClickHouseVersion::get() >= self::VersionIntervalJsonObject) {
+        if (ClickHouseVersion::get() >= self::VersionIntervalJson) {
             yield 'JSON' => ['JSON', '{"k":"v"}', '{"k":"v"}'];
             yield 'JSON (array)' => ['JSON', ['k' => 'v'], '{"k":"v"}'];
-            yield 'Object' => ["Object('JSON')", '{"k":"v"}', '{"k":"v"}'];
-            yield 'Object (array)' => ["Object('JSON')", ['k' => 'v'], '{"k":"v"}'];
         }
 
         yield 'Map' => ['Map(String, UInt64)', "{'k1':1}", "{'k1':1}"];
@@ -219,7 +218,7 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
             yield 'Decimal256' => ['Decimal256(2)', 3.33, '3.33'];
         }
 
-        if (ClickHouseVersion::get() >= self::VersionIntervalJsonObject) {
+        if (ClickHouseVersion::get() >= self::VersionIntervalJson) {
             yield 'IntervalNanosecond' => ['IntervalNanosecond', 1, '1'];
             yield 'IntervalMicrosecond' => ['IntervalMicrosecond', 1, '1'];
             yield 'IntervalMillisecond' => ['IntervalMillisecond', 1, '1'];

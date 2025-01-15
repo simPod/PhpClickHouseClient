@@ -41,7 +41,6 @@ final class ParamValueConverterRegistry
         'decimal128',
         'decimal256',
         'enum',
-        'object',
         'json',
     ];
 
@@ -104,7 +103,6 @@ final class ParamValueConverterRegistry
             'Enum64' => self::noopConverter(),
 
             'json' => static fn (array|string $value) => is_string($value) ? $value : json_encode($value),
-            'object' => fn (mixed $v, Type $type) => $this->get(trim($type->params, "'"))($v, $type, true),
             'Map' => self::noopConverter(),
             'Nested' => function (array|string $v, Type $type) {
                 if (is_string($v)) {

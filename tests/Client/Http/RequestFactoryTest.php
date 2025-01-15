@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
+use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
@@ -28,12 +29,16 @@ final class RequestFactoryTest extends TestCaseBase
             $uri,
         );
 
-        $request = $requestFactory->prepareRequest(new RequestOptions(
+        $request = $requestFactory->prepareSqlRequest(
             'SELECT 1',
-            [],
-            ['max_block_size' => 1],
-            ['database' => 'database'],
-        ));
+            new RequestSettings(
+                ['max_block_size' => 1],
+                ['database' => 'database'],
+            ),
+            new RequestOptions(
+                [],
+            ),
+        );
 
         self::assertSame('POST', $request->getMethod());
         self::assertSame(

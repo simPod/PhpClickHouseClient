@@ -39,6 +39,7 @@
     "require-dev": {
         "cdn77/coding-standard": "^7.0",
         "infection/infection": "^0.29.0",
+        "kafkiansky/phpclick": "dev-bump",
         "nyholm/psr7": "^1.2",
         "php-http/message-factory": "^1.1",
         "phpstan/extension-installer": "^1.1",
@@ -58,5 +59,9 @@
         "psr-4": {
             "SimPod\\ClickHouseClient\\Tests\\": "tests/"
         }
-    }
+    },
+    "repositories": [{
+        "type": "vcs",
+        "url": "https://github.com/simPod/PHPClick"
+    }]
 }

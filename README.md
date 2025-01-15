@@ -60,6 +60,7 @@ $clickHouseClient = new PsrClickHouseClient(
         $psr17Factory,
         $psr17Factory
     ),
+    new LoggerChain(),
     [],
     new DateTimeZone('UTC')
 );
@@ -82,41 +83,6 @@ framework:
                     'X-ClickHouse-Key': '%clickhouse.password%'
                 query:
                     database: '%clickhouse.database%'
-```
-
-### Logging
-
-`SimPod\ClickHouseClient\Client\Http\LoggerPlugin` is available to be used with [HTTPlug PluginClient](http://docs.php-http.org/en/latest/plugins/index.html).
-
-This is the
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Cdn77\Mon\Core\Infrastructure\Symfony\Service\ClickHouse;
-
-use Http\Client\Common\PluginClient;
-use SimPod\ClickHouseClient\Client\Http\LoggerPlugin;
-use SimPod\ClickHouseClient\Logger\SqlLogger;
-use Symfony\Component\HttpClient\HttplugClient;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-
-final class HttpClientFactory
-{
-    public function __construct(private HttpClientInterface $clickHouseClient, private SqlLogger $sqlLogger)
-    {
-    }
-
-    public function create() : PluginClient
-    {
-        return new PluginClient(
-            new HttplugClient($this->clickHouseClient),
-            [new LoggerPlugin($this->sqlLogger)]
-        );
-    }
-}
 ```
 
 ### Time Zones

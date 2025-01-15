@@ -49,11 +49,13 @@ final class RequestFactory
         $this->uri = $uri;
     }
 
-    /** @throws UnsupportedParamType */
-    public function prepareRequest(RequestOptions $requestOptions): RequestInterface
-    {
+    /** @param array<string, mixed> $additionalOptions */
+    public function initRequest(
+        RequestSettings $requestSettings,
+        array $additionalOptions = [],
+    ): RequestInterface {
         $query = http_build_query(
-            $requestOptions->settings,
+            $requestSettings->settings + $additionalOptions,
             '',
             '&',
             PHP_QUERY_RFC3986,
@@ -70,11 +72,20 @@ final class RequestFactory
             }
         }
 
-        $request = $this->requestFactory->createRequest('POST', $uri);
+        return $this->requestFactory->createRequest('POST', $uri);
+    }
 
-        preg_match_all('~\{([a-zA-Z\d]+):([a-zA-Z\d ]+(\(.+\))?)}~', $requestOptions->sql, $matches);
+    /** @throws UnsupportedParamType */
+    public function prepareSqlRequest(
+        string $sql,
+        RequestSettings $requestSettings,
+        RequestOptions $requestOptions,
+    ): RequestInterface {
+        $request = $this->initRequest($requestSettings);
+
+        preg_match_all('~\{([a-zA-Z\d]+):([a-zA-Z\d ]+(\(.+\))?)}~', $sql, $matches);
         if ($matches[0] === []) {
-            $body = $this->streamFactory->createStream($requestOptions->sql);
+            $body = $this->streamFactory->createStream($sql);
             try {
                 return $request->withBody($body);
             } catch (InvalidArgumentException) {
@@ -93,7 +104,7 @@ final class RequestFactory
             [],
         );
 
-        $streamElements = [['name' => 'query', 'contents' => $requestOptions->sql]];
+        $streamElements = [['name' => 'query', 'contents' => $sql]];
         foreach ($requestOptions->params as $name => $value) {
             $type = $paramToType[$name] ?? null;
             if ($type === null) {

@@ -31,6 +31,8 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
     use WithClient;
 
     private const VersionIntervalJson = 2301;
+    private const VersionLineString   = 2408;
+    private const VersionVariant      = 2403;
 
     /** @var array<string> */
     private static array $types = [];
@@ -181,7 +183,10 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'Bool' => ['Bool', true, 'true'];
 
         yield 'Dynamic' => ['Bool', true, 'true'];
-        yield 'Variant' => ['Variant(String, Int8)', 'test', 'test'];
+
+        if (ClickHouseVersion::get() >= self::VersionVariant) {
+            yield 'Variant' => ['Variant(String, Int8)', 'test', 'test'];
+        }
 
         yield 'Nullable' => ['Nullable(String)', 'foo', 'foo'];
         yield 'LowCardinality' => ['LowCardinality(String)', 'foo', 'foo'];
@@ -239,19 +244,22 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'Point (array)' => ['Point', [1, 2], '(1,2)'];
         yield 'Ring' => ['Ring', '[(1,2),(3,4)]', '[(1,2),(3,4)]'];
         yield 'Ring (array)' => ['Ring', [[1, 2], [3, 4]], '[(1,2),(3,4)]'];
-        yield 'LineString' => ['LineString', '[(1,2),(3,4)]', '[(1,2),(3,4)]'];
-        yield 'LineString (array)' => ['LineString', [[1, 2], [3, 4]], '[(1,2),(3,4)]'];
-        yield 'MultiLineString' => [
-            'MultiLineString',
-            '[[(1,2),(3,4)],[(5,6),(7,8)]]',
-            '[[(1,2),(3,4)],[(5,6),(7,8)]]',
-        ];
 
-        yield 'MultiLineString (array)' => [
-            'MultiLineString',
-            [[[1, 2], [3, 4]], [[5, 6], [7, 8]]],
-            '[[(1,2),(3,4)],[(5,6),(7,8)]]',
-        ];
+        if (ClickHouseVersion::get() >= self::VersionLineString) {
+            yield 'LineString' => ['LineString', '[(1,2),(3,4)]', '[(1,2),(3,4)]'];
+            yield 'LineString (array)' => ['LineString', [[1, 2], [3, 4]], '[(1,2),(3,4)]'];
+            yield 'MultiLineString' => [
+                'MultiLineString',
+                '[[(1,2),(3,4)],[(5,6),(7,8)]]',
+                '[[(1,2),(3,4)],[(5,6),(7,8)]]',
+            ];
+
+            yield 'MultiLineString (array)' => [
+                'MultiLineString',
+                [[[1, 2], [3, 4]], [[5, 6], [7, 8]]],
+                '[[(1,2),(3,4)],[(5,6),(7,8)]]',
+            ];
+        }
 
         yield 'Polygon' => ['Polygon', '[[(1,2),(3,4)],[(5,6),(7,8)]]', '[[(1,2),(3,4)],[(5,6),(7,8)]]'];
         yield 'Polygon (array)' => ['Polygon', [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], '[[(1,2),(3,4)],[(5,6),(7,8)]]'];

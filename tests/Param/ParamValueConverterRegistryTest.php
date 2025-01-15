@@ -180,6 +180,8 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 
         yield 'Bool' => ['Bool', true, 'true'];
 
+        yield 'Variant' => ['Variant(String, Int8)', 'test', 'test'];
+
         yield 'Nullable' => ['Nullable(String)', 'foo', 'foo'];
         yield 'LowCardinality' => ['LowCardinality(String)', 'foo', 'foo'];
 

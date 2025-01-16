@@ -43,7 +43,7 @@ jobs:
           extensions: json
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "${{ matrix.composer-options }}"
           dependency-versions: "${{ matrix.dependency-versions }}"
@@ -99,7 +99,7 @@ jobs:
             extensions: json
 
       -   name: "Install dependencies with Composer"
-          uses: "ramsey/composer-install@v2"
+          uses: "ramsey/composer-install@v3"
           with:
             dependency-versions: "${{ matrix.dependency-versions }}"
 

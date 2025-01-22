@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
+use Kafkiansky\Binary\Buffer;
+use Kafkiansky\Binary\Endianness;
+use Kafkiansky\PHPClick;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
@@ -12,6 +16,7 @@ use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
+use SimPod\ClickHouseClient\Format\RowBinary;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -21,6 +26,7 @@ use SimPod\ClickHouseClient\Tests\WithClient;
 #[CoversClass(ServerError::class)]
 #[CoversClass(JsonEachRow::class)]
 #[CoversClass(JsonCompact::class)]
+#[CoversClass(RowBinary::class)]
 final class InsertTest extends TestCaseBase
 {
     use WithClient;
@@ -105,6 +111,60 @@ CLICKHOUSE,
         );
 
         self::assertSame($expectedData, $output->data);
+    }
+
+    #[DataProvider('providerInsert')]
+    public function testInsertPayload(string $tableSql): void
+    {
+        $data = [
+            ['PageViews' => 5, 'UserID' => 4324182021466249494, 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => 4324182021466249494, 'Duration' => 185, 'Sign' => 1],
+        ];
+
+        $rows = [
+            PHPClick\Row::columns(
+                PHPClick\Column::uint32(5),
+                PHPClick\Column::uint64(4324182021466249494),
+                PHPClick\Column::uint32(146),
+                PHPClick\Column::int8(-1),
+            ),
+            PHPClick\Row::columns(
+                PHPClick\Column::uint32(6),
+                PHPClick\Column::uint64(4324182021466249494),
+                PHPClick\Column::uint32(185),
+                PHPClick\Column::int8(1),
+            ),
+        ];
+
+        $buffer = Buffer::empty(Endianness::little());
+
+        foreach ($rows as $row) {
+            $row->writeToBuffer($buffer);
+        }
+
+        self::$client->executeQuery($tableSql);
+
+        $psr17Factory = new Psr17Factory();
+
+        self::$client->insertPayload(
+            'UserActivity',
+            new RowBinary(),
+            $psr17Factory->createStream(
+                $buffer->reset(),
+            ),
+            ['PageViews', 'UserID', 'Duration', 'Sign'],
+        );
+
+        $output = self::$client->select(
+            <<<'CLICKHOUSE'
+            SELECT * FROM UserActivity
+            CLICKHOUSE,
+            new JsonEachRow(),
+        );
+
+        $data[0]['UserID'] = (string) $data[0]['UserID'];
+        $data[1]['UserID'] = (string) $data[1]['UserID'];
+        self::assertSame($data, $output->data);
     }
 
     public function testInsertEscaping(): void

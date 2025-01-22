@@ -30,6 +30,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v3"
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.COMPOSER_AUTH }}"}}'
 
       - name: "Run a static analysis with phpstan/phpstan"
         run: "vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr"

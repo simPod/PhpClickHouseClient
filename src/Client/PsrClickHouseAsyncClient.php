@@ -12,11 +12,15 @@ use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
+use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
+use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
+
+use function uniqid;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
@@ -26,6 +30,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     public function __construct(
         private HttpAsyncClient $asyncClient,
         private RequestFactory $requestFactory,
+        private SqlLogger|null $sqlLogger = null,
         private array $defaultSettings = [],
         DateTimeZone|null $clickHouseTimeZone = null,
     ) {
@@ -83,20 +88,27 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         array $settings = [],
         callable|null $processResponse = null,
     ): PromiseInterface {
-        $request = $this->requestFactory->prepareRequest(
-            new RequestOptions(
-                $sql,
-                $params,
+        $request = $this->requestFactory->prepareSqlRequest(
+            $sql,
+            new RequestSettings(
                 $this->defaultSettings,
                 $settings,
             ),
+            new RequestOptions(
+                $params,
+            ),
         );
+
+        $id = uniqid('', true);
+        $this->sqlLogger?->startQuery($id, $sql);
 
         return Create::promiseFor(
             $this->asyncClient->sendAsyncRequest($request),
         )
             ->then(
-                static function (ResponseInterface $response) use ($processResponse) {
+                function (ResponseInterface $response) use ($id, $processResponse) {
+                    $this->sqlLogger?->stopQuery($id);
+
                     if ($response->getStatusCode() !== 200) {
                         throw ServerError::fromResponse($response);
                     }
@@ -107,6 +119,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
                     return $processResponse($response);
                 },
+                fn () => $this->sqlLogger?->stopQuery($id),
             );
     }
 }

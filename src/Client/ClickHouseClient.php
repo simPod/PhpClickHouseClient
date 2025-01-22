@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
@@ -85,4 +86,21 @@ interface ClickHouseClient
      * @template O of Output
      */
     public function insertWithFormat(string $table, Format $inputFormat, string $data, array $settings = []): void;
+
+    /**
+     * @param array<string, float|int|string> $settings
+     * @param list<string> $columns
+     * @param Format<Output<mixed>> $inputFormat
+     *
+     * @throws ClientExceptionInterface
+     * @throws CannotInsert
+     * @throws ServerError
+     */
+    public function insertPayload(
+        string $table,
+        Format $inputFormat,
+        StreamInterface $payload,
+        array $columns = [],
+        array $settings = [],
+    ): void;
 }

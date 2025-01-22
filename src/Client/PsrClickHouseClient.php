@@ -5,16 +5,21 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use DateTimeZone;
+use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
+use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\Format;
+use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
@@ -30,6 +35,7 @@ use function is_array;
 use function is_int;
 use function SimPod\ClickHouseClient\absurd;
 use function sprintf;
+use function uniqid;
 
 class PsrClickHouseClient implements ClickHouseClient
 {
@@ -41,6 +47,7 @@ class PsrClickHouseClient implements ClickHouseClient
     public function __construct(
         private ClientInterface $client,
         private RequestFactory $requestFactory,
+        private SqlLogger|null $sqlLogger = null,
         private array $defaultSettings = [],
         DateTimeZone|null $clickHouseTimeZone = null,
     ) {
@@ -198,6 +205,44 @@ class PsrClickHouseClient implements ClickHouseClient
         }
     }
 
+    public function insertPayload(
+        string $table,
+        Format $inputFormat,
+        StreamInterface $payload,
+        array $columns = [],
+        array $settings = [],
+    ): void {
+        if ($payload->getSize() === 0) {
+            throw CannotInsert::noValues();
+        }
+
+        $formatSql = $inputFormat::toSql();
+
+        $table = Escaper::quoteIdentifier($table);
+
+        $columnsSql = $columns === [] ? '' : sprintf('(%s)', implode(',', $columns));
+
+        $sql = <<<CLICKHOUSE
+        INSERT INTO $table $columnsSql $formatSql
+        CLICKHOUSE;
+
+        $request = $this->requestFactory->initRequest(
+            new RequestSettings(
+                $this->defaultSettings,
+                $settings,
+            ),
+            ['query' => $sql],
+        );
+
+        try {
+            $request = $request->withBody($payload);
+        } catch (InvalidArgumentException) {
+            absurd();
+        }
+
+        $this->sendHttpRequest($request, $sql);
+    }
+
     /**
      * @param array<string, mixed> $params
      * @param array<string, float|int|string> $settings
@@ -208,16 +253,34 @@ class PsrClickHouseClient implements ClickHouseClient
      */
     private function executeRequest(string $sql, array $params, array $settings): ResponseInterface
     {
-        $request = $this->requestFactory->prepareRequest(
-            new RequestOptions(
-                $sql,
-                $params,
+        $request = $this->requestFactory->prepareSqlRequest(
+            $sql,
+            new RequestSettings(
                 $this->defaultSettings,
                 $settings,
             ),
+            new RequestOptions(
+                $params,
+            ),
         );
 
-        $response = $this->client->sendRequest($request);
+        return $this->sendHttpRequest($request, $sql);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     * @throws ServerError
+     */
+    private function sendHttpRequest(RequestInterface $request, string $sql): ResponseInterface
+    {
+        $id = uniqid('', true);
+        $this->sqlLogger?->startQuery($id, $sql);
+
+        try {
+            $response = $this->client->sendRequest($request);
+        } finally {
+            $this->sqlLogger?->stopQuery($id);
+        }
 
         if ($response->getStatusCode() !== 200) {
             throw ServerError::fromResponse($response);

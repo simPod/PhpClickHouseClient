@@ -44,6 +44,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v3"
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.COMPOSER_AUTH }}"}}'
         with:
           composer-options: "${{ matrix.composer-options }}"
           dependency-versions: "${{ matrix.dependency-versions }}"
@@ -93,6 +95,8 @@ jobs:
 
       -   name: "Install dependencies with Composer"
           uses: "ramsey/composer-install@v3"
+          env:
+            COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.COMPOSER_AUTH }}"}}'
           with:
             dependency-versions: "${{ matrix.dependency-versions }}"
 

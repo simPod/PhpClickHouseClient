@@ -83,7 +83,7 @@ final class RequestFactory
     ): RequestInterface {
         $request = $this->initRequest($requestSettings);
 
-        preg_match_all('~\{([a-zA-Z\d]+):([a-zA-Z\d ]+(\(.+\))?)}~', $sql, $matches);
+        preg_match_all('~\{([a-zA-Z\d_]+):([a-zA-Z\d ]+(\(.+\))?)}~', $sql, $matches);
         if ($matches[0] === []) {
             $body = $this->streamFactory->createStream($sql);
             try {

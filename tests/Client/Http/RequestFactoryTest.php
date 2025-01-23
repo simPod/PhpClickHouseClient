@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client\Http;
 
+use DateTimeImmutable;
 use Generator;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -13,6 +14,8 @@ use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
+
+use function implode;
 
 #[CoversClass(RequestFactory::class)]
 final class RequestFactoryTest extends TestCaseBase
@@ -65,5 +68,43 @@ final class RequestFactoryTest extends TestCaseBase
             '',
             '?database=database&max_block_size=1',
         ];
+    }
+
+    public function testParamParsed(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {p1:String}, {p_2:Date}',
+            new RequestSettings(
+                [],
+                [],
+            ),
+            new RequestOptions(
+                [
+                    'p1' => 'value1',
+                    'p_2' => new DateTimeImmutable(),
+                ],
+            ),
+        );
+
+        $body = $request->getBody()->__toString();
+        self::assertStringContainsString('param_p1', $body);
+        self::assertStringContainsString(
+            implode(
+                "\r\n",
+                [
+                    'Content-Disposition: form-data; name="param_p_2"',
+                    'Content-Length: 10',
+                    '',
+                    '2025-01-23',
+                ],
+            ),
+            $body,
+        );
     }
 }

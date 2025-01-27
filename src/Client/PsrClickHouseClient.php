@@ -21,7 +21,7 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Output\Output;
-use SimPod\ClickHouseClient\Sql\Escaper;
+use SimPod\ClickHouseClient\Schema\Table;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 
@@ -100,13 +100,17 @@ class PsrClickHouseClient implements ClickHouseClient
         return $outputFormat::output($response->getBody()->__toString());
     }
 
-    public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void
+    public function insert(Table|string $table, array $values, array|null $columns = null, array $settings = []): void
     {
         if ($values === []) {
             throw CannotInsert::noValues();
         }
 
-        $table = Escaper::quoteIdentifier($table);
+        if (! $table instanceof Table) {
+            $table = new Table($table);
+        }
+
+        $tableName = $table->fullName();
 
         if (is_array($columns) && ! array_is_list($columns)) {
             $columnsSql = sprintf('(%s)', implode(',', array_keys($columns)));
@@ -139,7 +143,7 @@ class PsrClickHouseClient implements ClickHouseClient
 
             $this->executeRequest(
                 <<<CLICKHOUSE
-                INSERT INTO $table
+                INSERT INTO $tableName
                 $columnsSql
                 VALUES $valuesSql
                 CLICKHOUSE,
@@ -174,7 +178,7 @@ class PsrClickHouseClient implements ClickHouseClient
         try {
             $this->executeRequest(
                 <<<CLICKHOUSE
-                INSERT INTO $table
+                INSERT INTO $tableName
                 $columnsSql
                 VALUES $valuesSql
                 CLICKHOUSE,
@@ -186,16 +190,24 @@ class PsrClickHouseClient implements ClickHouseClient
         }
     }
 
-    public function insertWithFormat(string $table, Format $inputFormat, string $data, array $settings = []): void
-    {
+    public function insertWithFormat(
+        Table|string $table,
+        Format $inputFormat,
+        string $data,
+        array $settings = [],
+    ): void {
         $formatSql = $inputFormat::toSql();
 
-        $table = Escaper::quoteIdentifier($table);
+        if (! $table instanceof Table) {
+            $table = new Table($table);
+        }
+
+        $tableName = $table->fullName();
 
         try {
             $this->executeRequest(
                 <<<CLICKHOUSE
-                INSERT INTO $table $formatSql $data
+                INSERT INTO $tableName $formatSql $data
                 CLICKHOUSE,
                 params: [],
                 settings: $settings,
@@ -206,7 +218,7 @@ class PsrClickHouseClient implements ClickHouseClient
     }
 
     public function insertPayload(
-        string $table,
+        Table|string $table,
         Format $inputFormat,
         StreamInterface $payload,
         array $columns = [],
@@ -218,12 +230,16 @@ class PsrClickHouseClient implements ClickHouseClient
 
         $formatSql = $inputFormat::toSql();
 
-        $table = Escaper::quoteIdentifier($table);
+        if (! $table instanceof Table) {
+            $table = new Table($table);
+        }
+
+        $tableName = $table->fullName();
 
         $columnsSql = $columns === [] ? '' : sprintf('(%s)', implode(',', $columns));
 
         $sql = <<<CLICKHOUSE
-        INSERT INTO $table $columnsSql $formatSql
+        INSERT INTO $tableName $columnsSql $formatSql
         CLICKHOUSE;
 
         $request = $this->requestFactory->initRequest(

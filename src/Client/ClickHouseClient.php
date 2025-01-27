@@ -12,6 +12,7 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
+use SimPod\ClickHouseClient\Schema\Table;
 
 interface ClickHouseClient
 {
@@ -74,7 +75,7 @@ interface ClickHouseClient
      * @throws UnsupportedParamType
      * @throws UnsupportedParamValue
      */
-    public function insert(string $table, array $values, array|null $columns = null, array $settings = []): void;
+    public function insert(Table|string $table, array $values, array|null $columns = null, array $settings = []): void;
 
     /**
      * @param array<string, float|int|string> $settings
@@ -85,7 +86,12 @@ interface ClickHouseClient
      *
      * @template O of Output
      */
-    public function insertWithFormat(string $table, Format $inputFormat, string $data, array $settings = []): void;
+    public function insertWithFormat(
+        Table|string $table,
+        Format $inputFormat,
+        string $data,
+        array $settings = [],
+    ): void;
 
     /**
      * @param array<string, float|int|string> $settings
@@ -97,7 +103,7 @@ interface ClickHouseClient
      * @throws ServerError
      */
     public function insertPayload(
-        string $table,
+        Table|string $table,
         Format $inputFormat,
         StreamInterface $payload,
         array $columns = [],

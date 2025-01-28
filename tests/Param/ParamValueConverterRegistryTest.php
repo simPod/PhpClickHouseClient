@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Param;
 
 use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 use Generator;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -12,6 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
@@ -293,5 +296,23 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 
         $this->expectException(UnsupportedParamType::class);
         $registry->get('fOo');
+    }
+
+    public function testParameterRegistryOverwrite(): void
+    {
+        $registry = new ParamValueConverterRegistry([
+            'datetime' => static fn (mixed $value) => $value instanceof DateTimeInterface
+                ? $value->format('c')
+                : throw UnsupportedParamValue::value($value),
+        ]);
+
+        self::assertSame(
+            '2025-01-28T16:00:00+01:00',
+            $registry->get('datetime')(
+                new DateTimeImmutable('2025-01-28T16:00:00', new DateTimeZone('+0100')),
+                null,
+                false,
+            ),
+        );
     }
 }

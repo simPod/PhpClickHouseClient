@@ -12,6 +12,7 @@ use SimPod\ClickHouseClient\Sql\Type;
 
 use function array_keys;
 use function array_map;
+use function array_merge;
 use function explode;
 use function implode;
 use function in_array;
@@ -24,7 +25,10 @@ use function strlen;
 use function strtolower;
 use function trim;
 
-/** @phpstan-type Converter = Closure(mixed, Type|string|null, bool):(StreamInterface|string) */
+/**
+ * @phpstan-type Converter = Closure(mixed, Type|string|null, bool):(StreamInterface|string)
+ * @phpstan-type ConverterRegistry = array<string, Converter>
+ */
 final class ParamValueConverterRegistry
 {
     /** @var list<string> */
@@ -44,10 +48,11 @@ final class ParamValueConverterRegistry
         'json',
     ];
 
-    /** @phpstan-var array<string, Converter> */
+    /** @phpstan-var ConverterRegistry */
     private array $registry;
 
-    public function __construct()
+    /** @phpstan-param ConverterRegistry $registry */
+    public function __construct(array $registry = [])
     {
         $formatPoint = static fn (array $point) => sprintf('(%s)', implode(',', $point));
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
@@ -67,8 +72,8 @@ final class ParamValueConverterRegistry
             ));
         };
 
-        /** @phpstan-var array<string, Converter> $registry */
-        $registry       = [
+        /** @phpstan-var ConverterRegistry $defaultRegistry */
+        $defaultRegistry = [
             'String' => self::stringConverter(),
             'FixedString' => self::stringConverter(),
 
@@ -208,7 +213,7 @@ final class ParamValueConverterRegistry
                 return '(' . $innerExpression . ')';
             },
         ];
-        $this->registry = $registry;
+        $this->registry  = array_merge($defaultRegistry, $registry);
     }
 
     /**

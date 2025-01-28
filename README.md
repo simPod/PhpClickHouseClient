@@ -51,12 +51,14 @@ use Http\Client\Curl\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
+use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 
 $psr17Factory = new Psr17Factory;
 
 $clickHouseClient = new PsrClickHouseClient(
     new Client(),
     new RequestFactory(
+        new ParamValueConverterRegistry(),
         $psr17Factory,
         $psr17Factory
     ),

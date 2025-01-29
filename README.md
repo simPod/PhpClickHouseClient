@@ -243,6 +243,31 @@ $output = $client->selectWithParams(
 All types are supported (except `AggregateFunction`, `SimpleAggregateFunction` and `Nothing` by design).
 You can also pass `DateTimeInterface` into `Date*` types or native array into `Array`, `Tuple`, `Native` and `Geo` types
 
+### Custom Query Parameter Value Conversion
+
+Query parameters passed to `selectWithParams()` are converted into an HTTP-API-compatible format. To overwrite an existing value converter or
+provide a converter for a type that the library does not (yet) support, pass these to the
+`SimPod\ClickHouseClient\Param\ParamValueConverterRegistry` constructor:
+
+```php
+<?php
+
+use SimPod\ClickHouseClient\Client\Http\RequestFactory;
+use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
+use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
+
+$paramValueConverterRegistry = new ParamValueConverterRegistry([
+    'datetime' => static fn (mixed $v) => $v instanceof DateTimeInterface ? $v->format('c') : throw UnsupportedParamValue::type($value)
+]);
+
+$client = new PsrClickHouseClient(..., new RequestFactory($paramValueConverterRegistry, ...));
+```
+
+Be aware that the library can not ensure that passed values have a certain type. They are passed as-is and closures must accept `mixed` values.
+
+Throw an exception of type `UnsupportedParamValue` if your converter does not support the passed value type.
+
 ### Expression
 
 To represent complex expressions there's `SimPod\ClickHouseClient\Sql\Expression` class. When passed to `SqlFactory` its value gets evaluated.

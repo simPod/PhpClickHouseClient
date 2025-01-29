@@ -266,7 +266,7 @@ final class ParamValueConverterRegistry
 
     private static function dateConverter(): Closure
     {
-        return static fn (DateTimeInterface|string|float $value) => $value instanceof DateTimeInterface
+        return static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
             ? $value->format('Y-m-d')
             : $value;
     }

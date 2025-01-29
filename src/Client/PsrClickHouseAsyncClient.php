@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
-use DateTimeZone;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -32,9 +31,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         private RequestFactory $requestFactory,
         private SqlLogger|null $sqlLogger = null,
         private array $defaultSettings = [],
-        DateTimeZone|null $clickHouseTimeZone = null,
     ) {
-        $this->sqlFactory = new SqlFactory(new ValueFormatter($clickHouseTimeZone));
+        $this->sqlFactory = new SqlFactory(new ValueFormatter());
     }
 
     /**

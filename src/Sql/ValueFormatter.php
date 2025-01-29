@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Sql;
 
 use BackedEnum;
-use DateTimeImmutable;
-use DateTimeZone;
+use DateTimeInterface;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 
 use function array_key_first;
@@ -26,10 +25,6 @@ use function sprintf;
 /** @internal */
 final readonly class ValueFormatter
 {
-    public function __construct(private DateTimeZone|null $dateTimeZone = null)
-    {
-    }
-
     /** @throws UnsupportedParamValue */
     public function format(mixed $value, string|null $paramName = null, string|null $sql = null): string
     {
@@ -66,12 +61,8 @@ final readonly class ValueFormatter
                 : (string) $value->value;
         }
 
-        if ($value instanceof DateTimeImmutable) {
-            if ($this->dateTimeZone !== null) {
-                $value = $value->setTimezone($this->dateTimeZone);
-            }
-
-            return "'" . $value->format('Y-m-d H:i:s') . "'";
+        if ($value instanceof DateTimeInterface) {
+            return (string) $value->getTimestamp();
         }
 
         if ($value instanceof Expression) {

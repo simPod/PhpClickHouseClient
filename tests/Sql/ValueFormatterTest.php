@@ -28,7 +28,7 @@ final class ValueFormatterTest extends TestCaseBase
     ): void {
         self::assertSame(
             $expectedValue,
-            (new ValueFormatter(new DateTimeZone('UTC')))->format($value, $paramName, $sql),
+            (new ValueFormatter())->format($value, $paramName, $sql),
         );
     }
 
@@ -68,9 +68,9 @@ final class ValueFormatterTest extends TestCaseBase
             'SELECT * FROM table WHERE (a,b) IN (:tuples)',
         ];
 
-        yield 'DateTimeImmutable' => ["'2020-01-31 01:23:45'", new DateTimeImmutable('2020-01-31 01:23:45')];
+        yield 'DateTimeImmutable' => ['1580433825', new DateTimeImmutable('2020-01-31 01:23:45')];
         yield 'DateTimeImmutable different PHP and ClickHouse timezones' => [
-            "'2020-01-31 01:23:45'",
+            '1580433825',
             new DateTimeImmutable('2020-01-31 02:23:45', new DateTimeZone('Europe/Prague')),
         ];
 

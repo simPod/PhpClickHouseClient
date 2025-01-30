@@ -78,11 +78,10 @@ final class RequestFactoryTest extends TestCaseBase
             new Psr17Factory(),
         );
 
-        $now     = new DateTimeImmutable();
-        $nowDate = $now->format('Y-m-d');
+        $now = new DateTimeImmutable();
 
         $request = $requestFactory->prepareSqlRequest(
-            'SELECT {p1:String}, {p_2:Date}',
+            'SELECT {p1:String}, {p_2:DateTime}',
             new RequestSettings(
                 [],
                 [],
@@ -104,7 +103,7 @@ final class RequestFactoryTest extends TestCaseBase
                     'Content-Disposition: form-data; name="param_p_2"',
                     'Content-Length: 10',
                     '',
-                    $nowDate,
+                    $now->getTimestamp(),
                 ],
             ),
             $body,

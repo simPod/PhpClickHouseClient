@@ -95,8 +95,8 @@ final class ParamValueConverterRegistry
             'datetime' => self::dateTimeConverter(),
             'datetime32' => self::dateTimeConverter(),
             'datetime64' => static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
-                ? $value->format('Y-m-d H:i:s.u')
-                : $value,
+                    ? $value->format('U.u')
+                    : $value,
 
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),
@@ -272,6 +272,7 @@ final class ParamValueConverterRegistry
     private static function dateConverter(): Closure
     {
         return static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
+            // We cannot convert to timestamp yet https://github.com/ClickHouse/ClickHouse/issues/75217
             ? $value->format('Y-m-d')
             : $value;
     }
@@ -279,7 +280,7 @@ final class ParamValueConverterRegistry
     private static function dateTimeConverter(): Closure
     {
         return static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
-            ? $value->format('Y-m-d H:i:s')
+            ? $value->getTimestamp()
             : $value;
     }
 

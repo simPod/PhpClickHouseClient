@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Sql;
 
-use DateTimeZone;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use SimPod\ClickHouseClient\Sql\ExpressionFactory;
@@ -18,7 +17,7 @@ final class ExpressionFactoryTest extends TestCaseBase
     #[DataProvider('providerTemplateAndValues')]
     public function testTemplateAndValues(string $expectedExpressionString, string $template, array $values): void
     {
-        $expressionFactory = new ExpressionFactory(new ValueFormatter(new DateTimeZone('UTC')));
+        $expressionFactory = new ExpressionFactory(new ValueFormatter());
 
         self::assertSame(
             $expectedExpressionString,

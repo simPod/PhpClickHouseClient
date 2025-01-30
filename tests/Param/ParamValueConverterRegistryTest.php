@@ -182,6 +182,11 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'DateTime64(9)' => ['DateTime64(9)', 1675213323123456789, '2023-02-01 01:02:03.123456789'];
         yield 'DateTime64(9) (float)' => ['DateTime64(9)', 1675213323.1235, '2023-02-01 01:02:03.123500000'];
         yield 'DateTime64(9) (string)' => ['DateTime64(9)', '1675213323.123456789', '2023-02-01 01:02:03.123456789'];
+        yield 'DateTime64(9) (DateTime)' => [
+            'DateTime64(9)',
+            new DateTimeImmutable('2023-02-01 01:02:03.123456789'),
+            '2023-02-01 01:02:03.123456000',
+        ];
 
         yield 'Bool' => ['Bool', true, 'true'];
 

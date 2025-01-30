@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
-use DateTimeZone;
 use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -49,9 +48,8 @@ class PsrClickHouseClient implements ClickHouseClient
         private RequestFactory $requestFactory,
         private SqlLogger|null $sqlLogger = null,
         private array $defaultSettings = [],
-        DateTimeZone|null $clickHouseTimeZone = null,
     ) {
-        $this->valueFormatter = new ValueFormatter($clickHouseTimeZone);
+        $this->valueFormatter = new ValueFormatter();
         $this->sqlFactory     = new SqlFactory($this->valueFormatter);
     }
 

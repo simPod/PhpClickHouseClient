@@ -21,7 +21,6 @@ Naming used here is the same as in ClickHouse docs.
 
 - [Setup](#setup)
   - [Logging](#logging)
-  - [Time Zones](#time-zones)
   - [PSR Factories who?](#psr-factories-who)
 - [Sync API](#sync-api)
   - [Select](#select)
@@ -64,7 +63,6 @@ $clickHouseClient = new PsrClickHouseClient(
     ),
     new LoggerChain(),
     [],
-    new DateTimeZone('UTC')
 );
 ```
 
@@ -85,25 +83,6 @@ framework:
                     'X-ClickHouse-Key': '%clickhouse.password%'
                 query:
                     database: '%clickhouse.database%'
-```
-
-### Time Zones
-
-ClickHouse does not have date times with timezones. 
-Therefore you need to normalize DateTimes' timezones passed as parameters to ensure proper input format.
-
-Following would be inserted as `2020-01-31 01:00:00` into ClickHouse. 
-
-```php
-new DateTimeImmutable('2020-01-31 01:00:00', new DateTimeZone('Europe/Prague'));
-```
-
-If your server uses `UTC`, the value is incorrect for you actually need to insert `2020-01-31 00:00:00`.
-
-Time zone normalization is enabled by passing `DateTimeZone` into `PsrClickHouseClient` constructor.
-
-```php
-new PsrClickHouseClient(..., new DateTimeZone('UTC'));
 ```
 
 ### PSR Factories who?
@@ -218,7 +197,7 @@ This produces `SELECT 'value'` and it can be passed to `ClickHouseClient::select
 
 Supported types are:
 - scalars
-- DateTimeImmutable (`\DateTime` is not supported because `ValueFormatter` might modify its timezone so it's not considered safe)
+- DateTimeInterface
 - [Expression](#expression)
 - objects implementing `__toString()`
 

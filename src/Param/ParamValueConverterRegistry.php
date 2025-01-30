@@ -6,11 +6,10 @@ namespace SimPod\ClickHouseClient\Param;
 
 use Closure;
 use DateTimeInterface;
-use DateTimeZone;
 use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
-use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
+use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\Type;
 
 use function array_keys;
@@ -33,7 +32,7 @@ use function trim;
  * @phpstan-type Converter Closure(mixed, Type|string|null, bool):(StreamInterface|string)
  * @phpstan-type ConverterRegistry array<string, Converter>
  */
-final readonly class ParamValueConverterRegistry
+final class ParamValueConverterRegistry
 {
     private const CaseInsensitiveTypes = [
         'bool',
@@ -93,13 +92,21 @@ final readonly class ParamValueConverterRegistry
 
             'bool' => static fn (bool $value) => $value,
 
-            'date' => self::dateConverter($this->clickHouseTimeZone),
-            'date32' => self::dateConverter($this->clickHouseTimeZone),
-            'datetime' => self::dateTimeConverter($this->clickHouseTimeZone),
-            'datetime32' => self::dateTimeConverter($this->clickHouseTimeZone),
-            'datetime64' => static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
-                ? $value->format('U.u')
-                : $value,
+            'date' => self::dateConverter(),
+            'date32' => self::dateConverter(),
+            'datetime' => self::dateTimeConverter(),
+            'datetime32' => self::dateTimeConverter(),
+            'datetime64' => static function (mixed $value) {
+                if ($value instanceof DateTimeInterface) {
+                    return $value->format('U.u');
+                }
+
+                if (is_string($value) || is_float($value) || is_int($value)) {
+                    return $value;
+                }
+
+                throw UnsupportedParamValue::type($value);
+            },
 
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),

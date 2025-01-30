@@ -8,6 +8,7 @@ use Closure;
 use DateTimeInterface;
 use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
+use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\Type;
 
@@ -18,6 +19,8 @@ use function explode;
 use function implode;
 use function in_array;
 use function is_array;
+use function is_float;
+use function is_int;
 use function is_string;
 use function json_encode;
 use function sprintf;
@@ -26,13 +29,12 @@ use function strtolower;
 use function trim;
 
 /**
- * @phpstan-type Converter = Closure(mixed, Type|string|null, bool):(StreamInterface|string)
- * @phpstan-type ConverterRegistry = array<string, Converter>
+ * @phpstan-type Converter Closure(mixed, Type|string|null, bool):(StreamInterface|string)
+ * @phpstan-type ConverterRegistry array<string, Converter>
  */
 final class ParamValueConverterRegistry
 {
-    /** @var list<string> */
-    private static array $caseInsensitiveTypes = [
+    private const CaseInsensitiveTypes = [
         'bool',
         'date',
         'date32',
@@ -94,9 +96,17 @@ final class ParamValueConverterRegistry
             'date32' => self::dateConverter(),
             'datetime' => self::dateTimeConverter(),
             'datetime32' => self::dateTimeConverter(),
-            'datetime64' => static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
-                ? $value->format('U.u')
-                : $value,
+            'datetime64' => static function (mixed $value) {
+                if ($value instanceof DateTimeInterface) {
+                    return $value->format('U.u');
+                }
+
+                if (is_string($value) || is_float($value) || is_int($value)) {
+                    return $value;
+                }
+
+                throw UnsupportedParamValue::type($value);
+            },
 
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),
@@ -232,7 +242,7 @@ final class ParamValueConverterRegistry
 
         $typeName  = strtolower($typeName);
         $converter = $this->registry[$typeName] ?? null;
-        if ($converter !== null && in_array($typeName, self::$caseInsensitiveTypes, true)) {
+        if ($converter !== null && in_array($typeName, self::CaseInsensitiveTypes, true)) {
             return $converter;
         }
 
@@ -271,17 +281,32 @@ final class ParamValueConverterRegistry
 
     private static function dateConverter(): Closure
     {
-        return static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
-            // We cannot convert to timestamp yet https://github.com/ClickHouse/ClickHouse/issues/75217
-            ? $value->format('Y-m-d')
-            : $value;
+        return static function (mixed $value) {
+            if ($value instanceof DateTimeInterface) {
+                return $value->format('Y-m-d');
+            }
+
+            if (is_string($value) || is_float($value) || is_int($value)) {
+                return $value;
+            }
+
+            throw UnsupportedParamValue::type($value);
+        };
     }
 
     private static function dateTimeConverter(): Closure
     {
-        return static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
-            ? $value->getTimestamp()
-            : $value;
+        return static function (mixed $value) {
+            if ($value instanceof DateTimeInterface) {
+                return $value->getTimestamp();
+            }
+
+            if (is_string($value) || is_float($value) || is_int($value)) {
+                return $value;
+            }
+
+            throw UnsupportedParamValue::type($value);
+        };
     }
 
     private static function dateIntervalConverter(): Closure

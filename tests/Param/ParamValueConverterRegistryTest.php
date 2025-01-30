@@ -159,7 +159,13 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'Date' => ['Date', '2023-02-01', '2023-02-01'];
         yield 'Date (datetime)' => ['Date', new DateTimeImmutable('2023-02-01'), '2023-02-01'];
         yield 'Date32' => ['Date32', new DateTimeImmutable('2023-02-01'), '2023-02-01'];
-        yield 'DateTime' => ['DateTime', new DateTimeImmutable('2023-02-01 01:02:03'), '2023-02-01 01:02:03'];
+        yield 'DateTime (string)' => ['DateTime', '2023-02-01 01:02:03', '2023-02-01 01:02:03'];
+        yield 'DateTime (datetime)' => [
+            'DateTime',
+            new DateTimeImmutable('2023-02-01 01:02:03'),
+            '2023-02-01 01:02:03',
+        ];
+
         yield 'DateTime32' => ['DateTime32', new DateTimeImmutable('2023-02-01 01:02:03'), '2023-02-01 01:02:03'];
         yield 'DateTime64(3)' => [
             'DateTime64(3)',

@@ -8,6 +8,7 @@ use Closure;
 use DateTimeInterface;
 use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
+use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\Type;
 
 use function array_keys;
@@ -20,7 +21,6 @@ use function is_array;
 use function is_string;
 use function json_encode;
 use function sprintf;
-use function str_replace;
 use function strlen;
 use function strtolower;
 use function trim;
@@ -95,8 +95,8 @@ final class ParamValueConverterRegistry
             'datetime' => self::dateTimeConverter(),
             'datetime32' => self::dateTimeConverter(),
             'datetime64' => static fn (DateTimeInterface|string|int|float $value) => $value instanceof DateTimeInterface
-                    ? $value->format('U.u')
-                    : $value,
+                ? $value->format('U.u')
+                : $value,
 
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),
@@ -246,7 +246,7 @@ final class ParamValueConverterRegistry
             string $value,
             Type|string|null $type = null,
             bool $nested = false,
-        ) => $nested ? '\'' . str_replace("'", "\'", $value) . '\'' : $value;
+        ) => $nested ? "'" . Escaper::escape($value) . "'" : $value;
     }
 
     private static function noopConverter(): Closure

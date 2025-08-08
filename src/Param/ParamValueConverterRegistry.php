@@ -108,6 +108,8 @@ final class ParamValueConverterRegistry
                 throw UnsupportedParamValue::type($value);
             },
 
+            'BFloat16' => self::noopConverter(),
+
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),
 

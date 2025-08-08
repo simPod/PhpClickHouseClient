@@ -26,8 +26,8 @@ final class ShowDatabases
 
         $output = $clickHouseClient->select(
             <<<'CLICKHOUSE'
-SHOW DATABASES
-CLICKHOUSE,
+            SHOW DATABASES
+            CLICKHOUSE,
             $format,
         );
 

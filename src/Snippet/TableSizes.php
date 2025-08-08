@@ -30,27 +30,27 @@ final class TableSizes
 
         return $clickHouseClient->selectWithParams(
             <<<'CLICKHOUSE'
-SELECT 
-    name AS table,
-    database,
-    max(size) AS size,
-    min(min_date) AS min_date,
-    max(max_date) AS max_date
-FROM system.tables
-ANY LEFT JOIN (
-    SELECT 
-        table,
-        database,
-        sum(bytes) AS size,
-        min(min_date) AS min_date,
-        max(max_date) AS max_date
-    FROM system.parts 
-    WHERE active AND database = :database
-    GROUP BY table,database
-) parts USING ( table, database )
-WHERE database = :database AND storage_policy <> ''
-GROUP BY table, database
-CLICKHOUSE,
+            SELECT
+                name AS table,
+                database,
+                max(size) AS size,
+                min(min_date) AS min_date,
+                max(max_date) AS max_date
+            FROM system.tables
+            ANY LEFT JOIN (
+                SELECT 
+                    table,
+                    database,
+                    sum(bytes) AS size,
+                    min(min_date) AS min_date,
+                    max(max_date) AS max_date
+                FROM system.parts 
+                WHERE active AND database = :database
+                GROUP BY table,database
+            ) parts USING ( table, database )
+            WHERE database = :database AND storage_policy <> ''
+            GROUP BY table, database
+            CLICKHOUSE,
             ['database' => $databaseName ?? Expression::new('currentDatabase()')],
             $format,
         )->data;

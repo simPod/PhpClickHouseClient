@@ -36,13 +36,13 @@ final class Parts
 
         $output = $clickHouseClient->selectWithParams(
             <<<CLICKHOUSE
-SELECT *
-FROM system.parts
-WHERE
-    database = :database
-    AND table = :table $whereActiveClause
-ORDER BY max_date
-CLICKHOUSE,
+            SELECT *
+            FROM system.parts
+            WHERE
+                database = :database
+                AND table = :table $whereActiveClause
+            ORDER BY max_date
+            CLICKHOUSE,
             [
                 'database' => $database,
                 'table' => $table,

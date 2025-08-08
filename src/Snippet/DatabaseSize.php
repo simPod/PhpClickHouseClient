@@ -27,10 +27,10 @@ final class DatabaseSize
 
         $currentDatabase = $clickHouseClient->selectWithParams(
             <<<'CLICKHOUSE'
-SELECT sum(bytes) AS size
-FROM system.parts
-WHERE active AND database=:database
-CLICKHOUSE,
+            SELECT sum(bytes) AS size
+            FROM system.parts
+            WHERE active AND database=:database
+            CLICKHOUSE,
             ['database' => $databaseName ?? Expression::new('currentDatabase()')],
             $format,
         );

@@ -1,6 +1,2 @@
 parameters:
 	ignoreErrors:
-		-
-			message: "#^Constructor of class SimPod\\\\ClickHouseClient\\\\Output\\\\Null_ has an unused parameter \\$_\\.$#"
-			count: 1
-			path: src/Output/Null_.php

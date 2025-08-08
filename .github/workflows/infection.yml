@@ -11,6 +11,7 @@ jobs:
   Infection:
     runs-on: ubuntu-latest
     env:
+      CLICKHOUSE_SKIP_USER_SETUP: 1
       CLICKHOUSE_VERSION: "22.10"
 
     steps:

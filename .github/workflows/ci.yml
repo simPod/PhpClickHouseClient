@@ -23,6 +23,7 @@ jobs:
           - dependency-versions: "lowest"
             php-version: "8.2"
     env:
+      CLICKHOUSE_SKIP_USER_SETUP: 1
       CLICKHOUSE_VERSION: "24.8"
 
     steps:
@@ -74,6 +75,7 @@ jobs:
         dependency-versions:
           - "highest"
     env:
+      CLICKHOUSE_SKIP_USER_SETUP: 1
       CLICKHOUSE_VERSION: ${{ matrix.clickhouse-version }}
 
     steps:

@@ -22,8 +22,8 @@ final class CurrentDatabase
 
         $currentDatabase = $clickHouseClient->select(
             <<<'CLICKHOUSE'
-SELECT currentDatabase() AS database
-CLICKHOUSE,
+            SELECT currentDatabase() AS database
+            CLICKHOUSE,
             $format,
         );
 

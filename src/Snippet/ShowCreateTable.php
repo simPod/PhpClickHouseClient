@@ -22,8 +22,8 @@ final class ShowCreateTable
 
         $output = $clickHouseClient->select(
             <<<CLICKHOUSE
-SHOW CREATE TABLE $tableName
-CLICKHOUSE,
+            SHOW CREATE TABLE $tableName
+            CLICKHOUSE,
             $format,
         );
 

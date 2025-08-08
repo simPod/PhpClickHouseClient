@@ -16,6 +16,8 @@ use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Output\Output;
+use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
+use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 
@@ -25,12 +27,11 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
     private SqlFactory $sqlFactory;
 
-    /** @param array<string, float|int|string> $defaultSettings */
     public function __construct(
         private HttpAsyncClient $asyncClient,
         private RequestFactory $requestFactory,
         private SqlLogger|null $sqlLogger = null,
-        private array $defaultSettings = [],
+        private SettingsProvider $defaultSettings = new EmptySettingsProvider(),
     ) {
         $this->sqlFactory = new SqlFactory(new ValueFormatter());
     }
@@ -40,8 +41,11 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
      *
      * @throws Exception
      */
-    public function select(string $query, Format $outputFormat, array $settings = []): PromiseInterface
-    {
+    public function select(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): PromiseInterface {
         return $this->selectWithParams($query, [], $outputFormat, $settings);
     }
 
@@ -54,7 +58,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         string $query,
         array $params,
         Format $outputFormat,
-        array $settings = [],
+        SettingsProvider $settings = new EmptySettingsProvider(),
     ): PromiseInterface {
         $formatClause = $outputFormat::toSql();
 
@@ -75,7 +79,6 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, float|int|string> $settings
      * @param (callable(ResponseInterface):mixed)|null $processResponse
      *
      * @throws Exception
@@ -83,8 +86,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     private function executeRequest(
         string $sql,
         array $params,
-        array $settings = [],
-        callable|null $processResponse = null,
+        SettingsProvider $settings,
+        callable|null $processResponse,
     ): PromiseInterface {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,

@@ -13,6 +13,8 @@ use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
+use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
+use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
 use function implode;
@@ -35,8 +37,8 @@ final class RequestFactoryTest extends TestCaseBase
         $request = $requestFactory->prepareSqlRequest(
             'SELECT 1',
             new RequestSettings(
-                ['max_block_size' => 1],
-                ['database' => 'database'],
+                new ArraySettingsProvider(['max_block_size' => 1]),
+                new ArraySettingsProvider(['database' => 'database']),
             ),
             new RequestOptions(
                 [],
@@ -83,8 +85,8 @@ final class RequestFactoryTest extends TestCaseBase
         $request = $requestFactory->prepareSqlRequest(
             'SELECT {p1:String}, {p_2:DateTime}',
             new RequestSettings(
-                [],
-                [],
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
             ),
             new RequestOptions(
                 [

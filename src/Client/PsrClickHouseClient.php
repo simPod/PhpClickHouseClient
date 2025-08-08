@@ -21,6 +21,8 @@ use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Schema\Table;
+use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
+use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 
@@ -42,18 +44,17 @@ class PsrClickHouseClient implements ClickHouseClient
 
     private SqlFactory $sqlFactory;
 
-    /** @param array<string, float|int|string> $defaultSettings */
     public function __construct(
         private ClientInterface $client,
         private RequestFactory $requestFactory,
         private SqlLogger|null $sqlLogger = null,
-        private array $defaultSettings = [],
+        private SettingsProvider $defaultSettings = new EmptySettingsProvider(),
     ) {
         $this->valueFormatter = new ValueFormatter();
         $this->sqlFactory     = new SqlFactory($this->valueFormatter);
     }
 
-    public function executeQuery(string $query, array $settings = []): void
+    public function executeQuery(string $query, SettingsProvider $settings = new EmptySettingsProvider()): void
     {
         try {
             $this->executeRequest($query, params: [], settings: $settings);
@@ -62,8 +63,11 @@ class PsrClickHouseClient implements ClickHouseClient
         }
     }
 
-    public function executeQueryWithParams(string $query, array $params, array $settings = []): void
-    {
+    public function executeQueryWithParams(
+        string $query,
+        array $params,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): void {
         $this->executeRequest(
             $this->sqlFactory->createWithParameters($query, $params),
             params: $params,
@@ -71,8 +75,11 @@ class PsrClickHouseClient implements ClickHouseClient
         );
     }
 
-    public function select(string $query, Format $outputFormat, array $settings = []): Output
-    {
+    public function select(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Output {
         try {
             return $this->selectWithParams($query, params: [], outputFormat: $outputFormat, settings: $settings);
         } catch (UnsupportedParamValue | UnsupportedParamType) {
@@ -80,8 +87,12 @@ class PsrClickHouseClient implements ClickHouseClient
         }
     }
 
-    public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []): Output
-    {
+    public function selectWithParams(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Output {
         $formatClause = $outputFormat::toSql();
 
         $sql = $this->sqlFactory->createWithParameters($query, $params);
@@ -98,8 +109,12 @@ class PsrClickHouseClient implements ClickHouseClient
         return $outputFormat::output($response->getBody()->__toString());
     }
 
-    public function insert(Table|string $table, array $values, array|null $columns = null, array $settings = []): void
-    {
+    public function insert(
+        Table|string $table,
+        array $values,
+        array|null $columns = null,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): void {
         if ($values === []) {
             throw CannotInsert::noValues();
         }
@@ -192,7 +207,7 @@ class PsrClickHouseClient implements ClickHouseClient
         Table|string $table,
         Format $inputFormat,
         string $data,
-        array $settings = [],
+        SettingsProvider $settings = new EmptySettingsProvider(),
     ): void {
         $formatSql = $inputFormat::toSql();
 
@@ -220,7 +235,7 @@ class PsrClickHouseClient implements ClickHouseClient
         Format $inputFormat,
         StreamInterface $payload,
         array $columns = [],
-        array $settings = [],
+        SettingsProvider $settings = new EmptySettingsProvider(),
     ): void {
         if ($payload->getSize() === 0) {
             throw CannotInsert::noValues();
@@ -259,13 +274,12 @@ class PsrClickHouseClient implements ClickHouseClient
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, float|int|string> $settings
      *
      * @throws ServerError
      * @throws ClientExceptionInterface
      * @throws UnsupportedParamType
      */
-    private function executeRequest(string $sql, array $params, array $settings): ResponseInterface
+    private function executeRequest(string $sql, array $params, SettingsProvider $settings): ResponseInterface
     {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,

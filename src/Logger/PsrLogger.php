@@ -6,7 +6,7 @@ namespace SimPod\ClickHouseClient\Logger;
 
 use Psr\Log\LoggerInterface;
 
-final class PsrLogger implements SqlLogger
+final readonly class PsrLogger implements SqlLogger
 {
     public function __construct(private LoggerInterface $logger)
     {

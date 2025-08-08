@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client\Http;
 
-final class RequestOptions
+final readonly class RequestOptions
 {
     /** @param array<string, mixed> $params */
     public function __construct(

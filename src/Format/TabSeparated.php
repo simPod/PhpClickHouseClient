@@ -11,7 +11,7 @@ use SimPod\ClickHouseClient\Output\Output;
  * @template T
  * @implements Format<Basic<T>>
  */
-final class TabSeparated implements Format
+final readonly class TabSeparated implements Format
 {
     public static function output(string $contents): Output
     {

@@ -15,9 +15,9 @@ use function strpos;
 
 use const STR_PAD_LEFT;
 
-final class ClickHouseVersion
+final readonly class ClickHouseVersion
 {
-    private const EnvName = 'CLICKHOUSE_VERSION';
+    private const string EnvName = 'CLICKHOUSE_VERSION';
 
     /** @throws RuntimeException */
     public static function get(): int

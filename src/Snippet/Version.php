@@ -9,7 +9,7 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
-final class Version
+final readonly class Version
 {
     /**
      * @throws ClientExceptionInterface

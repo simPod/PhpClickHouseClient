@@ -11,7 +11,7 @@ use SimPod\ClickHouseClient\Output\Output;
  * @template T
  * @implements Format<Basic<T>>
  */
-final class RowBinary implements Format
+final readonly class RowBinary implements Format
 {
     public static function output(string $contents): Output
     {

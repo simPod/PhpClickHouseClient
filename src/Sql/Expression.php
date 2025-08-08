@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Sql;
 
-final class Expression
+final readonly class Expression
 {
     public string $innerExpression;
 

@@ -11,7 +11,7 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 use function array_map;
 
-final class ShowDatabases
+final readonly class ShowDatabases
 {
     /**
      * @return list<string>

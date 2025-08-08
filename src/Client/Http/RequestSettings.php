@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client\Http;
 
-final class RequestSettings
+final readonly class RequestSettings
 {
     /** @var array<string, float|int|string> */
     public array $settings;

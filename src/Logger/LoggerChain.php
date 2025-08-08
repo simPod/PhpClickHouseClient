@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Logger;
 
-final class LoggerChain implements SqlLogger
+final readonly class LoggerChain implements SqlLogger
 {
     /** @param SqlLogger[] $loggers */
     public function __construct(private array $loggers = [])

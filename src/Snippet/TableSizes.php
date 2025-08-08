@@ -13,7 +13,7 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
 /** @phpstan-type Entry array{table: string, database: string, size: string, min_date: string, max_date: string} */
-final class TableSizes
+final readonly class TableSizes
 {
     /**
      * @return array<Entry>

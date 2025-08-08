@@ -33,9 +33,9 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 {
     use WithClient;
 
-    private const VersionIntervalJson = 2301;
-    private const VersionLineString   = 2408;
-    private const VersionVariant      = 2403;
+    private const int VersionIntervalJson = 2301;
+    private const int VersionLineString   = 2408;
+    private const int VersionVariant      = 2403;
 
     /** @var array<string> */
     private static array $types = [];

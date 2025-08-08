@@ -11,7 +11,7 @@ namespace SimPod\ClickHouseClient\Output;
  * @template T
  * @implements Output<T>
  */
-final class Null_ implements Output
+final readonly class Null_ implements Output
 {
     public function __construct(string $_)
     {

@@ -12,7 +12,7 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
-final class DatabaseSize
+final readonly class DatabaseSize
 {
     /**
      * @throws ClientExceptionInterface

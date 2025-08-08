@@ -21,7 +21,7 @@ use SimPod\ClickHouseClient\Sql\ValueFormatter;
 
 use function uniqid;
 
-class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
+readonly class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
     private SqlFactory $sqlFactory;
 

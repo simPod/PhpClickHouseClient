@@ -24,7 +24,7 @@ use function SimPod\ClickHouseClient\absurd;
 
 use const PHP_QUERY_RFC3986;
 
-final class RequestFactory
+final readonly class RequestFactory
 {
     private UriInterface|null $uri;
 

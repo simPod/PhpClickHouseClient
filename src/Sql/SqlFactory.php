@@ -13,7 +13,7 @@ use function sprintf;
 use function str_replace;
 
 /** @internal */
-final class SqlFactory
+final readonly class SqlFactory
 {
     public function __construct(private ValueFormatter $valueFormatter)
     {

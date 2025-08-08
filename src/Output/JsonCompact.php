@@ -15,7 +15,7 @@ use const JSON_THROW_ON_ERROR;
  * @template T
  * @implements Output<T>
  */
-final class JsonCompact implements Output
+final readonly class JsonCompact implements Output
 {
     /** @var list<T> */
     public array $data;

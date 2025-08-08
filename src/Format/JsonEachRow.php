@@ -11,7 +11,7 @@ use SimPod\ClickHouseClient\Output\Output;
  * @template T
  * @implements Format<\SimPod\ClickHouseClient\Output\JsonEachRow<T>>
  */
-final class JsonEachRow implements Format
+final readonly class JsonEachRow implements Format
 {
     /** @throws JsonException */
     public static function output(string $contents): Output

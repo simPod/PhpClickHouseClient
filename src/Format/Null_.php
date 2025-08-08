@@ -12,7 +12,7 @@ use SimPod\ClickHouseClient\Output\Output;
  * @template T
  * @implements Format<\SimPod\ClickHouseClient\Output\Null_<T>>
  */
-final class Null_ implements Format
+final readonly class Null_ implements Format
 {
     public static function output(string $contents): Output
     {

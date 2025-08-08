@@ -32,9 +32,9 @@ use function trim;
  * @phpstan-type Converter Closure(mixed, Type|string|null, bool):(StreamInterface|string)
  * @phpstan-type ConverterRegistry array<string, Converter>
  */
-final class ParamValueConverterRegistry
+final readonly class ParamValueConverterRegistry
 {
-    private const CaseInsensitiveTypes = [
+    private const array CaseInsensitiveTypes = [
         'bool',
         'date',
         'date32',

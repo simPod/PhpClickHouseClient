@@ -36,7 +36,7 @@ use function SimPod\ClickHouseClient\absurd;
 use function sprintf;
 use function uniqid;
 
-class PsrClickHouseClient implements ClickHouseClient
+readonly class PsrClickHouseClient implements ClickHouseClient
 {
     private ValueFormatter $valueFormatter;
 

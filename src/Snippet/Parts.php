@@ -13,7 +13,7 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 use function sprintf;
 
-final class Parts
+final readonly class Parts
 {
     /**
      * @return array<array<string, mixed>>

@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client\Http;
 
+use SimPod\ClickHouseClient\Settings\SettingsProvider;
+
+/** @phpstan-import-type Settings from SettingsProvider */
 final readonly class RequestSettings
 {
-    /** @var array<string, float|int|string> */
+    /** @phpstan-var Settings */
     public array $settings;
 
-    /**
-     * @param array<string, float|int|string> $defaultSettings
-     * @param array<string, float|int|string> $querySettings
-     */
     public function __construct(
-        array $defaultSettings,
-        array $querySettings,
+        SettingsProvider $defaultSettings,
+        SettingsProvider $querySettings,
     ) {
-        $this->settings = $querySettings + $defaultSettings;
+        $this->settings = $querySettings->get() + $defaultSettings->get();
     }
 }

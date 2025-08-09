@@ -14,6 +14,7 @@ use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\Null_;
 use SimPod\ClickHouseClient\Format\TabSeparated;
+use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -168,6 +169,6 @@ CLICKHOUSE,
         self::expectException(ServerError::class);
         $this->expectExceptionMessageMatches("~DB::Exception: Database `non-existent` (doesn't|does not) exist~");
 
-        self::$client->select('SELECT 1', new JsonCompact(), ['database' => 'non-existent']);
+        self::$client->select('SELECT 1', new JsonCompact(), new ArraySettingsProvider(['database' => 'non-existent']));
     }
 }

@@ -13,30 +13,33 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Schema\Table;
+use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
+use SimPod\ClickHouseClient\Settings\SettingsProvider;
 
+/** @phpstan-import-type Settings from SettingsProvider */
 interface ClickHouseClient
 {
     /**
-     * @param array<string, float|int|string> $settings
-     *
      * @throws ClientExceptionInterface
      * @throws ServerError
      */
-    public function executeQuery(string $query, array $settings = []): void;
+    public function executeQuery(string $query, SettingsProvider $settings = new EmptySettingsProvider()): void;
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, float|int|string> $settings
      *
      * @throws ClientExceptionInterface
      * @throws ServerError
      * @throws UnsupportedParamType
      * @throws UnsupportedParamValue
      */
-    public function executeQueryWithParams(string $query, array $params, array $settings = []): void;
+    public function executeQueryWithParams(
+        string $query,
+        array $params,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): void;
 
     /**
-     * @param array<string, float|int|string> $settings
      * @param Format<O> $outputFormat
      *
      * @return O
@@ -46,10 +49,13 @@ interface ClickHouseClient
      *
      * @template O of Output
      */
-    public function select(string $query, Format $outputFormat, array $settings = []): Output;
+    public function select(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Output;
 
     /**
-     * @param array<string, float|int|string> $settings
      * @param array<string, mixed> $params
      * @param Format<O> $outputFormat
      *
@@ -62,12 +68,16 @@ interface ClickHouseClient
      *
      * @template O of Output
      */
-    public function selectWithParams(string $query, array $params, Format $outputFormat, array $settings = []): Output;
+    public function selectWithParams(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Output;
 
     /**
      * @param array<array<mixed>> $values
      * @param list<string>|array<string, string>|null $columns
-     * @param array<string, float|int|string> $settings
      *
      * @throws CannotInsert
      * @throws ClientExceptionInterface
@@ -75,10 +85,14 @@ interface ClickHouseClient
      * @throws UnsupportedParamType
      * @throws UnsupportedParamValue
      */
-    public function insert(Table|string $table, array $values, array|null $columns = null, array $settings = []): void;
+    public function insert(
+        Table|string $table,
+        array $values,
+        array|null $columns = null,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): void;
 
     /**
-     * @param array<string, float|int|string> $settings
      * @param Format<O> $inputFormat
      *
      * @throws ClientExceptionInterface
@@ -90,11 +104,10 @@ interface ClickHouseClient
         Table|string $table,
         Format $inputFormat,
         string $data,
-        array $settings = [],
+        SettingsProvider $settings = new EmptySettingsProvider(),
     ): void;
 
     /**
-     * @param array<string, float|int|string> $settings
      * @param list<string> $columns
      * @param Format<Output<mixed>> $inputFormat
      *
@@ -107,6 +120,6 @@ interface ClickHouseClient
         Format $inputFormat,
         StreamInterface $payload,
         array $columns = [],
-        array $settings = [],
+        SettingsProvider $settings = new EmptySettingsProvider(),
     ): void;
 }

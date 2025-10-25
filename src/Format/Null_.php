@@ -6,7 +6,7 @@ namespace SimPod\ClickHouseClient\Format;
 
 use SimPod\ClickHouseClient\Output\Output;
 
-// phpcs:disable Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:disable Squiz.Classes.ValidClassName.NotPascalCase
 
 /**
  * @template T

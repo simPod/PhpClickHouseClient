@@ -39,7 +39,7 @@
     "require-dev": {
         "cdn77/coding-standard": "^7.0",
         "infection/infection": "^0.31.0",
-        "kafkiansky/phpclick": "^0.2.1",
+        "kafkiansky/phpclick": "^0.3.0",
         "nyholm/psr7": "^1.2",
         "php-http/message-factory": "^1.1",
         "phpstan/extension-installer": "^1.1",

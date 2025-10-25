@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Output;
 
-// phpcs:disable Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:disable Squiz.Classes.ValidClassName.NotPascalCase
 
 /**
  * @phpstan-immutable

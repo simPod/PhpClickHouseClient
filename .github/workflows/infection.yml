@@ -15,7 +15,7 @@ jobs:
       CLICKHOUSE_VERSION: "22.10"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Build the docker compose stack
         run: docker compose -f tests/docker-compose.yaml up -d

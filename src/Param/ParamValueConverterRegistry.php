@@ -115,6 +115,7 @@ final readonly class ParamValueConverterRegistry
             'time64' => self::noopConverter(),
 
             'BFloat16' => self::noopConverter(),
+            'QBit' => self::noopConverter(),
 
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),

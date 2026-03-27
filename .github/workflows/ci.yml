@@ -108,12 +108,20 @@ jobs:
             vendor/bin/phpunit --testdox 2>&1 | tee /tmp/phpunit-output.txt
             exit ${PIPESTATUS[0]}
 
-      -   name: "Upload PHPUnit output"
+      -   name: "Post PHPUnit output on failure"
           if: failure()
-          uses: actions/upload-artifact@v7
+          uses: actions/github-script@v7
           with:
-            name: "phpunit-${{ matrix.clickhouse-version }}-${{ matrix.php-version }}.output"
-            path: "/tmp/phpunit-output.txt"
+            script: |
+              const fs = require('fs');
+              const output = fs.readFileSync('/tmp/phpunit-output.txt', 'utf8');
+              const body = `## PHPUnit failure: PHP ${{ matrix.php-version }}, ClickHouse ${{ matrix.clickhouse-version }}\n\`\`\`\n${output.slice(-3000)}\n\`\`\``;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
 
   upload_coverage:
     name: "Upload coverage to Codecov"

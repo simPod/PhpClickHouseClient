@@ -15,6 +15,7 @@ jobs:
       matrix:
         php-version:
           - "8.4"
+          - "8.5"
         dependency-versions:
           - "highest"
         include:
@@ -65,6 +66,7 @@ jobs:
       matrix:
         php-version:
           - "8.4"
+          - "8.5"
         clickhouse-version:
           - "23.3"
           - "23.8"

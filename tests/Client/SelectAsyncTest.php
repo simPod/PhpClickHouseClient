@@ -11,6 +11,7 @@ use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\TabSeparated;
+use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -47,10 +48,9 @@ CLICKHOUSE;
          */
         $jsonEachRowOutputs = Utils::all($promises)->wait();
 
-        $expectedData = [
-            ['number' => '0'],
-            ['number' => '1'],
-        ];
+        $expectedData = ClickHouseVersion::get() >= 2508
+            ? [['number' => 0], ['number' => 1]]
+            : [['number' => '0'], ['number' => '1']];
 
         self::assertSame($expectedData, $jsonEachRowOutputs[0]->data);
         self::assertSame($expectedData, $jsonEachRowOutputs[1]->data);

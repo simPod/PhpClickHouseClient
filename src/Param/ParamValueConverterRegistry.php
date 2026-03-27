@@ -202,6 +202,7 @@ final readonly class ParamValueConverterRegistry
                         array_map($formatPolygonOrMultiLineString, $vv),
                     ));
                 })($v),
+            'Geometry' => $noopStringConverter,
 
             'Array' => fn (array|string $v, Type $type) => is_string($v)
                 ? $v

@@ -164,6 +164,24 @@ CLICKHOUSE,
         self::assertTrue(true);
     }
 
+    public function testSelectStream(): void
+    {
+        $stream = self::$client->selectStream('SELECT 1 AS data', new TabSeparated());
+
+        self::assertSame("1\n", $stream->__toString());
+    }
+
+    public function testSelectStreamWithParams(): void
+    {
+        $stream = self::$client->selectStreamWithParams(
+            'SELECT {p1:UInt8} AS data',
+            ['p1' => 3],
+            new TabSeparated(),
+        );
+
+        self::assertSame("3\n", $stream->__toString());
+    }
+
     public function testSettingsArePassed(): void
     {
         self::expectException(ServerError::class);

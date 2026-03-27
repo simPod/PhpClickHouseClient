@@ -26,5 +26,22 @@ final class ServerErrorTest extends TestCaseBase
         $serverError = ServerError::fromResponse($response);
 
         self::assertSame(48, $serverError->getCode());
+        self::assertSame(501, $serverError->httpStatusCode);
+        self::assertSame('NOT_IMPLEMENTED', $serverError->clickHouseExceptionName);
+    }
+
+    public function testParseWithoutExceptionName(): void
+    {
+        $psr17Factory = new Psr17Factory();
+        $response     = $psr17Factory->createResponse(500)
+            ->withBody(
+                $psr17Factory->createStream('Some unknown error'),
+            );
+
+        $serverError = ServerError::fromResponse($response);
+
+        self::assertSame(0, $serverError->getCode());
+        self::assertSame(500, $serverError->httpStatusCode);
+        self::assertNull($serverError->clickHouseExceptionName);
     }
 }

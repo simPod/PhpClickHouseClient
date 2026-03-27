@@ -63,7 +63,6 @@ jobs:
     name: "PHPUnit"
     runs-on: "ubuntu-latest"
     strategy:
-      fail-fast: false
       matrix:
         php-version:
           - "8.4"

@@ -48,6 +48,8 @@ final readonly class ParamValueConverterRegistry
         'decimal256',
         'enum',
         'json',
+        'time',
+        'time64',
     ];
 
     /** @phpstan-var ConverterRegistry */
@@ -108,6 +110,9 @@ final readonly class ParamValueConverterRegistry
 
                 throw UnsupportedParamValue::type($value);
             },
+
+            'time' => self::noopConverter(),
+            'time64' => self::noopConverter(),
 
             'BFloat16' => self::noopConverter(),
 

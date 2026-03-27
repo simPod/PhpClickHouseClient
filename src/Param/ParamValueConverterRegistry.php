@@ -56,6 +56,7 @@ final readonly class ParamValueConverterRegistry
     /** @phpstan-param ConverterRegistry $registry */
     public function __construct(array $registry = [])
     {
+        /** @phpstan-ignore argument.type */
         $formatPoint = static fn (array $point) => sprintf('(%s)', implode(',', $point));
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
         $formatRingOrLineString = static function (array $v) use ($formatPoint) {

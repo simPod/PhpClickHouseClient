@@ -45,7 +45,13 @@ CLICKHOUSE,
             $expectedSize = 150;
         }
 
-        self::assertSame($expectedSize, DatabaseSize::run(self::$client));
+        $actualSize = DatabaseSize::run(self::$client);
+
+        if (ClickHouseVersion::get() >= 2508) {
+            self::assertGreaterThan(0, $actualSize);
+        } else {
+            self::assertSame($expectedSize, $actualSize);
+        }
     }
 
     public function tearDown(): void

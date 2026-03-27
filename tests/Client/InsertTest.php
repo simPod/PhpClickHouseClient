@@ -17,6 +17,7 @@ use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\RowBinary;
+use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -50,17 +51,21 @@ CLICKHOUSE,
             new JsonEachRow(),
         );
 
-        $data[0]['UserID'] = (string) $data[0]['UserID'];
-        $data[1]['UserID'] = (string) $data[1]['UserID'];
+        if (ClickHouseVersion::get() < 2508) {
+            $data[0]['UserID'] = (string) $data[0]['UserID'];
+            $data[1]['UserID'] = (string) $data[1]['UserID'];
+        }
+
         self::assertSame($data, $output->data);
     }
 
     #[DataProvider('providerInsert')]
     public function testInsertUseColumns(string $tableSql): void
     {
+        $userId = ClickHouseVersion::get() >= 2508 ? 4324182021466249494 : '4324182021466249494';
         $expectedData = [
-            ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
-            ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
+            ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
         ];
 
         self::$client->executeQuery($tableSql);
@@ -87,9 +92,10 @@ CLICKHOUSE,
     #[DataProvider('providerInsert')]
     public function testInsertUseColumnsWithTypes(string $tableSql): void
     {
+        $userId = ClickHouseVersion::get() >= 2508 ? 4324182021466249494 : '4324182021466249494';
         $expectedData = [
-            ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
-            ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
+            ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
         ];
 
         self::$client->executeQuery($tableSql);
@@ -162,8 +168,11 @@ CLICKHOUSE,
             new JsonEachRow(),
         );
 
-        $data[0]['UserID'] = (string) $data[0]['UserID'];
-        $data[1]['UserID'] = (string) $data[1]['UserID'];
+        if (ClickHouseVersion::get() < 2508) {
+            $data[0]['UserID'] = (string) $data[0]['UserID'];
+            $data[1]['UserID'] = (string) $data[1]['UserID'];
+        }
+
         self::assertSame($data, $output->data);
     }
 
@@ -242,10 +251,11 @@ CLICKHOUSE
             new JsonEachRow(),
         );
 
+        $userId = ClickHouseVersion::get() >= 2508 ? 4324182021466249494 : '4324182021466249494';
         self::assertSame(
             [
-                ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
-                ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
+                ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
+                ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
             ],
             $output->data,
         );

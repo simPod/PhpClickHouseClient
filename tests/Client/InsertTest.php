@@ -62,7 +62,7 @@ CLICKHOUSE,
     #[DataProvider('providerInsert')]
     public function testInsertUseColumns(string $tableSql): void
     {
-        $userId = ClickHouseVersion::get() >= 2508 ? 4324182021466249494 : '4324182021466249494';
+        $userId       = ClickHouseVersion::get() >= 2508 ? 4324182021466249494 : '4324182021466249494';
         $expectedData = [
             ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
             ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
@@ -92,7 +92,7 @@ CLICKHOUSE,
     #[DataProvider('providerInsert')]
     public function testInsertUseColumnsWithTypes(string $tableSql): void
     {
-        $userId = ClickHouseVersion::get() >= 2508 ? 4324182021466249494 : '4324182021466249494';
+        $userId       = ClickHouseVersion::get() >= 2508 ? 4324182021466249494 : '4324182021466249494';
         $expectedData = [
             ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
             ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],

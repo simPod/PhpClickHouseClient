@@ -104,7 +104,17 @@ jobs:
             dependency-versions: "${{ matrix.dependency-versions }}"
 
       -   name: "Run PHPUnit"
-          run: "vendor/bin/phpunit"
+          run: |
+            vendor/bin/phpunit --testdox 2>&1 | tee /tmp/phpunit-output.txt
+            exit ${PIPESTATUS[0]}
+
+      -   name: "Output PHPUnit results"
+          if: failure()
+          run: |
+            echo '## PHPUnit Results' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /tmp/phpunit-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
 
   upload_coverage:
     name: "Upload coverage to Codecov"

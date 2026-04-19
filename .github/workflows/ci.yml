@@ -43,7 +43,7 @@ jobs:
           extensions: json
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v3"
+        uses: "ramsey/composer-install@v4"
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.COMPOSER_AUTH }}"}}'
         with:
@@ -97,7 +97,7 @@ jobs:
             extensions: json
 
       -   name: "Install dependencies with Composer"
-          uses: "ramsey/composer-install@v3"
+          uses: "ramsey/composer-install@v4"
           env:
             COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.COMPOSER_AUTH }}"}}'
           with:

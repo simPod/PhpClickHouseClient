@@ -109,6 +109,40 @@ class PsrClickHouseClient implements ClickHouseClient
         return $outputFormat::output($response->getBody()->__toString());
     }
 
+    public function selectStream(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): StreamInterface {
+        try {
+            return $this->selectStreamWithParams($query, params: [], outputFormat: $outputFormat, settings: $settings);
+        } catch (UnsupportedParamValue | UnsupportedParamType) {
+            absurd();
+        }
+    }
+
+    public function selectStreamWithParams(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): StreamInterface {
+        $formatClause = $outputFormat::toSql();
+
+        $sql = $this->sqlFactory->createWithParameters($query, $params);
+
+        $response = $this->executeRequest(
+            <<<CLICKHOUSE
+            $sql
+            $formatClause
+            CLICKHOUSE,
+            params: $params,
+            settings: $settings,
+        );
+
+        return $response->getBody();
+    }
+
     public function insert(
         Table|string $table,
         array $values,

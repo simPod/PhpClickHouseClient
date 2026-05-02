@@ -15,6 +15,7 @@ use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\Null_;
 use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
+use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -60,11 +61,12 @@ SELECT 1
 CLICKHOUSE,
         ];
 
+        $number = ClickHouseVersion::get() >= 2508
+            ? [['number' => 0], ['number' => 1]]
+            : [['number' => '0'], ['number' => '1']];
+
         yield [
-            [
-                ['number' => '0'],
-                ['number' => '1'],
-            ],
+            $number,
             <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE,
@@ -99,11 +101,12 @@ SELECT 1
 CLICKHOUSE,
         ];
 
+        $number = ClickHouseVersion::get() >= 2508
+            ? [[0], [1]]
+            : [['0'], ['1']];
+
         yield [
-            [
-                ['0'],
-                ['1'],
-            ],
+            $number,
             <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE,
@@ -137,11 +140,12 @@ SELECT 1
 CLICKHOUSE,
         ];
 
+        $number = ClickHouseVersion::get() >= 2508
+            ? [['number' => 0], ['number' => 1]]
+            : [['number' => '0'], ['number' => '1']];
+
         yield [
-            [
-                ['number' => '0'],
-                ['number' => '1'],
-            ],
+            $number,
             <<<'CLICKHOUSE'
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE,

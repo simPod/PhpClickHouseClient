@@ -68,11 +68,11 @@ jobs:
           - "8.4"
           - "8.5"
         clickhouse-version:
-          - "23.3"
-          - "23.8"
           - "24.3"
           - "24.8"
           - "25.3"
+          - "25.8"
+          - "26.3"
         dependency-versions:
           - "highest"
     env:

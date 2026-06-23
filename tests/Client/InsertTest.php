@@ -17,6 +17,7 @@ use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\RowBinary;
+use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -31,12 +32,14 @@ final class InsertTest extends TestCaseBase
 {
     use WithClient;
 
+    private const int UserId = 4324182021466249494;
+
     #[DataProvider('providerInsert')]
     public function testInsert(string $tableSql): void
     {
         $data = [
-            ['PageViews' => 5, 'UserID' => 4324182021466249494, 'Duration' => 146, 'Sign' => -1],
-            ['PageViews' => 6, 'UserID' => 4324182021466249494, 'Duration' => 185, 'Sign' => 1],
+            ['PageViews' => 5, 'UserID' => self::UserId, 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => self::UserId, 'Duration' => 185, 'Sign' => 1],
         ];
 
         self::$client->executeQuery($tableSql);
@@ -50,17 +53,21 @@ CLICKHOUSE,
             new JsonEachRow(),
         );
 
-        $data[0]['UserID'] = (string) $data[0]['UserID'];
-        $data[1]['UserID'] = (string) $data[1]['UserID'];
+        if (ClickHouseVersion::quotes64BitIntegersInJson()) {
+            $data[0]['UserID'] = (string) $data[0]['UserID'];
+            $data[1]['UserID'] = (string) $data[1]['UserID'];
+        }
+
         self::assertSame($data, $output->data);
     }
 
     #[DataProvider('providerInsert')]
     public function testInsertUseColumns(string $tableSql): void
     {
+        $userId       = self::expectedJsonUserId();
         $expectedData = [
-            ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
-            ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
+            ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
         ];
 
         self::$client->executeQuery($tableSql);
@@ -68,8 +75,8 @@ CLICKHOUSE,
         self::$client->insert(
             'UserActivity',
             [
-                [5, 4324182021466249494, 146, -1],
-                [6, 4324182021466249494, 185, 1],
+                [5, self::UserId, 146, -1],
+                [6, self::UserId, 185, 1],
             ],
             ['PageViews', 'UserID', 'Duration', 'Sign'],
         );
@@ -87,9 +94,10 @@ CLICKHOUSE,
     #[DataProvider('providerInsert')]
     public function testInsertUseColumnsWithTypes(string $tableSql): void
     {
+        $userId       = self::expectedJsonUserId();
         $expectedData = [
-            ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
-            ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
+            ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
         ];
 
         self::$client->executeQuery($tableSql);
@@ -97,8 +105,8 @@ CLICKHOUSE,
         self::$client->insert(
             'UserActivity',
             [
-                [5, 4324182021466249494, 146, -1],
-                [6, 4324182021466249494, 185, 1],
+                [5, self::UserId, 146, -1],
+                [6, self::UserId, 185, 1],
             ],
             ['PageViews' => 'UInt32', 'UserID' => 'UInt64', 'Duration' => 'UInt32', 'Sign' => 'Int8'],
         );
@@ -117,20 +125,20 @@ CLICKHOUSE,
     public function testInsertPayload(string $tableSql): void
     {
         $data = [
-            ['PageViews' => 5, 'UserID' => 4324182021466249494, 'Duration' => 146, 'Sign' => -1],
-            ['PageViews' => 6, 'UserID' => 4324182021466249494, 'Duration' => 185, 'Sign' => 1],
+            ['PageViews' => 5, 'UserID' => self::UserId, 'Duration' => 146, 'Sign' => -1],
+            ['PageViews' => 6, 'UserID' => self::UserId, 'Duration' => 185, 'Sign' => 1],
         ];
 
         $rows = [
             PHPClick\Row::columns(
                 PHPClick\Column::uint32(5),
-                PHPClick\Column::uint64(4324182021466249494),
+                PHPClick\Column::uint64(self::UserId),
                 PHPClick\Column::uint32(146),
                 PHPClick\Column::int8(-1),
             ),
             PHPClick\Row::columns(
                 PHPClick\Column::uint32(6),
-                PHPClick\Column::uint64(4324182021466249494),
+                PHPClick\Column::uint64(self::UserId),
                 PHPClick\Column::uint32(185),
                 PHPClick\Column::int8(1),
             ),
@@ -162,8 +170,11 @@ CLICKHOUSE,
             new JsonEachRow(),
         );
 
-        $data[0]['UserID'] = (string) $data[0]['UserID'];
-        $data[1]['UserID'] = (string) $data[1]['UserID'];
+        if (ClickHouseVersion::quotes64BitIntegersInJson()) {
+            $data[0]['UserID'] = (string) $data[0]['UserID'];
+            $data[1]['UserID'] = (string) $data[1]['UserID'];
+        }
+
         self::assertSame($data, $output->data);
     }
 
@@ -242,10 +253,11 @@ CLICKHOUSE
             new JsonEachRow(),
         );
 
+        $userId = self::expectedJsonUserId();
         self::assertSame(
             [
-                ['PageViews' => 5, 'UserID' => '4324182021466249494', 'Duration' => 146, 'Sign' => -1],
-                ['PageViews' => 6, 'UserID' => '4324182021466249494', 'Duration' => 185, 'Sign' => 1],
+                ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
+                ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
             ],
             $output->data,
         );
@@ -290,5 +302,10 @@ CLICKHOUSE
             ],
             ['PageViews', 'UserID'],
         );
+    }
+
+    private static function expectedJsonUserId(): int|string
+    {
+        return ClickHouseVersion::quotes64BitIntegersInJson() ? (string) self::UserId : self::UserId;
     }
 }

@@ -11,6 +11,7 @@ use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\TabSeparated;
+use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
@@ -31,7 +32,7 @@ final class SelectAsyncTest extends TestCaseBase
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE;
 
-        /** @var JsonEachRow<array{number: string}> $format */
+        /** @var JsonEachRow<array{number: int|string}> $format */
         $format = new JsonEachRow();
 
         $promises = [
@@ -41,16 +42,15 @@ CLICKHOUSE;
 
         /**
          * @var array{
-         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: string}>,
-         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: string}>
+         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: int|string}>,
+         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: int|string}>
          * } $jsonEachRowOutputs
          */
         $jsonEachRowOutputs = Utils::all($promises)->wait();
 
-        $expectedData = [
-            ['number' => '0'],
-            ['number' => '1'],
-        ];
+        $expectedData = ClickHouseVersion::quotes64BitIntegersInJson()
+            ? [['number' => '0'], ['number' => '1']]
+            : [['number' => 0], ['number' => 1]];
 
         self::assertSame($expectedData, $jsonEachRowOutputs[0]->data);
         self::assertSame($expectedData, $jsonEachRowOutputs[1]->data);

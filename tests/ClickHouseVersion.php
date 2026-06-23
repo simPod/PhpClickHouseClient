@@ -19,6 +19,8 @@ final readonly class ClickHouseVersion
 {
     private const string EnvName = 'CLICKHOUSE_VERSION';
 
+    private const int VersionJsonQuotes64BitIntegersDefaultOff = 2508;
+
     /** @throws RuntimeException */
     public static function get(): int
     {
@@ -32,5 +34,10 @@ final readonly class ClickHouseVersion
         [$major, $minor] = explode('.', $versionString, 2);
 
         return (int) (str_pad($major, 2, '0', STR_PAD_LEFT) . str_pad($minor, 2, '0', STR_PAD_LEFT));
+    }
+
+    public static function quotes64BitIntegersInJson(): bool
+    {
+        return self::get() < self::VersionJsonQuotes64BitIntegersDefaultOff;
     }
 }

@@ -48,6 +48,8 @@ final readonly class ParamValueConverterRegistry
         'decimal256',
         'enum',
         'json',
+        'time',
+        'time64',
     ];
 
     /** @phpstan-var ConverterRegistry */
@@ -109,7 +111,11 @@ final readonly class ParamValueConverterRegistry
                 throw UnsupportedParamValue::type($value);
             },
 
+            'time' => self::noopConverter(),
+            'time64' => self::noopConverter(),
+
             'BFloat16' => self::noopConverter(),
+            'QBit' => self::noopConverter(),
 
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),
@@ -196,6 +202,7 @@ final readonly class ParamValueConverterRegistry
                         array_map($formatPolygonOrMultiLineString, $vv),
                     ));
                 })($v),
+            'Geometry' => self::noopConverter(),
 
             'Array' => fn (array|string $v, Type $type) => is_string($v)
                 ? $v

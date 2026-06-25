@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Output;
 
+use Generator;
 use JsonException;
 
 use function explode;
+use function iterator_to_array;
 use function json_decode;
 use function rtrim;
 
@@ -25,8 +27,19 @@ final readonly class JsonEachRow implements Output
     /** @throws JsonException */
     public function __construct(string $contentsJson)
     {
-        $contents = [];
+        /** @phpstan-var list<T> $contents */
+        $contents = iterator_to_array(self::decodeRows($contentsJson), preserve_keys: false);
 
+        $this->data = $contents;
+    }
+
+    /**
+     * @phpstan-return Generator<int, T>
+     *
+     * @throws JsonException
+     */
+    private static function decodeRows(string $contentsJson): Generator
+    {
         foreach (explode("\n", $contentsJson) as $line) {
             $line = rtrim($line, "\r");
 
@@ -34,12 +47,10 @@ final readonly class JsonEachRow implements Output
                 continue;
             }
 
-            /** @var T $row */
-            $row        = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
-            $contents[] = $row;
-        }
+            /** @phpstan-var T $row */
+            $row = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
 
-        /** @var list<T> $contents */
-        $this->data = $contents;
+            yield $row;
+        }
     }
 }

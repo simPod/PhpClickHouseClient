@@ -9,8 +9,6 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
-use function array_map;
-
 final readonly class ShowDatabases
 {
     /**
@@ -31,9 +29,12 @@ final readonly class ShowDatabases
             $format,
         );
 
-        return array_map(
-            static fn (array $database): string => $database['name'],
-            $output->data,
-        );
+        $databases = [];
+
+        foreach ($output->data as $database) {
+            $databases[] = $database['name'];
+        }
+
+        return $databases;
     }
 }

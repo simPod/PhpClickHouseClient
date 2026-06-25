@@ -15,6 +15,8 @@ use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+use function iterator_to_array;
+
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseAsyncClient::class)]
 #[CoversClass(ServerError::class)]
@@ -52,8 +54,8 @@ CLICKHOUSE;
             ? [['number' => '0'], ['number' => '1']]
             : [['number' => 0], ['number' => 1]];
 
-        self::assertSame($expectedData, $jsonEachRowOutputs[0]->data);
-        self::assertSame($expectedData, $jsonEachRowOutputs[1]->data);
+        self::assertSame($expectedData, iterator_to_array($jsonEachRowOutputs[0]->data, preserve_keys: false));
+        self::assertSame($expectedData, iterator_to_array($jsonEachRowOutputs[1]->data, preserve_keys: false));
     }
 
     public function testSelectFromNonExistentTableExpectServerError(): void

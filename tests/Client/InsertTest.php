@@ -21,6 +21,8 @@ use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+use function iterator_to_array;
+
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseClient::class)]
 #[CoversClass(CannotInsert::class)]
@@ -58,7 +60,7 @@ CLICKHOUSE,
             $data[1]['UserID'] = (string) $data[1]['UserID'];
         }
 
-        self::assertSame($data, $output->data);
+        self::assertSame($data, iterator_to_array($output->data, preserve_keys: false));
     }
 
     #[DataProvider('providerInsert')]
@@ -88,7 +90,7 @@ CLICKHOUSE,
             new JsonEachRow(),
         );
 
-        self::assertSame($expectedData, $output->data);
+        self::assertSame($expectedData, iterator_to_array($output->data, preserve_keys: false));
     }
 
     #[DataProvider('providerInsert')]
@@ -118,7 +120,7 @@ CLICKHOUSE,
             new JsonEachRow(),
         );
 
-        self::assertSame($expectedData, $output->data);
+        self::assertSame($expectedData, iterator_to_array($output->data, preserve_keys: false));
     }
 
     #[DataProvider('providerInsert')]
@@ -175,7 +177,7 @@ CLICKHOUSE,
             $data[1]['UserID'] = (string) $data[1]['UserID'];
         }
 
-        self::assertSame($data, $output->data);
+        self::assertSame($data, iterator_to_array($output->data, preserve_keys: false));
     }
 
     public function testInsertEscaping(): void
@@ -259,7 +261,7 @@ CLICKHOUSE
                 ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
                 ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
             ],
-            $output->data,
+            iterator_to_array($output->data, preserve_keys: false),
         );
     }
 

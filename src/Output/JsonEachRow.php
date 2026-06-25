@@ -8,29 +8,23 @@ use Generator;
 use JsonException;
 
 use function explode;
-use function iterator_to_array;
 use function json_decode;
 use function rtrim;
 
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @phpstan-immutable
  * @template T
  * @implements Output<T>
  */
 final readonly class JsonEachRow implements Output
 {
-    /** @var list<T> */
-    public array $data;
+    /** @phpstan-var Generator<int, T> */
+    public Generator $data;
 
-    /** @throws JsonException */
     public function __construct(string $contentsJson)
     {
-        /** @phpstan-var list<T> $contents */
-        $contents = iterator_to_array(self::decodeRows($contentsJson), preserve_keys: false);
-
-        $this->data = $contents;
+        $this->data = self::decodeRows($contentsJson);
     }
 
     /**

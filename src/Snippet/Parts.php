@@ -11,6 +11,7 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
+use function iterator_to_array;
 use function sprintf;
 
 final readonly class Parts
@@ -50,6 +51,6 @@ final readonly class Parts
             $format,
         );
 
-        return $output->data;
+        return iterator_to_array($output->data, preserve_keys: false);
     }
 }

@@ -12,6 +12,8 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
+use function iterator_to_array;
+
 /** @phpstan-type Entry array{table: string, database: string, size: string, min_date: string, max_date: string} */
 final readonly class TableSizes
 {
@@ -28,7 +30,7 @@ final readonly class TableSizes
         /** @var JsonEachRow<Entry> $format */
         $format = new JsonEachRow();
 
-        return $clickHouseClient->selectWithParams(
+        return iterator_to_array($clickHouseClient->selectWithParams(
             <<<'CLICKHOUSE'
             SELECT
                 name AS table,
@@ -53,6 +55,6 @@ final readonly class TableSizes
             CLICKHOUSE,
             ['database' => $databaseName ?? Expression::new('currentDatabase()')],
             $format,
-        )->data;
+        )->data, preserve_keys: false);
     }
 }

@@ -9,6 +9,8 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
+use function iterator_to_array;
+
 final readonly class CurrentDatabase
 {
     /**
@@ -27,6 +29,6 @@ final readonly class CurrentDatabase
             $format,
         );
 
-        return $currentDatabase->data[0]['database'];
+        return iterator_to_array($currentDatabase->data, preserve_keys: false)[0]['database'];
     }
 }

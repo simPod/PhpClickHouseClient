@@ -9,6 +9,8 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
+use function iterator_to_array;
+
 final readonly class Version
 {
     /**
@@ -27,6 +29,6 @@ final readonly class Version
             $format,
         );
 
-        return $output->data[0]['version'];
+        return iterator_to_array($output->data, preserve_keys: false)[0]['version'];
     }
 }

@@ -12,6 +12,8 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
+use function iterator_to_array;
+
 final readonly class DatabaseSize
 {
     /**
@@ -35,6 +37,6 @@ final readonly class DatabaseSize
             $format,
         );
 
-        return (int) $currentDatabase->data[0]['size'];
+        return (int) iterator_to_array($currentDatabase->data, preserve_keys: false)[0]['size'];
     }
 }

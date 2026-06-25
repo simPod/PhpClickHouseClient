@@ -23,4 +23,11 @@ JSON,
 
         self::assertSame([['number' => '0'], ['number' => '1']], $format->data);
     }
+
+    public function testEachLineIsDecodedIndependently(): void
+    {
+        $format = new JsonEachRow("{\"number\":\"0\"} \n {\"number\":\"1\"}\n");
+
+        self::assertSame([['number' => '0'], ['number' => '1']], $format->data);
+    }
 }

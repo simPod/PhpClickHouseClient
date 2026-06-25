@@ -6,9 +6,9 @@ namespace SimPod\ClickHouseClient\Output;
 
 use JsonException;
 
+use function explode;
 use function json_decode;
-use function sprintf;
-use function str_replace;
+use function rtrim;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -25,12 +25,21 @@ final readonly class JsonEachRow implements Output
     /** @throws JsonException */
     public function __construct(string $contentsJson)
     {
+        $contents = [];
+
+        foreach (explode("\n", $contentsJson) as $line) {
+            $line = rtrim($line, "\r");
+
+            if ($line === '') {
+                continue;
+            }
+
+            /** @var T $row */
+            $row        = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
+            $contents[] = $row;
+        }
+
         /** @var list<T> $contents */
-        $contents   = json_decode(
-            sprintf('[%s]', str_replace("}\n{", '},{', $contentsJson)),
-            true,
-            flags: JSON_THROW_ON_ERROR,
-        );
         $this->data = $contents;
     }
 }

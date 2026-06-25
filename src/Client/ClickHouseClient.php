@@ -76,6 +76,38 @@ interface ClickHouseClient
     ): Output;
 
     /**
+     * @param Format<O> $outputFormat
+     *
+     * @throws ClientExceptionInterface
+     * @throws ServerError
+     *
+     * @template O of Output
+     */
+    public function selectStream(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): StreamInterface;
+
+    /**
+     * @param array<string, mixed> $params
+     * @param Format<O> $outputFormat
+     *
+     * @throws ClientExceptionInterface
+     * @throws ServerError
+     * @throws UnsupportedParamType
+     * @throws UnsupportedParamValue
+     *
+     * @template O of Output
+     */
+    public function selectStreamWithParams(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): StreamInterface;
+
+    /**
      * @param array<array<mixed>> $values
      * @param list<string>|array<string, string>|null $columns
      *

@@ -22,7 +22,6 @@ use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
-use Throwable;
 
 use function Amp\async;
 use function uniqid;
@@ -46,6 +45,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     /**
      * {@inheritDoc}
      *
+     * @throws Error
      * @throws Exception
      */
     public function select(
@@ -167,10 +167,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 }
 
                 return $processResponse($body);
-            } catch (Throwable $throwable) {
+            } finally {
                 $this->sqlLogger?->stopQuery($id);
-
-                throw $throwable;
             }
         });
 
@@ -182,6 +180,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
      *
      * @return Future<Payload>
      *
+     * @throws Error
      * @throws Exception
      */
     private function executeStreamRequest(string $sql, array $params, SettingsProvider $settings): Future
@@ -204,7 +203,6 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
             try {
                 $response = $this->client->request($this->toAmpRequest($request));
-                $this->sqlLogger?->stopQuery($id);
 
                 if ($response->getStatus() !== 200) {
                     throw ServerError::fromResponseContent(
@@ -214,10 +212,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 }
 
                 return $response->getBody();
-            } catch (Throwable $throwable) {
+            } finally {
                 $this->sqlLogger?->stopQuery($id);
-
-                throw $throwable;
             }
         });
 

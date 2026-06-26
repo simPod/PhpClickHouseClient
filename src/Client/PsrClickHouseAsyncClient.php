@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
-use Amp\DeferredFuture;
 use Amp\Future;
+use Amp\Http\Client\HttpClient;
+use Amp\Http\Client\Request as AmpRequest;
 use Exception;
-use Http\Client\HttpAsyncClient;
-use Psr\Http\Message\ResponseInterface;
-use RuntimeException;
+use Psr\Http\Message\RequestInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -23,15 +22,20 @@ use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 use Throwable;
 
+use function Amp\async;
 use function uniqid;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
     private SqlFactory $sqlFactory;
 
+    /**
+     * @param array<string, string|string[]> $defaultHeaders
+     */
     public function __construct(
-        private HttpAsyncClient $asyncClient,
+        private HttpClient $client,
         private RequestFactory $requestFactory,
+        private array $defaultHeaders = [],
         private SqlLogger|null $sqlLogger = null,
         private SettingsProvider $defaultSettings = new EmptySettingsProvider(),
     ) {
@@ -73,15 +77,13 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
-            processResponse: static fn (ResponseInterface $response): Output => $outputFormat::output(
-                $response->getBody()->__toString(),
-            ),
+            processResponse: static fn (string $body): Output => $outputFormat::output($body),
         );
     }
 
     /**
      * @param array<string, mixed> $params
-     * @param (callable(ResponseInterface):mixed)|null $processResponse
+     * @param (callable(string):mixed)|null $processResponse
      *
      * @throws Exception
      */
@@ -102,40 +104,49 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             ),
         );
 
-        $id = uniqid('', true);
-        $this->sqlLogger?->startQuery($id, $sql);
+        return async(function () use ($processResponse, $request, $sql): mixed {
+            $id = uniqid('', true);
+            $this->sqlLogger?->startQuery($id, $sql);
 
-        $deferred = new DeferredFuture();
+            try {
+                $response = $this->client->request($this->toAmpRequest($request));
+                $body = $response->getBody()->buffer();
 
-        $this->asyncClient->sendAsyncRequest($request)->then(
-            function (ResponseInterface $response) use ($deferred, $id, $processResponse): void {
-                try {
-                    $this->sqlLogger?->stopQuery($id);
-
-                    if ($response->getStatusCode() !== 200) {
-                        throw ServerError::fromResponse($response);
-                    }
-
-                    if ($processResponse === null) {
-                        $deferred->complete($response);
-
-                        return;
-                    }
-
-                    $deferred->complete($processResponse($response));
-                } catch (Throwable $throwable) {
-                    $deferred->error($throwable);
-                }
-            },
-            function (mixed $reason) use ($deferred, $id): void {
                 $this->sqlLogger?->stopQuery($id);
 
-                $deferred->error(
-                    $reason instanceof Throwable ? $reason : new RuntimeException('ClickHouse promise rejected'),
-                );
-            },
+                if ($response->getStatus() !== 200) {
+                    throw ServerError::fromResponseContent($body, $response->getStatus());
+                }
+
+                if ($processResponse === null) {
+                    return $body;
+                }
+
+                return $processResponse($body);
+            } catch (Throwable $throwable) {
+                $this->sqlLogger?->stopQuery($id);
+
+                throw $throwable;
+            }
+        });
+    }
+
+    private function toAmpRequest(RequestInterface $request): AmpRequest
+    {
+        $ampRequest = new AmpRequest(
+            $request->getUri(),
+            $request->getMethod(),
+            $request->getBody()->__toString(),
         );
 
-        return $deferred->getFuture();
+        foreach ($this->defaultHeaders as $name => $values) {
+            $ampRequest->setHeader($name, $values);
+        }
+
+        foreach ($request->getHeaders() as $name => $values) {
+            $ampRequest->setHeader($name, $values);
+        }
+
+        return $ampRequest;
     }
 }

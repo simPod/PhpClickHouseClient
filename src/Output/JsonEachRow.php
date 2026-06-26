@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Output;
 
 use Generator;
-use JsonException;
 
-use function explode;
 use function json_decode;
+use function strpos;
+use function substr;
 use function trim;
 
 use const JSON_THROW_ON_ERROR;
@@ -22,28 +22,40 @@ final readonly class JsonEachRow implements Output
     /** @phpstan-var Generator<int, T> */
     public Generator $data;
 
-    /** @throws JsonException */
     public function __construct(string $contentsJson)
     {
-        $this->data = self::decodeRows($contentsJson);
-    }
+        // Decoding happens during generator iteration, not while constructing this output object.
+        // @phpstan-ignore-next-line missingType.checkedException
+        $this->data = (static function () use ($contentsJson): Generator {
+            $offset = 0;
 
-    /**
-     * @phpstan-return Generator<int, T>
-     *
-     * @throws JsonException
-     */
-    private static function decodeRows(string $contentsJson): Generator
-    {
-        foreach (explode("\n", $contentsJson) as $line) {
-            if (trim($line) === '') {
-                continue;
+            while (true) {
+                $lineEnd = strpos($contentsJson, "\n", $offset);
+                $line    = $lineEnd === false
+                    ? substr($contentsJson, $offset)
+                    : substr($contentsJson, $offset, $lineEnd - $offset);
+
+                if (trim($line) === '') {
+                    if ($lineEnd === false) {
+                        return;
+                    }
+
+                    $offset = $lineEnd + 1;
+
+                    continue;
+                }
+
+                /** @phpstan-var T $row */
+                $row = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
+
+                yield $row;
+
+                if ($lineEnd === false) {
+                    return;
+                }
+
+                $offset = $lineEnd + 1;
             }
-
-            /** @phpstan-var T $row */
-            $row = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
-
-            yield $row;
-        }
+        })();
     }
 }

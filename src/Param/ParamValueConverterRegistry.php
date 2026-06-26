@@ -59,12 +59,18 @@ final readonly class ParamValueConverterRegistry
     /** @phpstan-param ConverterRegistry $registry */
     public function __construct(array $registry = [])
     {
-        $formatPoint = static fn (array $point) => sprintf(
+        $formatPoint = static fn (array $point): string => sprintf(
             '(%s)',
             implode(
                 ',',
                 array_map(
-                    static fn (mixed $coordinate): string => is_scalar($coordinate) ? (string) $coordinate : '',
+                    static function (mixed $coordinate): string {
+                        if (! is_scalar($coordinate)) {
+                            throw UnsupportedParamValue::type($coordinate);
+                        }
+
+                        return (string) $coordinate;
+                    },
                     $point,
                 ),
             ),

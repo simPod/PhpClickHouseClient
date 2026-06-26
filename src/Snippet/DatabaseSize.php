@@ -9,10 +9,8 @@ use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
-use SimPod\ClickHouseClient\Format\JsonEachRow;
+use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Sql\Expression;
-
-use function iterator_to_array;
 
 final readonly class DatabaseSize
 {
@@ -24,8 +22,8 @@ final readonly class DatabaseSize
      */
     public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): int
     {
-        /** @var JsonEachRow<array{size: string|null}> $format */
-        $format = new JsonEachRow();
+        /** @var Json<array{size: string|null}> $format */
+        $format = new Json();
 
         $currentDatabase = $clickHouseClient->selectWithParams(
             <<<'CLICKHOUSE'
@@ -37,6 +35,6 @@ final readonly class DatabaseSize
             $format,
         );
 
-        return (int) iterator_to_array($currentDatabase->data, preserve_keys: false)[0]['size'];
+        return (int) $currentDatabase->data[0]['size'];
     }
 }

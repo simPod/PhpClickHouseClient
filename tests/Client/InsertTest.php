@@ -14,6 +14,7 @@ use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
+use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\RowBinary;
@@ -21,12 +22,11 @@ use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-use function iterator_to_array;
-
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseClient::class)]
 #[CoversClass(CannotInsert::class)]
 #[CoversClass(ServerError::class)]
+#[CoversClass(Json::class)]
 #[CoversClass(JsonEachRow::class)]
 #[CoversClass(JsonCompact::class)]
 #[CoversClass(RowBinary::class)]
@@ -52,7 +52,7 @@ final class InsertTest extends TestCaseBase
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
         if (ClickHouseVersion::quotes64BitIntegersInJson()) {
@@ -60,7 +60,7 @@ CLICKHOUSE,
             $data[1]['UserID'] = (string) $data[1]['UserID'];
         }
 
-        self::assertSame($data, iterator_to_array($output->data, preserve_keys: false));
+        self::assertSame($data, $output->data);
     }
 
     #[DataProvider('providerInsert')]
@@ -87,10 +87,10 @@ CLICKHOUSE,
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
-        self::assertSame($expectedData, iterator_to_array($output->data, preserve_keys: false));
+        self::assertSame($expectedData, $output->data);
     }
 
     #[DataProvider('providerInsert')]
@@ -117,10 +117,10 @@ CLICKHOUSE,
             <<<'CLICKHOUSE'
             SELECT * FROM UserActivity
             CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
-        self::assertSame($expectedData, iterator_to_array($output->data, preserve_keys: false));
+        self::assertSame($expectedData, $output->data);
     }
 
     #[DataProvider('providerInsert')]
@@ -169,7 +169,7 @@ CLICKHOUSE,
             <<<'CLICKHOUSE'
             SELECT * FROM UserActivity
             CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
         if (ClickHouseVersion::quotes64BitIntegersInJson()) {
@@ -177,7 +177,7 @@ CLICKHOUSE,
             $data[1]['UserID'] = (string) $data[1]['UserID'];
         }
 
-        self::assertSame($data, iterator_to_array($output->data, preserve_keys: false));
+        self::assertSame($data, $output->data);
     }
 
     public function testInsertEscaping(): void
@@ -252,7 +252,7 @@ JSONEACHROW,
 SELECT * FROM UserActivity
 CLICKHOUSE
             ,
-            new JsonEachRow(),
+            new Json(),
         );
 
         $userId = self::expectedJsonUserId();
@@ -261,7 +261,7 @@ CLICKHOUSE
                 ['PageViews' => 5, 'UserID' => $userId, 'Duration' => 146, 'Sign' => -1],
                 ['PageViews' => 6, 'UserID' => $userId, 'Duration' => 185, 'Sign' => 1],
             ],
-            iterator_to_array($output->data, preserve_keys: false),
+            $output->data,
         );
     }
 

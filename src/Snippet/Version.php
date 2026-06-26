@@ -7,9 +7,7 @@ namespace SimPod\ClickHouseClient\Snippet;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
-use SimPod\ClickHouseClient\Format\JsonEachRow;
-
-use function iterator_to_array;
+use SimPod\ClickHouseClient\Format\Json;
 
 final readonly class Version
 {
@@ -19,8 +17,8 @@ final readonly class Version
      */
     public static function run(ClickHouseClient $clickHouseClient): string
     {
-        /** @var JsonEachRow<array{version: string}> $format */
-        $format = new JsonEachRow();
+        /** @var Json<array{version: string}> $format */
+        $format = new Json();
 
         $output = $clickHouseClient->select(
             <<<'CLICKHOUSE'
@@ -29,6 +27,6 @@ final readonly class Version
             $format,
         );
 
-        return iterator_to_array($output->data, preserve_keys: false)[0]['version'];
+        return $output->data[0]['version'];
     }
 }

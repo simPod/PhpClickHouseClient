@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Snippet;
 
+use Generator;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
@@ -11,13 +12,12 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 
-use function iterator_to_array;
 use function sprintf;
 
 final readonly class Parts
 {
     /**
-     * @return array<array<string, mixed>>
+     * @return Generator<int, array<string, mixed>>
      *
      * @throws ClientExceptionInterface
      * @throws ServerError
@@ -29,7 +29,7 @@ final readonly class Parts
         string $database,
         string $table,
         bool|null $active = null,
-    ): array {
+    ): Generator {
         $whereActiveClause = $active === null ? '' : sprintf(' AND active = %d', $active);
 
         /** @var JsonEachRow<array<string, mixed>> $format */
@@ -51,6 +51,6 @@ final readonly class Parts
             $format,
         );
 
-        return iterator_to_array($output->data, preserve_keys: false);
+        return $output->data;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Snippet;
 
+use Generator;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
@@ -12,25 +13,23 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Sql\Expression;
 
-use function iterator_to_array;
-
 /** @phpstan-type Entry array{table: string, database: string, size: string, min_date: string, max_date: string} */
 final readonly class TableSizes
 {
     /**
-     * @return array<Entry>
+     * @return Generator<int, Entry>
      *
      * @throws ClientExceptionInterface
      * @throws ServerError
      * @throws UnsupportedParamType
      * @throws UnsupportedParamValue
      */
-    public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): array
+    public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): Generator
     {
         /** @var JsonEachRow<Entry> $format */
         $format = new JsonEachRow();
 
-        return iterator_to_array($clickHouseClient->selectWithParams(
+        return $clickHouseClient->selectWithParams(
             <<<'CLICKHOUSE'
             SELECT
                 name AS table,
@@ -55,6 +54,6 @@ final readonly class TableSizes
             CLICKHOUSE,
             ['database' => $databaseName ?? Expression::new('currentDatabase()')],
             $format,
-        )->data, preserve_keys: false);
+        )->data;
     }
 }

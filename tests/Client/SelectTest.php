@@ -11,7 +11,6 @@ use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
-use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\Null_;
 use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
@@ -19,15 +18,11 @@ use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-use function iterator_to_array;
-
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseClient::class)]
 #[CoversClass(ServerError::class)]
 #[CoversClass(Json::class)]
 #[CoversClass(\SimPod\ClickHouseClient\Output\Json::class)]
-#[CoversClass(JsonEachRow::class)]
-#[CoversClass(\SimPod\ClickHouseClient\Output\JsonEachRow::class)]
 #[CoversClass(JsonCompact::class)]
 #[CoversClass(\SimPod\ClickHouseClient\Output\JsonCompact::class)]
 #[CoversClass(Null_::class)]
@@ -117,45 +112,6 @@ CLICKHOUSE,
         yield [
             [
                 ['ping'],
-            ],
-            <<<'CLICKHOUSE'
-SELECT 'ping'
-CLICKHOUSE,
-        ];
-    }
-
-    #[DataProvider('providerJsonEachRow')]
-    public function testJsonEachRow(mixed $expectedData, string $sql): void
-    {
-        $output = self::$client->select($sql, new JsonEachRow());
-
-        self::assertSame($expectedData, iterator_to_array($output->data, preserve_keys: false));
-    }
-
-    /** @return iterable<int, array{mixed, string}> */
-    public static function providerJsonEachRow(): iterable
-    {
-        yield [
-            [[1 => 1]],
-            <<<'CLICKHOUSE'
-SELECT 1
-CLICKHOUSE,
-        ];
-
-        $number = ClickHouseVersion::quotes64BitIntegersInJson()
-            ? [['number' => '0'], ['number' => '1']]
-            : [['number' => 0], ['number' => 1]];
-
-        yield [
-            $number,
-            <<<'CLICKHOUSE'
-SELECT number FROM system.numbers LIMIT 2
-CLICKHOUSE,
-        ];
-
-        yield [
-            [
-                ["'ping'" => 'ping'],
             ],
             <<<'CLICKHOUSE'
 SELECT 'ping'

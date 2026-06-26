@@ -9,18 +9,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
-use SimPod\ClickHouseClient\Format\JsonEachRow;
+use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
-use function iterator_to_array;
-
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseAsyncClient::class)]
 #[CoversClass(ServerError::class)]
-#[CoversClass(JsonEachRow::class)]
+#[CoversClass(Json::class)]
 #[CoversClass(TabSeparated::class)]
 final class SelectAsyncTest extends TestCaseBase
 {
@@ -34,8 +32,8 @@ final class SelectAsyncTest extends TestCaseBase
 SELECT number FROM system.numbers LIMIT 2
 CLICKHOUSE;
 
-        /** @var JsonEachRow<array{number: int|string}> $format */
-        $format = new JsonEachRow();
+        /** @var Json<array{number: int|string}> $format */
+        $format = new Json();
 
         $promises = [
             $client->select($sql, $format),
@@ -44,18 +42,18 @@ CLICKHOUSE;
 
         /**
          * @var array{
-         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: int|string}>,
-         *     \SimPod\ClickHouseClient\Output\JsonEachRow<array{number: int|string}>
-         * } $jsonEachRowOutputs
+         *     \SimPod\ClickHouseClient\Output\Json<array{number: int|string}>,
+         *     \SimPod\ClickHouseClient\Output\Json<array{number: int|string}>
+         * } $jsonOutputs
          */
-        $jsonEachRowOutputs = Utils::all($promises)->wait();
+        $jsonOutputs = Utils::all($promises)->wait();
 
         $expectedData = ClickHouseVersion::quotes64BitIntegersInJson()
             ? [['number' => '0'], ['number' => '1']]
             : [['number' => 0], ['number' => 1]];
 
-        self::assertSame($expectedData, iterator_to_array($jsonEachRowOutputs[0]->data, preserve_keys: false));
-        self::assertSame($expectedData, iterator_to_array($jsonEachRowOutputs[1]->data, preserve_keys: false));
+        self::assertSame($expectedData, $jsonOutputs[0]->data);
+        self::assertSame($expectedData, $jsonOutputs[1]->data);
     }
 
     public function testSelectFromNonExistentTableExpectServerError(): void

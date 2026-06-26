@@ -12,6 +12,7 @@ use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Sql\Escaper;
 use SimPod\ClickHouseClient\Sql\Type;
 
+use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -58,11 +59,7 @@ final readonly class ParamValueConverterRegistry
     /** @phpstan-param ConverterRegistry $registry */
     public function __construct(array $registry = [])
     {
-        // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
-        $formatPoint = static function (array $point): string {
-            /** @phpstan-var array<string> $point */
-            return sprintf('(%s)', implode(',', $point));
-        };
+        $formatPoint = static fn (array $point) => sprintf('(%s)', implode(',', array_filter($point, is_string(...))));
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
         $formatRingOrLineString = static function (array $v) use ($formatPoint) {
             /** @phpstan-var array<array<string>> $v */

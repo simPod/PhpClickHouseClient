@@ -156,17 +156,13 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 $response = $this->client->request($this->toAmpRequest($request));
                 $body     = $response->getBody()->buffer();
 
-                $this->sqlLogger?->stopQuery($id);
-
                 if ($response->getStatus() !== 200) {
                     throw ServerError::fromResponseContent($body, $response->getStatus());
                 }
 
                 return $processResponse($body);
-            } catch (Throwable $throwable) {
+            } finally {
                 $this->sqlLogger?->stopQuery($id);
-
-                throw $throwable;
             }
         });
 
@@ -200,7 +196,6 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
             try {
                 $response = $this->client->request($this->toAmpRequest($request));
-                $this->sqlLogger?->stopQuery($id);
 
                 if ($response->getStatus() !== 200) {
                     throw ServerError::fromResponseContent(
@@ -210,10 +205,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 }
 
                 return $response->getBody();
-            } catch (Throwable $throwable) {
+            } finally {
                 $this->sqlLogger?->stopQuery($id);
-
-                throw $throwable;
             }
         });
 

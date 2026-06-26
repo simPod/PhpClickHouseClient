@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
+use Amp\DeferredFuture;
+use Amp\Future;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -20,6 +23,7 @@ use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
+use Throwable;
 
 use function uniqid;
 
@@ -54,6 +58,19 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
      *
      * @throws Exception
      */
+    public function selectFuture(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future {
+        return $this->selectWithParamsFuture($query, [], $outputFormat, $settings);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
     public function selectWithParams(
         string $query,
         array $params,
@@ -75,6 +92,41 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 $response->getBody()->__toString(),
             ),
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function selectWithParamsFuture(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future {
+        return self::futureForPromise($this->selectWithParams($query, $params, $outputFormat, $settings));
+    }
+
+    /**
+     * @param PromiseInterface<T> $promise
+     *
+     * @return Future<T>
+     *
+     * @template T
+     */
+    private static function futureForPromise(PromiseInterface $promise): Future
+    {
+        $deferred = new DeferredFuture();
+
+        $promise->then(
+            static fn (mixed $value) => $deferred->complete($value),
+            static fn (mixed $reason) => $deferred->error(
+                $reason instanceof Throwable ? $reason : new RuntimeException('ClickHouse promise rejected'),
+            ),
+        );
+
+        return $deferred->getFuture();
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
+use Amp\Future;
 use GuzzleHttp\Promise\PromiseInterface;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
@@ -24,6 +25,19 @@ interface ClickHouseAsyncClient
     ): PromiseInterface;
 
     /**
+     * @param Format<O> $outputFormat
+     *
+     * @return Future<O>
+     *
+     * @template O of Output
+     */
+    public function selectFuture(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future;
+
+    /**
      * @param array<string, mixed>            $params
      * @param Format<O>                       $outputFormat
      *
@@ -35,4 +49,19 @@ interface ClickHouseAsyncClient
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
     ): PromiseInterface;
+
+    /**
+     * @param array<string, mixed>            $params
+     * @param Format<O>                       $outputFormat
+     *
+     * @return Future<O>
+     *
+     * @template O of Output
+     */
+    public function selectWithParamsFuture(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future;
 }

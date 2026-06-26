@@ -6,10 +6,8 @@ namespace SimPod\ClickHouseClient\Output;
 
 use Generator;
 
+use function explode;
 use function json_decode;
-use function strpos;
-use function substr;
-use function trim;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -27,21 +25,8 @@ final readonly class JsonEachRow implements Output
         // Decoding happens during generator iteration, not while constructing this output object.
         // @phpstan-ignore-next-line missingType.checkedException
         $this->data = (static function () use ($contentsJson): Generator {
-            $offset = 0;
-
-            while (true) {
-                $lineEnd = strpos($contentsJson, "\n", $offset);
-                $line    = $lineEnd === false
-                    ? substr($contentsJson, $offset)
-                    : substr($contentsJson, $offset, $lineEnd - $offset);
-
-                if (trim($line) === '') {
-                    if ($lineEnd === false) {
-                        return;
-                    }
-
-                    $offset = $lineEnd + 1;
-
+            foreach (explode("\n", $contentsJson) as $line) {
+                if ($line === '') {
                     continue;
                 }
 
@@ -49,12 +34,6 @@ final readonly class JsonEachRow implements Output
                 $row = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
 
                 yield $row;
-
-                if ($lineEnd === false) {
-                    return;
-                }
-
-                $offset = $lineEnd + 1;
             }
         })();
     }

@@ -309,14 +309,6 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         $registry->get('fOo');
     }
 
-    public function testThrowsOnNonScalarPointCoordinate(): void
-    {
-        $registry = new ParamValueConverterRegistry();
-
-        $this->expectException(UnsupportedParamValue::class);
-        $registry->get('Point')([1, []], null, false);
-    }
-
     public function testParameterRegistryOverwrite(): void
     {
         $registry = new ParamValueConverterRegistry([

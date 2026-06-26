@@ -29,6 +29,7 @@
     },
     "require": {
         "php": "^8.4",
+        "amphp/amp": "^3.1",
         "guzzlehttp/promises": "^2.0",
         "guzzlehttp/psr7": "^2.6",
         "php-http/client-common": "^2.0",

@@ -63,4 +63,22 @@ CLICKHOUSE;
 
         self::$asyncClient->select('table', new TabSeparated())->await();
     }
+
+    public function testAsyncSelectStream(): void
+    {
+        $stream = self::$asyncClient->selectStream('SELECT 1 AS data', new TabSeparated())->await();
+
+        self::assertSame("1\n", $stream->buffer());
+    }
+
+    public function testAsyncSelectStreamWithParams(): void
+    {
+        $stream = self::$asyncClient->selectStreamWithParams(
+            'SELECT {p1:UInt8} AS data',
+            ['p1' => 3],
+            new TabSeparated(),
+        )->await();
+
+        self::assertSame("3\n", $stream->buffer());
+    }
 }

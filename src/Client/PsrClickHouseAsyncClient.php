@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
+use Amp\ByteStream\Payload;
 use Amp\Future;
 use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\Psr7\PsrAdapter;
@@ -79,6 +80,44 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function selectStream(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future {
+        return $this->selectStreamWithParams($query, [], $outputFormat, $settings);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function selectStreamWithParams(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future {
+        $formatClause = $outputFormat::toSql();
+
+        $sql = $this->sqlFactory->createWithParameters($query, $params);
+
+        return $this->executeStreamRequest(
+            <<<CLICKHOUSE
+            $sql
+            $formatClause
+            CLICKHOUSE,
+            params: $params,
+            settings: $settings,
+        );
+    }
+
+    /**
      * @param array<string, mixed> $params
      * @param callable(string):T $processResponse
      *
@@ -127,6 +166,59 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 }
 
                 return $processResponse($body);
+            } catch (Throwable $throwable) {
+                $this->sqlLogger?->stopQuery($id);
+
+                throw $throwable;
+            }
+        });
+
+        return $future;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return Future<Payload>
+     *
+     * @throws Exception
+     */
+    private function executeStreamRequest(string $sql, array $params, SettingsProvider $settings): Future
+    {
+        $request = $this->requestFactory->prepareSqlRequest(
+            $sql,
+            new RequestSettings(
+                $this->defaultSettings,
+                $settings,
+            ),
+            new RequestOptions(
+                $params,
+            ),
+        );
+
+        /** @var Future<Payload> $future */
+        $future = async(function () use ($request, $sql): Payload {
+            $id = uniqid('', true);
+            $this->sqlLogger?->startQuery($id, $sql);
+
+            try {
+                $ampRequest = $this->psrAdapter->fromPsrRequest($request);
+
+                foreach ($this->defaultHeaders as $name => $values) {
+                    $ampRequest->setHeader($name, $values);
+                }
+
+                $response = $this->client->request($ampRequest);
+                $this->sqlLogger?->stopQuery($id);
+
+                if ($response->getStatus() !== 200) {
+                    throw ServerError::fromResponseContent(
+                        $response->getBody()->buffer(),
+                        $response->getStatus(),
+                    );
+                }
+
+                return $response->getBody();
             } catch (Throwable $throwable) {
                 $this->sqlLogger?->stopQuery($id);
 

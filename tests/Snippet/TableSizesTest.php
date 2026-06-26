@@ -10,6 +10,8 @@ use SimPod\ClickHouseClient\Snippet\TableSizes;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+use function iterator_to_array;
+
 #[CoversClass(TableSizes::class)]
 final class TableSizesTest extends TestCaseBase
 {
@@ -34,12 +36,12 @@ CLICKHOUSE,
     {
         self::$client->insert('test', [[new DateTimeImmutable(), 1]]);
 
-        self::assertCount(1, TableSizes::run(self::$client));
+        self::assertCount(1, iterator_to_array(TableSizes::run(self::$client), preserve_keys: false));
     }
 
     public function testRunOnNonexistentDatabase(): void
     {
-        self::assertSame([], TableSizes::run(self::$client, 'does not exist'));
+        self::assertSame([], iterator_to_array(TableSizes::run(self::$client, 'does not exist'), preserve_keys: false));
     }
 
     public function tearDown(): void

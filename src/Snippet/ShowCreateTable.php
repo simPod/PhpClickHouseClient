@@ -7,7 +7,7 @@ namespace SimPod\ClickHouseClient\Snippet;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
-use SimPod\ClickHouseClient\Format\JsonEachRow;
+use SimPod\ClickHouseClient\Format\Json;
 
 final readonly class ShowCreateTable
 {
@@ -17,8 +17,8 @@ final readonly class ShowCreateTable
      */
     public static function run(ClickHouseClient $clickHouseClient, string $tableName): string
     {
-        /** @var JsonEachRow<array{statement: string}> $format */
-        $format = new JsonEachRow();
+        /** @var Json<array{statement: string}> $format */
+        $format = new Json();
 
         $output = $clickHouseClient->select(
             <<<CLICKHOUSE

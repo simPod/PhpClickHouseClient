@@ -14,6 +14,7 @@ use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Exception\CannotInsert;
 use SimPod\ClickHouseClient\Exception\ServerError;
+use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\RowBinary;
@@ -25,6 +26,7 @@ use SimPod\ClickHouseClient\Tests\WithClient;
 #[CoversClass(PsrClickHouseClient::class)]
 #[CoversClass(CannotInsert::class)]
 #[CoversClass(ServerError::class)]
+#[CoversClass(Json::class)]
 #[CoversClass(JsonEachRow::class)]
 #[CoversClass(JsonCompact::class)]
 #[CoversClass(RowBinary::class)]
@@ -50,7 +52,7 @@ final class InsertTest extends TestCaseBase
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
         if (ClickHouseVersion::quotes64BitIntegersInJson()) {
@@ -85,7 +87,7 @@ CLICKHOUSE,
             <<<'CLICKHOUSE'
 SELECT * FROM UserActivity
 CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
         self::assertSame($expectedData, $output->data);
@@ -115,7 +117,7 @@ CLICKHOUSE,
             <<<'CLICKHOUSE'
             SELECT * FROM UserActivity
             CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
         self::assertSame($expectedData, $output->data);
@@ -167,7 +169,7 @@ CLICKHOUSE,
             <<<'CLICKHOUSE'
             SELECT * FROM UserActivity
             CLICKHOUSE,
-            new JsonEachRow(),
+            new Json(),
         );
 
         if (ClickHouseVersion::quotes64BitIntegersInJson()) {
@@ -250,7 +252,7 @@ JSONEACHROW,
 SELECT * FROM UserActivity
 CLICKHOUSE
             ,
-            new JsonEachRow(),
+            new Json(),
         );
 
         $userId = self::expectedJsonUserId();

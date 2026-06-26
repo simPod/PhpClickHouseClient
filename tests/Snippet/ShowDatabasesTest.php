@@ -13,6 +13,7 @@ use function array_filter;
 use function array_shift;
 use function array_values;
 use function count;
+use function iterator_to_array;
 use function str_starts_with;
 
 #[CoversClass(ShowDatabases::class)]
@@ -22,7 +23,7 @@ final class ShowDatabasesTest extends TestCaseBase
 
     public function testRun(): void
     {
-        $databases = ShowDatabases::run(self::$client);
+        $databases = iterator_to_array(ShowDatabases::run(self::$client), preserve_keys: false);
         self::assertGreaterThan(2, count($databases)); // Default, system, at least one test database
 
         $databases = array_filter(

@@ -19,6 +19,8 @@ use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+use function iterator_to_array;
+
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseClient::class)]
 #[CoversClass(ServerError::class)]
@@ -127,7 +129,7 @@ CLICKHOUSE,
     {
         $output = self::$client->select($sql, new JsonEachRow());
 
-        self::assertSame($expectedData, $output->data);
+        self::assertSame($expectedData, iterator_to_array($output->data, preserve_keys: false));
     }
 
     /** @return iterable<int, array{mixed, string}> */

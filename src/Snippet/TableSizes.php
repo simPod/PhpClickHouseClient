@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Snippet;
 
+use Generator;
 use Psr\Http\Client\ClientExceptionInterface;
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
@@ -16,14 +17,14 @@ use SimPod\ClickHouseClient\Sql\Expression;
 final readonly class TableSizes
 {
     /**
-     * @return array<Entry>
+     * @return Generator<int, Entry>
      *
      * @throws ClientExceptionInterface
      * @throws ServerError
      * @throws UnsupportedParamType
      * @throws UnsupportedParamValue
      */
-    public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): array
+    public static function run(ClickHouseClient $clickHouseClient, string|null $databaseName = null): Generator
     {
         /** @var JsonEachRow<Entry> $format */
         $format = new JsonEachRow();

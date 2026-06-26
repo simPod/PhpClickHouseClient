@@ -12,6 +12,7 @@ use SimPod\ClickHouseClient\Tests\WithClient;
 
 use function assert;
 use function is_string;
+use function iterator_to_array;
 
 #[CoversClass(Parts::class)]
 final class PartsTest extends TestCaseBase
@@ -39,7 +40,13 @@ CLICKHOUSE,
         $currentDbName = self::$currentDbName;
         assert(is_string($currentDbName));
 
-        self::assertCount(1, Parts::run(self::$client, $currentDbName, 'test'));
-        self::assertCount(0, Parts::run(self::$client, $currentDbName, 'test', false));
+        self::assertCount(
+            1,
+            iterator_to_array(Parts::run(self::$client, $currentDbName, 'test'), preserve_keys: false),
+        );
+        self::assertCount(
+            0,
+            iterator_to_array(Parts::run(self::$client, $currentDbName, 'test', false), preserve_keys: false),
+        );
     }
 }

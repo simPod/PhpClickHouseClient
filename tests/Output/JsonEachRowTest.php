@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Output\JsonEachRow;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
+use function iterator_to_array;
+
 #[CoversClass(JsonEachRow::class)]
 final class JsonEachRowTest extends TestCaseBase
 {
@@ -21,6 +23,19 @@ final class JsonEachRowTest extends TestCaseBase
 JSON,
         );
 
-        self::assertSame([['number' => '0'], ['number' => '1']], $format->data);
+        self::assertSame(
+            [['number' => '0'], ['number' => '1']],
+            iterator_to_array($format->data, preserve_keys: false),
+        );
+    }
+
+    public function testEachLineIsDecodedIndependently(): void
+    {
+        $format = new JsonEachRow("{\"number\":\"0\"} \n {\"number\":\"1\"}\n");
+
+        self::assertSame(
+            [['number' => '0'], ['number' => '1']],
+            iterator_to_array($format->data, preserve_keys: false),
+        );
     }
 }

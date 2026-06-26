@@ -59,8 +59,16 @@ final readonly class ParamValueConverterRegistry
     /** @phpstan-param ConverterRegistry $registry */
     public function __construct(array $registry = [])
     {
-        // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
-        $formatPoint = static fn (array $point) => sprintf('(%s)', implode(',', array_map(static fn (mixed $coordinate): string => is_scalar($coordinate) ? (string) $coordinate : '', $point)));
+        $formatPoint = static fn (array $point) => sprintf(
+            '(%s)',
+            implode(
+                ',',
+                array_map(
+                    static fn (mixed $coordinate): string => is_scalar($coordinate) ? (string) $coordinate : '',
+                    $point,
+                ),
+            ),
+        );
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
         $formatRingOrLineString = static function (array $v) use ($formatPoint) {
             /** @phpstan-var array<array<string>> $v */

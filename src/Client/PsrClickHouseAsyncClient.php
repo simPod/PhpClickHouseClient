@@ -8,7 +8,10 @@ use Amp\ByteStream\Payload;
 use Amp\Future;
 use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\Psr7\PsrAdapter;
+use Amp\Http\Client\Request as AmpRequest;
+use Error;
 use Exception;
+use Psr\Http\Message\RequestInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -150,13 +153,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             $this->sqlLogger?->startQuery($id, $sql);
 
             try {
-                $ampRequest = $this->psrAdapter->fromPsrRequest($request);
-
-                foreach ($this->defaultHeaders as $name => $values) {
-                    $ampRequest->setHeader($name, $values);
-                }
-
-                $response = $this->client->request($ampRequest);
+                $response = $this->client->request($this->toAmpRequest($request));
                 $body     = $response->getBody()->buffer();
 
                 if (
@@ -206,13 +203,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             $this->sqlLogger?->startQuery($id, $sql);
 
             try {
-                $ampRequest = $this->psrAdapter->fromPsrRequest($request);
-
-                foreach ($this->defaultHeaders as $name => $values) {
-                    $ampRequest->setHeader($name, $values);
-                }
-
-                $response = $this->client->request($ampRequest);
+                $response = $this->client->request($this->toAmpRequest($request));
                 $this->sqlLogger?->stopQuery($id);
 
                 if ($response->getStatus() !== 200) {
@@ -231,5 +222,17 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         });
 
         return $future;
+    }
+
+    /** @throws Error */
+    private function toAmpRequest(RequestInterface $request): AmpRequest
+    {
+        $ampRequest = $this->psrAdapter->fromPsrRequest($request);
+
+        foreach ($this->defaultHeaders as $name => $values) {
+            $ampRequest->setHeader($name, $values);
+        }
+
+        return $ampRequest;
     }
 }

@@ -49,21 +49,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         string $query,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
-    ): PromiseInterface {
-        return $this->selectWithParams($query, [], $outputFormat, $settings);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws Exception
-     */
-    public function selectFuture(
-        string $query,
-        Format $outputFormat,
-        SettingsProvider $settings = new EmptySettingsProvider(),
     ): Future {
-        return $this->selectWithParamsFuture($query, [], $outputFormat, $settings);
+        return $this->selectWithParams($query, [], $outputFormat, $settings);
     }
 
     /**
@@ -76,7 +63,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         array $params,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
-    ): PromiseInterface {
+    ): Future {
         $formatClause = $outputFormat::toSql();
 
         $sql = $this->sqlFactory->createWithParameters($query, $params);
@@ -95,41 +82,6 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws Exception
-     */
-    public function selectWithParamsFuture(
-        string $query,
-        array $params,
-        Format $outputFormat,
-        SettingsProvider $settings = new EmptySettingsProvider(),
-    ): Future {
-        return self::futureForPromise($this->selectWithParams($query, $params, $outputFormat, $settings));
-    }
-
-    /**
-     * @param PromiseInterface<T> $promise
-     *
-     * @return Future<T>
-     *
-     * @template T
-     */
-    private static function futureForPromise(PromiseInterface $promise): Future
-    {
-        $deferred = new DeferredFuture();
-
-        $promise->then(
-            static fn (mixed $value) => $deferred->complete($value),
-            static fn (mixed $reason) => $deferred->error(
-                $reason instanceof Throwable ? $reason : new RuntimeException('ClickHouse promise rejected'),
-            ),
-        );
-
-        return $deferred->getFuture();
-    }
-
-    /**
      * @param array<string, mixed> $params
      * @param (callable(ResponseInterface):mixed)|null $processResponse
      *
@@ -140,7 +92,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         array $params,
         SettingsProvider $settings,
         callable|null $processResponse,
-    ): PromiseInterface {
+    ): Future {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,
             new RequestSettings(
@@ -155,11 +107,11 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         $id = uniqid('', true);
         $this->sqlLogger?->startQuery($id, $sql);
 
-        return Create::promiseFor(
-            $this->asyncClient->sendAsyncRequest($request),
-        )
-            ->then(
-                function (ResponseInterface $response) use ($id, $processResponse) {
+        $deferred = new DeferredFuture();
+
+        $this->asyncClient->sendAsyncRequest($request)->then(
+            function (ResponseInterface $response) use ($deferred, $id, $processResponse): void {
+                try {
                     $this->sqlLogger?->stopQuery($id);
 
                     if ($response->getStatusCode() !== 200) {
@@ -186,12 +138,25 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                     Message::rewindBody($response);
 
                     if ($processResponse === null) {
-                        return $response;
+                        $deferred->complete($response);
+
+                        return;
                     }
 
-                    return $processResponse($response);
-                },
-                fn () => $this->sqlLogger?->stopQuery($id),
-            );
+                    $deferred->complete($processResponse($response));
+                } catch (Throwable $throwable) {
+                    $deferred->error($throwable);
+                }
+            },
+            function (mixed $reason) use ($deferred, $id): void {
+                $this->sqlLogger?->stopQuery($id);
+
+                $deferred->error(
+                    $reason instanceof Throwable ? $reason : new RuntimeException('ClickHouse promise rejected'),
+                );
+            },
+        );
+
+        return $deferred->getFuture();
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
-use GuzzleHttp\Promise\Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
@@ -14,6 +13,8 @@ use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
+
+use function Amp\Future\await;
 
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseAsyncClient::class)]
@@ -35,7 +36,7 @@ CLICKHOUSE;
         /** @var Json<array{number: int|string}> $format */
         $format = new Json();
 
-        $promises = [
+        $futures = [
             $client->select($sql, $format),
             $client->select($sql, $format),
         ];
@@ -46,7 +47,7 @@ CLICKHOUSE;
          *     \SimPod\ClickHouseClient\Output\Json<array{number: int|string}>
          * } $jsonOutputs
          */
-        $jsonOutputs = Utils::all($promises)->wait();
+        $jsonOutputs = await($futures);
 
         $expectedData = ClickHouseVersion::quotes64BitIntegersInJson()
             ? [['number' => '0'], ['number' => '1']]
@@ -60,6 +61,6 @@ CLICKHOUSE;
     {
         $this->expectException(ServerError::class);
 
-        self::$asyncClient->select('table', new TabSeparated())->wait();
+        self::$asyncClient->select('table', new TabSeparated())->await();
     }
 }

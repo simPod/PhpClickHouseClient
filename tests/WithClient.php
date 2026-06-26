@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests;
 
 use Amp\Http\Client\HttpClientBuilder;
+use Amp\Http\Client\Psr7\PsrAdapter;
 use InvalidArgumentException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\After;
@@ -120,6 +121,7 @@ trait WithClient
                 new Psr17Factory(),
                 $endpoint . '?database=' . rawurlencode(static::$currentDbName),
             ),
+            new PsrAdapter(new Psr17Factory(), new Psr17Factory()),
             $headers,
         );
 

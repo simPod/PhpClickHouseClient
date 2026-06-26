@@ -6,9 +6,8 @@ namespace SimPod\ClickHouseClient\Client;
 
 use Amp\Future;
 use Amp\Http\Client\HttpClient;
-use Amp\Http\Client\Request as AmpRequest;
+use Amp\Http\Client\Psr7\PsrAdapter;
 use Exception;
-use Psr\Http\Message\RequestInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -29,12 +28,11 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
     private SqlFactory $sqlFactory;
 
-    /**
-     * @param array<string, string|string[]> $defaultHeaders
-     */
+    /** @param array<non-empty-string, string|string[]> $defaultHeaders */
     public function __construct(
         private HttpClient $client,
         private RequestFactory $requestFactory,
+        private PsrAdapter $psrAdapter,
         private array $defaultHeaders = [],
         private SqlLogger|null $sqlLogger = null,
         private SettingsProvider $defaultSettings = new EmptySettingsProvider(),
@@ -83,15 +81,19 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
     /**
      * @param array<string, mixed> $params
-     * @param (callable(string):mixed)|null $processResponse
+     * @param callable(string):T $processResponse
+     *
+     * @return Future<T>
      *
      * @throws Exception
+     *
+     * @template T
      */
     private function executeRequest(
         string $sql,
         array $params,
         SettingsProvider $settings,
-        callable|null $processResponse,
+        callable $processResponse,
     ): Future {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,
@@ -104,22 +106,25 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             ),
         );
 
-        return async(function () use ($processResponse, $request, $sql): mixed {
+        /** @var Future<T> $future */
+        $future = async(function () use ($processResponse, $request, $sql): mixed {
             $id = uniqid('', true);
             $this->sqlLogger?->startQuery($id, $sql);
 
             try {
-                $response = $this->client->request($this->toAmpRequest($request));
-                $body = $response->getBody()->buffer();
+                $ampRequest = $this->psrAdapter->fromPsrRequest($request);
+
+                foreach ($this->defaultHeaders as $name => $values) {
+                    $ampRequest->setHeader($name, $values);
+                }
+
+                $response = $this->client->request($ampRequest);
+                $body     = $response->getBody()->buffer();
 
                 $this->sqlLogger?->stopQuery($id);
 
                 if ($response->getStatus() !== 200) {
                     throw ServerError::fromResponseContent($body, $response->getStatus());
-                }
-
-                if ($processResponse === null) {
-                    return $body;
                 }
 
                 return $processResponse($body);
@@ -129,24 +134,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 throw $throwable;
             }
         });
-    }
 
-    private function toAmpRequest(RequestInterface $request): AmpRequest
-    {
-        $ampRequest = new AmpRequest(
-            $request->getUri(),
-            $request->getMethod(),
-            $request->getBody()->__toString(),
-        );
-
-        foreach ($this->defaultHeaders as $name => $values) {
-            $ampRequest->setHeader($name, $values);
-        }
-
-        foreach ($request->getHeaders() as $name => $values) {
-            $ampRequest->setHeader($name, $values);
-        }
-
-        return $ampRequest;
+        return $future;
     }
 }

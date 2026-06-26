@@ -14,7 +14,6 @@ use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
-use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
@@ -75,7 +74,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
-            processResponse: static fn (string $body): Output => $outputFormat::output($body),
+            processResponse: static fn (string $body) => $outputFormat::output($body),
         );
     }
 

@@ -21,6 +21,7 @@ use function in_array;
 use function is_array;
 use function is_float;
 use function is_int;
+use function is_scalar;
 use function is_string;
 use function json_encode;
 use function sprintf;
@@ -58,17 +59,8 @@ final readonly class ParamValueConverterRegistry
     /** @phpstan-param ConverterRegistry $registry */
     public function __construct(array $registry = [])
     {
-        // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
-        $formatPoint = static function (array $point): string {
-            /** @phpstan-var array<int|float|string> $point */
-            return sprintf(
-                '(%s)',
-                implode(
-                    ',',
-                    array_map(static fn (int|float|string $coordinate): string => (string) $coordinate, $point),
-                ),
-            );
-        };
+        // phpcs:ignore SlevomatCodingStandard.Files.LineLength.LineTooLong
+        $formatPoint = static fn (array $point) => sprintf('(%s)', implode(',', array_map(static fn (mixed $coordinate): string => is_scalar($coordinate) ? (string) $coordinate : '', $point)));
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
         $formatRingOrLineString = static function (array $v) use ($formatPoint) {
             /** @phpstan-var array<array<string>> $v */

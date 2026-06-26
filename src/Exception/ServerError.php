@@ -23,8 +23,11 @@ final class ServerError extends Exception
 
     public static function fromResponse(ResponseInterface $response): self
     {
-        $bodyContent = $response->getBody()->__toString();
+        return self::fromResponseContent($response->getBody()->__toString(), $response->getStatusCode());
+    }
 
+    public static function fromResponseContent(string $bodyContent, int $httpStatusCode): self
+    {
         $errorCode = preg_match('~(?:^|\R)Code: (\d+)\. DB::Exception:~', $bodyContent, $codeMatches) === 1
             ? (int) $codeMatches[1]
             : 0;
@@ -36,7 +39,7 @@ final class ServerError extends Exception
         return new self(
             $bodyContent,
             $errorCode,
-            $response->getStatusCode(),
+            $httpStatusCode,
             $exceptionName,
         );
     }

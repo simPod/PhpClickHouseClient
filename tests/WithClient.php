@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests;
 
+use Amp\Http\Client\HttpClientBuilder;
 use InvalidArgumentException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\After;
@@ -18,12 +19,12 @@ use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use Symfony\Component\HttpClient\CurlHttpClient;
-use Symfony\Component\HttpClient\HttplugClient;
 use Symfony\Component\HttpClient\Psr18Client;
 
 use function assert;
 use function getenv;
 use function is_string;
+use function rawurlencode;
 use function sprintf;
 use function time;
 
@@ -111,19 +112,15 @@ trait WithClient
         );
 
         static::$asyncClient = new PsrClickHouseAsyncClient(
-            new HttplugClient(
-                new CurlHttpClient([
-                    'base_uri' => $endpoint,
-                    'headers' => $headers,
-                    'query' => ['database' => static::$currentDbName],
-                ]),
-            ),
+            HttpClientBuilder::buildDefault(),
             new RequestFactory(
                 new ParamValueConverterRegistry(),
                 new Psr17Factory(),
                 new Psr17Factory(),
                 new Psr17Factory(),
+                $endpoint . '?database=' . rawurlencode(static::$currentDbName),
             ),
+            $headers,
         );
 
         static::$controllerClient->executeQuery(sprintf('DROP DATABASE IF EXISTS "%s"', static::$currentDbName));

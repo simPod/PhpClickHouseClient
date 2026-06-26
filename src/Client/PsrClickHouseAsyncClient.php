@@ -4,32 +4,39 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
+use Amp\ByteStream\Payload;
+use Amp\Future;
+use Amp\Http\Client\HttpClient;
+use Amp\Http\Client\Psr7\PsrAdapter;
+use Amp\Http\Client\Request as AmpRequest;
+use Error;
 use Exception;
-use GuzzleHttp\Promise\Create;
-use GuzzleHttp\Promise\PromiseInterface;
-use Http\Client\HttpAsyncClient;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
-use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
+use Throwable;
 
+use function Amp\async;
 use function uniqid;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 {
     private SqlFactory $sqlFactory;
 
+    /** @param array<non-empty-string, string|string[]> $defaultHeaders */
     public function __construct(
-        private HttpAsyncClient $asyncClient,
+        private HttpClient $client,
         private RequestFactory $requestFactory,
+        private PsrAdapter $psrAdapter,
+        private array $defaultHeaders = [],
         private SqlLogger|null $sqlLogger = null,
         private SettingsProvider $defaultSettings = new EmptySettingsProvider(),
     ) {
@@ -45,7 +52,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         string $query,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
-    ): PromiseInterface {
+    ): Future {
         return $this->selectWithParams($query, [], $outputFormat, $settings);
     }
 
@@ -59,7 +66,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         array $params,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
-    ): PromiseInterface {
+    ): Future {
         $formatClause = $outputFormat::toSql();
 
         $sql = $this->sqlFactory->createWithParameters($query, $params);
@@ -71,24 +78,64 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
-            processResponse: static fn (ResponseInterface $response): Output => $outputFormat::output(
-                $response->getBody()->__toString(),
-            ),
+            processResponse: static fn (string $body) => $outputFormat::output($body),
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function selectStream(
+        string $query,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future {
+        return $this->selectStreamWithParams($query, [], $outputFormat, $settings);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function selectStreamWithParams(
+        string $query,
+        array $params,
+        Format $outputFormat,
+        SettingsProvider $settings = new EmptySettingsProvider(),
+    ): Future {
+        $formatClause = $outputFormat::toSql();
+
+        $sql = $this->sqlFactory->createWithParameters($query, $params);
+
+        return $this->executeStreamRequest(
+            <<<CLICKHOUSE
+            $sql
+            $formatClause
+            CLICKHOUSE,
+            params: $params,
+            settings: $settings,
         );
     }
 
     /**
      * @param array<string, mixed> $params
-     * @param (callable(ResponseInterface):mixed)|null $processResponse
+     * @param callable(string):T $processResponse
+     *
+     * @return Future<T>
      *
      * @throws Exception
+     *
+     * @template T
      */
     private function executeRequest(
         string $sql,
         array $params,
         SettingsProvider $settings,
-        callable|null $processResponse,
-    ): PromiseInterface {
+        callable $processResponse,
+    ): Future {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,
             new RequestSettings(
@@ -100,27 +147,81 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             ),
         );
 
-        $id = uniqid('', true);
-        $this->sqlLogger?->startQuery($id, $sql);
+        /** @var Future<T> $future */
+        $future = async(function () use ($processResponse, $request, $sql): mixed {
+            $id = uniqid('', true);
+            $this->sqlLogger?->startQuery($id, $sql);
 
-        return Create::promiseFor(
-            $this->asyncClient->sendAsyncRequest($request),
-        )
-            ->then(
-                function (ResponseInterface $response) use ($id, $processResponse) {
-                    $this->sqlLogger?->stopQuery($id);
+            try {
+                $response = $this->client->request($this->toAmpRequest($request));
+                $body     = $response->getBody()->buffer();
 
-                    if ($response->getStatusCode() !== 200) {
-                        throw ServerError::fromResponse($response);
-                    }
+                if ($response->getStatus() !== 200) {
+                    throw ServerError::fromResponseContent($body, $response->getStatus());
+                }
 
-                    if ($processResponse === null) {
-                        return $response;
-                    }
+                return $processResponse($body);
+            } finally {
+                $this->sqlLogger?->stopQuery($id);
+            }
+        });
 
-                    return $processResponse($response);
-                },
-                fn () => $this->sqlLogger?->stopQuery($id),
-            );
+        return $future;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return Future<Payload>
+     *
+     * @throws Exception
+     */
+    private function executeStreamRequest(string $sql, array $params, SettingsProvider $settings): Future
+    {
+        $request = $this->requestFactory->prepareSqlRequest(
+            $sql,
+            new RequestSettings(
+                $this->defaultSettings,
+                $settings,
+            ),
+            new RequestOptions(
+                $params,
+            ),
+        );
+
+        /** @var Future<Payload> $future */
+        $future = async(function () use ($request, $sql): Payload {
+            $id = uniqid('', true);
+            $this->sqlLogger?->startQuery($id, $sql);
+
+            try {
+                $response = $this->client->request($this->toAmpRequest($request));
+
+                if ($response->getStatus() !== 200) {
+                    throw ServerError::fromResponseContent(
+                        $response->getBody()->buffer(),
+                        $response->getStatus(),
+                    );
+                }
+
+                return $response->getBody();
+            } finally {
+                $this->sqlLogger?->stopQuery($id);
+            }
+        });
+
+        return $future;
+    }
+
+    /** @throws Error */
+    private function toAmpRequest(RequestInterface $request): AmpRequest
+    {
+        $ampRequest = $this->psrAdapter->fromPsrRequest($request);
+
+        foreach ($this->defaultHeaders as $name => $values) {
+            $ampRequest->setHeader($name, $values);
+        }
+
+        return $ampRequest;
     }
 }

@@ -110,12 +110,11 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 function (ResponseInterface $response) use ($id, $processResponse) {
                     $this->sqlLogger?->stopQuery($id);
 
-                    $bodyContent = $response->getBody()->__toString();
-
                     if ($response->getStatusCode() !== 200) {
-                        throw ServerError::fromBody($bodyContent, $response->getStatusCode());
+                        throw ServerError::fromResponse($response);
                     }
 
+                    $bodyContent = $response->getBody()->__toString();
                     if (
                         ServerError::bodyContainsStreamedException(
                             $bodyContent,

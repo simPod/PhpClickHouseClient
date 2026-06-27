@@ -7,6 +7,7 @@ namespace SimPod\ClickHouseClient\Client;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Psr7\Message;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
@@ -70,13 +71,15 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
-            processResponse: static fn (string $bodyContent) => $outputFormat::output($bodyContent),
+            processResponse: static fn (ResponseInterface $response) => $outputFormat::output(
+                $response->getBody()->__toString(),
+            ),
         );
     }
 
     /**
      * @param array<string, mixed> $params
-     * @param (callable(string):mixed)|null $processResponse
+     * @param (callable(ResponseInterface):mixed)|null $processResponse
      *
      * @throws Exception
      */
@@ -122,11 +125,13 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                         throw ServerError::fromBody($bodyContent, $response->getStatusCode());
                     }
 
+                    Message::rewindBody($response);
+
                     if ($processResponse === null) {
                         return $response;
                     }
 
-                    return $processResponse($bodyContent);
+                    return $processResponse($response);
                 },
                 fn () => $this->sqlLogger?->stopQuery($id),
             );

@@ -7,7 +7,6 @@ namespace SimPod\ClickHouseClient\Client;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\Message;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
@@ -123,8 +122,6 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                     ) {
                         throw ServerError::fromBody($bodyContent, $response->getStatusCode());
                     }
-
-                    Message::rewindBody($response);
 
                     if ($processResponse === null) {
                         return $response;

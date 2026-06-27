@@ -7,9 +7,10 @@ namespace SimPod\ClickHouseClient\Client;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\Stream;
+use GuzzleHttp\Psr7\Message;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -21,10 +22,6 @@ use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
 
-use function fopen;
-use function fwrite;
-use function rewind;
-use function SimPod\ClickHouseClient\absurd;
 use function uniqid;
 
 class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
@@ -118,8 +115,14 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                         throw ServerError::fromResponse($response);
                     }
 
-                    $bodyContent = $response->getBody()->__toString();
-                    $response    = self::withBodyContent($response, $bodyContent);
+                    $body = $response->getBody();
+                    if (! $body->isSeekable()) {
+                        throw new RuntimeException(
+                            'Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.',
+                        );
+                    }
+
+                    $bodyContent = $body->__toString();
                     if (
                         ServerError::bodyContainsStreamedException(
                             $bodyContent,
@@ -129,6 +132,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                         throw ServerError::fromResponse($response);
                     }
 
+                    Message::rewindBody($response);
+
                     if ($processResponse === null) {
                         return $response;
                     }
@@ -137,22 +142,5 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 },
                 fn () => $this->sqlLogger?->stopQuery($id),
             );
-    }
-
-    private static function withBodyContent(ResponseInterface $response, string $bodyContent): ResponseInterface
-    {
-        $body = fopen('php://temp', 'r+');
-        if ($body === false) {
-            absurd();
-        }
-
-        fwrite($body, $bodyContent);
-        rewind($body);
-
-        /** @phpstan-ignore missingType.checkedException */
-        $bodyStream = new Stream($body);
-
-        /** @phpstan-ignore missingType.checkedException */
-        return $response->withBody($bodyStream);
     }
 }

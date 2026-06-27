@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
-use GuzzleHttp\Psr7\Stream;
+use GuzzleHttp\Psr7\Message;
 use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -32,12 +33,9 @@ use function array_key_first;
 use function array_keys;
 use function array_map;
 use function array_values;
-use function fopen;
-use function fwrite;
 use function implode;
 use function is_array;
 use function is_int;
-use function rewind;
 use function SimPod\ClickHouseClient\absurd;
 use function sprintf;
 use function uniqid;
@@ -364,8 +362,14 @@ class PsrClickHouseClient implements ClickHouseClient
             return $response;
         }
 
-        $bodyContent = $response->getBody()->__toString();
-        $response    = self::withBodyContent($response, $bodyContent);
+        $body = $response->getBody();
+        if (! $body->isSeekable()) {
+            throw new RuntimeException(
+                'Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.',
+            );
+        }
+
+        $bodyContent = $body->__toString();
         if (
             ServerError::bodyContainsStreamedException(
                 $bodyContent,
@@ -375,23 +379,8 @@ class PsrClickHouseClient implements ClickHouseClient
             throw ServerError::fromResponse($response);
         }
 
+        Message::rewindBody($response);
+
         return $response;
-    }
-
-    private static function withBodyContent(ResponseInterface $response, string $bodyContent): ResponseInterface
-    {
-        $body = fopen('php://temp', 'r+');
-        if ($body === false) {
-            absurd();
-        }
-
-        fwrite($body, $bodyContent);
-        rewind($body);
-
-        /** @phpstan-ignore missingType.checkedException */
-        $bodyStream = new Stream($body);
-
-        /** @phpstan-ignore missingType.checkedException */
-        return $response->withBody($bodyStream);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
+use GuzzleHttp\Psr7\NoSeekStream;
 use Http\Client\HttpAsyncClient;
 use Http\Promise\FulfilledPromise;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -11,7 +12,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
@@ -21,10 +21,6 @@ use SimPod\ClickHouseClient\Format\TabSeparated;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
-
-use function strlen;
-
-use const SEEK_SET;
 
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseAsyncClient::class)]
@@ -37,7 +33,7 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         $psr17Factory = new Psr17Factory();
         $response     = $psr17Factory->createResponse(200)
             ->withHeader('X-ClickHouse-Exception-Tag', 'abcdefghijklmnop')
-            ->withBody(self::nonSeekableStream(self::streamedExceptionBody()));
+            ->withBody($psr17Factory->createStream(self::streamedExceptionBody()));
 
         $httpClient = new class ($response) implements ClientInterface {
             public function __construct(private ResponseInterface $response)
@@ -94,7 +90,7 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
     {
         $psr17Factory = new Psr17Factory();
         $response     = $psr17Factory->createResponse(200)
-            ->withBody(self::nonSeekableStream("1\n"));
+            ->withBody($psr17Factory->createStream("1\n"));
 
         $httpClient = new class ($response) implements ClientInterface {
             public function __construct(private ResponseInterface $response)
@@ -122,12 +118,45 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame("1\n", $output->contents);
     }
 
+    public function testSelectThrowsWhenStreamedExceptionInspectionWouldConsumeNonSeekableBody(): void
+    {
+        $psr17Factory = new Psr17Factory();
+        $response     = $psr17Factory->createResponse(200)
+            ->withBody(new NoSeekStream($psr17Factory->createStream("1\n")));
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.');
+
+        $client->select('SELECT 1', new TabSeparated());
+    }
+
     public function testSelectStreamDoesNotPreScanResponseBody(): void
     {
         $psr17Factory = new Psr17Factory();
         $response     = $psr17Factory->createResponse(200)
             ->withHeader('X-ClickHouse-Exception-Tag', 'abcdefghijklmnop')
-            ->withBody(self::nonSeekableStream(self::streamedExceptionBody()));
+            ->withBody($psr17Factory->createStream(self::streamedExceptionBody()));
 
         $httpClient = new class ($response) implements ClientInterface {
             public function __construct(private ResponseInterface $response)
@@ -160,7 +189,7 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         $psr17Factory = new Psr17Factory();
         $response     = $psr17Factory->createResponse(200)
             ->withHeader('X-ClickHouse-Exception-Tag', 'abcdefghijklmnop')
-            ->withBody(self::nonSeekableStream(self::streamedExceptionBody()));
+            ->withBody($psr17Factory->createStream(self::streamedExceptionBody()));
 
         $httpClient = new class ($response) implements HttpAsyncClient {
             public function __construct(private ResponseInterface $response)
@@ -213,6 +242,39 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame(1, $logger->stopCount);
     }
 
+    public function testAsyncSelectThrowsWhenStreamedExceptionInspectionWouldConsumeNonSeekableBody(): void
+    {
+        $psr17Factory = new Psr17Factory();
+        $response     = $psr17Factory->createResponse(200)
+            ->withBody(new NoSeekStream($psr17Factory->createStream("1\n")));
+
+        $httpClient = new class ($response) implements HttpAsyncClient {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendAsyncRequest(RequestInterface $request): FulfilledPromise
+            {
+                return new FulfilledPromise($this->response);
+            }
+        };
+
+        $client = new PsrClickHouseAsyncClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.');
+
+        $client->select('SELECT 1', new TabSeparated())->wait();
+    }
+
     private static function streamedExceptionBody(): string
     {
         return <<<'CLICKHOUSE'
@@ -225,100 +287,5 @@ Code: 395. DB::Exception: Error while streaming. (FUNCTION_THROW_IF_VALUE_IS_NON
 __exception__
 
 CLICKHOUSE;
-    }
-
-    private static function nonSeekableStream(string $contents): StreamInterface
-    {
-        return new class ($contents) implements StreamInterface {
-            private bool $consumed = false;
-
-            public function __construct(private string $contents)
-            {
-            }
-
-            public function __toString(): string
-            {
-                return $this->getContents();
-            }
-
-            public function close(): void
-            {
-                $this->consumed = true;
-            }
-
-            /** @return resource|null */
-            public function detach()
-            {
-                $this->close();
-
-                return null;
-            }
-
-            public function getSize(): int|null
-            {
-                return null;
-            }
-
-            public function tell(): int
-            {
-                return $this->consumed ? strlen($this->contents) : 0;
-            }
-
-            public function eof(): bool
-            {
-                return $this->consumed;
-            }
-
-            public function isSeekable(): bool
-            {
-                return false;
-            }
-
-            public function seek(int $offset, int $whence = SEEK_SET): void
-            {
-                throw new RuntimeException('Stream is not seekable.');
-            }
-
-            public function rewind(): void
-            {
-                throw new RuntimeException('Stream is not seekable.');
-            }
-
-            public function isWritable(): bool
-            {
-                return false;
-            }
-
-            public function write(string $string): int
-            {
-                throw new RuntimeException('Stream is not writable.');
-            }
-
-            public function isReadable(): bool
-            {
-                return true;
-            }
-
-            public function read(int $length): string
-            {
-                return $this->getContents();
-            }
-
-            public function getContents(): string
-            {
-                if ($this->consumed) {
-                    return '';
-                }
-
-                $this->consumed = true;
-
-                return $this->contents;
-            }
-
-            public function getMetadata(string|null $key = null): mixed
-            {
-                return null;
-            }
-        };
     }
 }

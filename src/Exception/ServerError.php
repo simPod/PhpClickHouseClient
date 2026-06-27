@@ -8,6 +8,7 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 
 use function preg_match;
+use function preg_quote;
 
 final class ServerError extends Exception
 {
@@ -22,9 +23,12 @@ final class ServerError extends Exception
 
     public static function fromResponse(ResponseInterface $response): self
     {
-        $bodyContent = $response->getBody()->__toString();
+        return self::fromBody($response->getBody()->__toString(), $response->getStatusCode());
+    }
 
-        $errorCode = preg_match('~^Code: (\d+). DB::Exception:~', $bodyContent, $codeMatches) === 1
+    public static function fromBody(string $bodyContent, int $httpStatusCode): self
+    {
+        $errorCode = preg_match('~(?:^|\R)Code: (\d+)\. DB::Exception:~', $bodyContent, $codeMatches) === 1
             ? (int) $codeMatches[1]
             : 0;
 
@@ -35,8 +39,20 @@ final class ServerError extends Exception
         return new self(
             $bodyContent,
             $errorCode,
-            $response->getStatusCode(),
+            $httpStatusCode,
             $exceptionName,
         );
+    }
+
+    public static function bodyContainsStreamedException(string $bodyContent, string $exceptionTag = ''): bool
+    {
+        if ($exceptionTag !== '') {
+            return preg_match(
+                '~(?:^|\R)__exception__\R' . preg_quote($exceptionTag, '~') . '\RCode: \d+\. DB::Exception:~',
+                $bodyContent,
+            ) === 1;
+        }
+
+        return preg_match('~(?:^|\R)__exception__\R[[:alnum:]]{16}\RCode: \d+\. DB::Exception:~', $bodyContent) === 1;
     }
 }

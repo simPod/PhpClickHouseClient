@@ -71,15 +71,13 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
-            processResponse: static fn (ResponseInterface $response): Output => $outputFormat::output(
-                $response->getBody()->__toString(),
-            ),
+            processResponse: static fn (string $bodyContent): Output => $outputFormat::output($bodyContent),
         );
     }
 
     /**
      * @param array<string, mixed> $params
-     * @param (callable(ResponseInterface):mixed)|null $processResponse
+     * @param (callable(string):mixed)|null $processResponse
      *
      * @throws Exception
      */
@@ -110,15 +108,26 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                 function (ResponseInterface $response) use ($id, $processResponse) {
                     $this->sqlLogger?->stopQuery($id);
 
+                    $bodyContent = $response->getBody()->__toString();
+
                     if ($response->getStatusCode() !== 200) {
-                        throw ServerError::fromResponse($response);
+                        throw ServerError::fromBody($bodyContent, $response->getStatusCode());
+                    }
+
+                    if (
+                        ServerError::bodyContainsStreamedException(
+                            $bodyContent,
+                            $response->getHeaderLine('X-ClickHouse-Exception-Tag'),
+                        )
+                    ) {
+                        throw ServerError::fromBody($bodyContent, $response->getStatusCode());
                     }
 
                     if ($processResponse === null) {
                         return $response;
                     }
 
-                    return $processResponse($response);
+                    return $processResponse($bodyContent);
                 },
                 fn () => $this->sqlLogger?->stopQuery($id),
             );

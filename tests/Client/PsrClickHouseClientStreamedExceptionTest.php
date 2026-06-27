@@ -96,7 +96,6 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
             {
             }
 
-            /** @return FulfilledPromise<ResponseInterface> */
             public function sendAsyncRequest(RequestInterface $request): FulfilledPromise
             {
                 return new FulfilledPromise($this->response);

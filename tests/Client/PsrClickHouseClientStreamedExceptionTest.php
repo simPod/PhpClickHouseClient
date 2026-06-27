@@ -84,6 +84,71 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame(1, $logger->stopCount);
     }
 
+    public function testSelectReturnsSuccessfulOkResponseAfterStreamedExceptionInspection(): void
+    {
+        $psr17Factory = new Psr17Factory();
+        $response     = $psr17Factory->createResponse(200)
+            ->withBody($psr17Factory->createStream("1\n"));
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $output = $client->select('SELECT 1', new TabSeparated());
+
+        self::assertSame("1\n", $output->contents);
+    }
+
+    public function testSelectStreamDoesNotPreScanResponseBody(): void
+    {
+        $psr17Factory = new Psr17Factory();
+        $response     = $psr17Factory->createResponse(200)
+            ->withHeader('X-ClickHouse-Exception-Tag', 'abcdefghijklmnop')
+            ->withBody($psr17Factory->createStream(self::streamedExceptionBody()));
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $stream = $client->selectStream('SELECT throwIf(number = 2) FROM numbers(5)', new TabSeparated());
+
+        self::assertSame(self::streamedExceptionBody(), $stream->__toString());
+    }
+
     public function testAsyncSelectThrowsServerErrorWhenOkResponseContainsStreamedException(): void
     {
         $psr17Factory = new Psr17Factory();

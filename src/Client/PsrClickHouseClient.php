@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
-use GuzzleHttp\Psr7\Message;
 use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -368,10 +367,8 @@ class PsrClickHouseClient implements ClickHouseClient
                 $response->getHeaderLine('X-ClickHouse-Exception-Tag'),
             )
         ) {
-            throw ServerError::fromBody($bodyContent, $response->getStatusCode());
+            throw ServerError::fromResponse($response);
         }
-
-        Message::rewindBody($response);
 
         return $response;
     }

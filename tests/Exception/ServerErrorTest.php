@@ -47,7 +47,11 @@ final class ServerErrorTest extends TestCaseBase
 
     public function testParseStreamedException(): void
     {
-        $serverError = ServerError::fromBody(self::streamedExceptionBody(), 200);
+        $psr17Factory = new Psr17Factory();
+        $response     = $psr17Factory->createResponse(200)
+            ->withBody($psr17Factory->createStream(self::streamedExceptionBody()));
+
+        $serverError = ServerError::fromResponse($response);
 
         self::assertSame(395, $serverError->getCode());
         self::assertSame(200, $serverError->httpStatusCode);

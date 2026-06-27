@@ -120,7 +120,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                             $response->getHeaderLine('X-ClickHouse-Exception-Tag'),
                         )
                     ) {
-                        throw ServerError::fromBody($bodyContent, $response->getStatusCode());
+                        throw ServerError::fromResponse($response);
                     }
 
                     if ($processResponse === null) {

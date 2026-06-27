@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
+use GuzzleHttp\Psr7\Stream;
 use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -31,9 +32,12 @@ use function array_key_first;
 use function array_keys;
 use function array_map;
 use function array_values;
+use function fopen;
+use function fwrite;
 use function implode;
 use function is_array;
 use function is_int;
+use function rewind;
 use function SimPod\ClickHouseClient\absurd;
 use function sprintf;
 use function uniqid;
@@ -361,6 +365,7 @@ class PsrClickHouseClient implements ClickHouseClient
         }
 
         $bodyContent = $response->getBody()->__toString();
+        $response    = self::withBodyContent($response, $bodyContent);
         if (
             ServerError::bodyContainsStreamedException(
                 $bodyContent,
@@ -371,5 +376,22 @@ class PsrClickHouseClient implements ClickHouseClient
         }
 
         return $response;
+    }
+
+    private static function withBodyContent(ResponseInterface $response, string $bodyContent): ResponseInterface
+    {
+        $body = fopen('php://temp', 'r+');
+        if ($body === false) {
+            absurd();
+        }
+
+        fwrite($body, $bodyContent);
+        rewind($body);
+
+        /** @phpstan-ignore missingType.checkedException */
+        $bodyStream = new Stream($body);
+
+        /** @phpstan-ignore missingType.checkedException */
+        return $response->withBody($bodyStream);
     }
 }

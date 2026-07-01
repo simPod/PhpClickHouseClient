@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Tests\Client;
 
+use Amp\Cancellation;
+use Amp\Http\Client\DelegateHttpClient;
+use Amp\Http\Client\HttpClient;
+use Amp\Http\Client\Psr7\PsrAdapter;
+use Amp\Http\Client\Request;
+use Amp\Http\Client\Response;
+use Amp\Http\InvalidHeaderException;
 use GuzzleHttp\Psr7\NoSeekStream;
-use Http\Client\HttpAsyncClient;
-use Http\Promise\FulfilledPromise;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Psr\Http\Client\ClientInterface;
@@ -187,18 +192,23 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
     public function testAsyncSelectThrowsServerErrorWhenOkResponseContainsStreamedException(): void
     {
         $psr17Factory = new Psr17Factory();
-        $response     = $psr17Factory->createResponse(200)
-            ->withHeader('X-ClickHouse-Exception-Tag', 'abcdefghijklmnop')
-            ->withBody($psr17Factory->createStream(self::streamedExceptionBody()));
 
-        $httpClient = new class ($response) implements HttpAsyncClient {
-            public function __construct(private ResponseInterface $response)
+        $delegate = new class (self::streamedExceptionBody()) implements DelegateHttpClient {
+            public function __construct(private string $body)
             {
             }
 
-            public function sendAsyncRequest(RequestInterface $request): FulfilledPromise
+            /** @throws InvalidHeaderException */
+            public function request(Request $request, Cancellation $cancellation): Response
             {
-                return new FulfilledPromise($this->response);
+                return new Response(
+                    '1.1',
+                    200,
+                    null,
+                    ['X-ClickHouse-Exception-Tag' => 'abcdefghijklmnop'],
+                    $this->body,
+                    $request,
+                );
             }
         };
 
@@ -219,18 +229,20 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         };
 
         $client = new PsrClickHouseAsyncClient(
-            $httpClient,
+            new HttpClient($delegate, []),
             new RequestFactory(
                 new ParamValueConverterRegistry(),
                 $psr17Factory,
                 $psr17Factory,
                 $psr17Factory,
             ),
+            new PsrAdapter($psr17Factory, $psr17Factory),
+            [],
             $logger,
         );
 
         try {
-            $client->select('SELECT throwIf(number = 2) FROM numbers(5)', new TabSeparated())->wait();
+            $client->select('SELECT throwIf(number = 2) FROM numbers(5)', new TabSeparated())->await();
             self::fail('ServerError was not thrown.');
         } catch (ServerError $serverError) {
             self::assertSame(395, $serverError->getCode());
@@ -242,37 +254,32 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame(1, $logger->stopCount);
     }
 
-    public function testAsyncSelectThrowsWhenStreamedExceptionInspectionWouldConsumeNonSeekableBody(): void
+    public function testAsyncSelectReturnsSuccessfulOkResponseAfterStreamedExceptionInspection(): void
     {
         $psr17Factory = new Psr17Factory();
-        $response     = $psr17Factory->createResponse(200)
-            ->withBody(new NoSeekStream($psr17Factory->createStream("1\n")));
 
-        $httpClient = new class ($response) implements HttpAsyncClient {
-            public function __construct(private ResponseInterface $response)
+        $delegate = new class implements DelegateHttpClient {
+            /** @throws InvalidHeaderException */
+            public function request(Request $request, Cancellation $cancellation): Response
             {
-            }
-
-            public function sendAsyncRequest(RequestInterface $request): FulfilledPromise
-            {
-                return new FulfilledPromise($this->response);
+                return new Response('1.1', 200, null, [], "1\n", $request);
             }
         };
 
         $client = new PsrClickHouseAsyncClient(
-            $httpClient,
+            new HttpClient($delegate, []),
             new RequestFactory(
                 new ParamValueConverterRegistry(),
                 $psr17Factory,
                 $psr17Factory,
                 $psr17Factory,
             ),
+            new PsrAdapter($psr17Factory, $psr17Factory),
         );
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.');
+        $output = $client->select('SELECT 1', new TabSeparated())->await();
 
-        $client->select('SELECT 1', new TabSeparated())->wait();
+        self::assertSame("1\n", $output->contents);
     }
 
     private static function streamedExceptionBody(): string

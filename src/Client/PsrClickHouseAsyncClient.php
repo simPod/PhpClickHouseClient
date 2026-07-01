@@ -18,6 +18,7 @@ use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
+use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
@@ -86,6 +87,8 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     /**
      * {@inheritDoc}
      *
+     * @param Format<Output<mixed>> $outputFormat
+     *
      * @throws Error
      * @throws Exception
      */
@@ -99,6 +102,9 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
 
     /**
      * {@inheritDoc}
+     *
+     * @param array<string, mixed>  $params
+     * @param Format<Output<mixed>> $outputFormat
      *
      * @throws Error
      * @throws Exception

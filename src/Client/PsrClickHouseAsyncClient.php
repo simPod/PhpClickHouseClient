@@ -59,6 +59,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     /**
      * {@inheritDoc}
      *
+     * @throws Error
      * @throws Exception
      */
     public function selectWithParams(
@@ -85,6 +86,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     /**
      * {@inheritDoc}
      *
+     * @throws Error
      * @throws Exception
      */
     public function selectStream(
@@ -98,6 +100,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
     /**
      * {@inheritDoc}
      *
+     * @throws Error
      * @throws Exception
      */
     public function selectStreamWithParams(
@@ -126,6 +129,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
      *
      * @return Future<T>
      *
+     * @throws Error
      * @throws Exception
      *
      * @template T

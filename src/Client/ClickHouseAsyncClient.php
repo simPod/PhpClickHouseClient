@@ -42,11 +42,9 @@ interface ClickHouseAsyncClient
     ): Future;
 
     /**
-     * @param Format<O> $outputFormat
+     * @param Format<Output<mixed>> $outputFormat
      *
      * @return Future<Payload>
-     *
-     * @template O of Output
      */
     public function selectStream(
         string $query,
@@ -55,12 +53,10 @@ interface ClickHouseAsyncClient
     ): Future;
 
     /**
-     * @param array<string, mixed>            $params
-     * @param Format<O>                       $outputFormat
+     * @param array<string, mixed>  $params
+     * @param Format<Output<mixed>> $outputFormat
      *
      * @return Future<Payload>
-     *
-     * @template O of Output
      */
     public function selectStreamWithParams(
         string $query,

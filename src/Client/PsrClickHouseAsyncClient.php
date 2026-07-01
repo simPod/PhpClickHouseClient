@@ -239,6 +239,11 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             $ampRequest->setHeader($name, $values);
         }
 
+        // ClickHouse queries may be long-running and can stream large result sets.
+        $ampRequest->setTransferTimeout(0);
+        $ampRequest->setInactivityTimeout(0);
+        $ampRequest->setBodySizeLimit(0);
+
         return $ampRequest;
     }
 }

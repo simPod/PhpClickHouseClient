@@ -61,5 +61,8 @@ final class PsrClickHouseAsyncClientTest extends TestCaseBase
         self::assertInstanceOf(Request::class, $request);
         self::assertSame('secret', $request->getHeader('X-ClickHouse-Key'));
         self::assertSame('user', $request->getHeader('X-ClickHouse-User'));
+        self::assertSame(0.0, $request->getTransferTimeout());
+        self::assertSame(0.0, $request->getInactivityTimeout());
+        self::assertSame(0, $request->getBodySizeLimit());
     }
 }

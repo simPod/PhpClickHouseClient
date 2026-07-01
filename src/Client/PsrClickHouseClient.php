@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Client;
 
+use GuzzleHttp\Psr7\Message;
 use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -138,6 +140,7 @@ class PsrClickHouseClient implements ClickHouseClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
+            detectStreamedException: false,
         );
 
         return $response->getBody();
@@ -313,8 +316,12 @@ class PsrClickHouseClient implements ClickHouseClient
      * @throws ClientExceptionInterface
      * @throws UnsupportedParamType
      */
-    private function executeRequest(string $sql, array $params, SettingsProvider $settings): ResponseInterface
-    {
+    private function executeRequest(
+        string $sql,
+        array $params,
+        SettingsProvider $settings,
+        bool $detectStreamedException = true,
+    ): ResponseInterface {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,
             new RequestSettings(
@@ -326,15 +333,18 @@ class PsrClickHouseClient implements ClickHouseClient
             ),
         );
 
-        return $this->sendHttpRequest($request, $sql);
+        return $this->sendHttpRequest($request, $sql, $detectStreamedException);
     }
 
     /**
      * @throws ClientExceptionInterface
      * @throws ServerError
      */
-    private function sendHttpRequest(RequestInterface $request, string $sql): ResponseInterface
-    {
+    private function sendHttpRequest(
+        RequestInterface $request,
+        string $sql,
+        bool $detectStreamedException = true,
+    ): ResponseInterface {
         $id = uniqid('', true);
         $this->sqlLogger?->startQuery($id, $sql);
 
@@ -347,6 +357,29 @@ class PsrClickHouseClient implements ClickHouseClient
         if ($response->getStatusCode() !== 200) {
             throw ServerError::fromResponse($response);
         }
+
+        if (! $detectStreamedException) {
+            return $response;
+        }
+
+        $body = $response->getBody();
+        if (! $body->isSeekable()) {
+            throw new RuntimeException(
+                'Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.',
+            );
+        }
+
+        $bodyContent = $body->__toString();
+        if (
+            ServerError::bodyContainsStreamedException(
+                $bodyContent,
+                $response->getHeaderLine('X-ClickHouse-Exception-Tag'),
+            )
+        ) {
+            throw ServerError::fromResponse($response);
+        }
+
+        Message::rewindBody($response);
 
         return $response;
     }

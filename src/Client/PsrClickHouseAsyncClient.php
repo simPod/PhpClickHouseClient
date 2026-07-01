@@ -7,15 +7,16 @@ namespace SimPod\ClickHouseClient\Client;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Psr7\Message;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Exception\ServerError;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Logger\SqlLogger;
-use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
@@ -71,7 +72,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
-            processResponse: static fn (ResponseInterface $response): Output => $outputFormat::output(
+            processResponse: static fn (ResponseInterface $response) => $outputFormat::output(
                 $response->getBody()->__toString(),
             ),
         );
@@ -113,6 +114,25 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
                     if ($response->getStatusCode() !== 200) {
                         throw ServerError::fromResponse($response);
                     }
+
+                    $body = $response->getBody();
+                    if (! $body->isSeekable()) {
+                        throw new RuntimeException(
+                            'Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.',
+                        );
+                    }
+
+                    $bodyContent = $body->__toString();
+                    if (
+                        ServerError::bodyContainsStreamedException(
+                            $bodyContent,
+                            $response->getHeaderLine('X-ClickHouse-Exception-Tag'),
+                        )
+                    ) {
+                        throw ServerError::fromResponse($response);
+                    }
+
+                    Message::rewindBody($response);
 
                     if ($processResponse === null) {
                         return $response;

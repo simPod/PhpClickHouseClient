@@ -36,16 +36,6 @@ final readonly class JsonEachRow implements Output
     }
 
     /**
-     * @return self<mixed>
-     *
-     * @throws JsonException
-     */
-    public static function fromStream(StreamInterface $stream): self
-    {
-        return new self($stream);
-    }
-
-    /**
      * @param iterable<string> $lines
      *
      * @return Generator<int, T>

@@ -42,7 +42,7 @@ JSON,
 
     public function testStreamLinesAreDecodedIndependently(): void
     {
-        $format = JsonEachRow::fromStream(Utils::streamFor("{\"number\":\"0\"}\n{\"number\":\"1\"}"));
+        $format = new JsonEachRow(Utils::streamFor("{\"number\":\"0\"}\n{\"number\":\"1\"}"));
 
         self::assertSame(
             [['number' => '0'], ['number' => '1']],

@@ -189,6 +189,42 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame(self::streamedExceptionBody(), $stream->__toString());
     }
 
+    public function testInsertPayloadDoesNotPreScanResponseBody(): void
+    {
+        $psr17Factory = new Psr17Factory();
+        $response     = $psr17Factory->createResponse(200)
+            ->withBody(new NoSeekStream($psr17Factory->createStream('')));
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public int $requestCount = 0;
+
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                ++$this->requestCount;
+
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $client->insertPayload('events', new TabSeparated(), $psr17Factory->createStream("1\n"));
+
+        self::assertSame(1, $httpClient->requestCount);
+    }
+
     public function testAsyncSelectThrowsServerErrorWhenOkResponseContainsStreamedException(): void
     {
         $psr17Factory = new Psr17Factory();

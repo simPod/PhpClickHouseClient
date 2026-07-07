@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Output;
 
-use Psr\Http\Message\StreamInterface;
-
 // phpcs:disable Squiz.Classes.ValidClassName.NotPascalCase
 
 /**
@@ -15,7 +13,7 @@ use Psr\Http\Message\StreamInterface;
  */
 final readonly class Null_ implements Output
 {
-    public function __construct(string|StreamInterface $_)
+    public function __construct(string $_)
     {
     }
 }

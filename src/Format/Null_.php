@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Format;
 
+use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Output\Output;
 
 // phpcs:disable Squiz.Classes.ValidClassName.NotPascalCase
@@ -14,7 +15,7 @@ use SimPod\ClickHouseClient\Output\Output;
  */
 final readonly class Null_ implements Format
 {
-    public static function output(string $contents): Output
+    public static function output(string|StreamInterface $contents): Output
     {
         /** @var \SimPod\ClickHouseClient\Output\Null_<T> $output */
         $output = new \SimPod\ClickHouseClient\Output\Null_($contents);

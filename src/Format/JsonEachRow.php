@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Format;
 
 use JsonException;
+use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Output\Output;
 
 /**
@@ -14,7 +15,7 @@ use SimPod\ClickHouseClient\Output\Output;
 final readonly class JsonEachRow implements Format
 {
     /** @throws JsonException */
-    public static function output(string $contents): Output
+    public static function output(string|StreamInterface $contents): Output
     {
         /** @var \SimPod\ClickHouseClient\Output\JsonEachRow<T> $output */
         $output = new \SimPod\ClickHouseClient\Output\JsonEachRow($contents);

@@ -10,6 +10,7 @@ use SimPod\ClickHouseClient\Output\JsonEachRow;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
 use function iterator_to_array;
+use function str_repeat;
 
 #[CoversClass(JsonEachRow::class)]
 final class JsonEachRowTest extends TestCaseBase
@@ -46,6 +47,17 @@ JSON,
 
         self::assertSame(
             [['number' => '0'], ['number' => '1']],
+            iterator_to_array($format->data, preserve_keys: false),
+        );
+    }
+
+    public function testStreamLineCanSpanMultipleReads(): void
+    {
+        $value  = str_repeat('a', 9000);
+        $format = new JsonEachRow(Utils::streamFor('{"value":"' . $value . '"}' . "\n" . '{"value":"b"}'));
+
+        self::assertSame(
+            [['value' => $value], ['value' => 'b']],
             iterator_to_array($format->data, preserve_keys: false),
         );
     }

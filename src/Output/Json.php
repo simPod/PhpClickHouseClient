@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Output;
 
 use JsonException;
+use Psr\Http\Message\StreamInterface;
 
 use function json_decode;
 
@@ -31,8 +32,10 @@ final readonly class Json implements Output
     public array $statistics;
 
     /** @throws JsonException */
-    public function __construct(string $contentsJson)
+    public function __construct(string|StreamInterface $contentsJson)
     {
+        $contentsJson = $contentsJson instanceof StreamInterface ? $contentsJson->__toString() : $contentsJson;
+
         /**
          * @var array{
          *     data: list<T>,

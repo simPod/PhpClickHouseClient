@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Format;
 
+use Psr\Http\Message\StreamInterface;
 use SimPod\ClickHouseClient\Output\Basic;
 use SimPod\ClickHouseClient\Output\Output;
 
@@ -13,7 +14,7 @@ use SimPod\ClickHouseClient\Output\Output;
  */
 final readonly class TabSeparated implements Format
 {
-    public static function output(string $contents): Output
+    public static function output(string|StreamInterface $contents): Output
     {
         /** @var Basic<T> $output */
         $output = new Basic($contents);

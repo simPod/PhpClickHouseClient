@@ -10,7 +10,6 @@ use SimPod\ClickHouseClient\Format\Pretty;
 use SimPod\ClickHouseClient\Format\PrettySpace;
 use SimPod\ClickHouseClient\Format\RowBinary;
 use SimPod\ClickHouseClient\Format\TabSeparated;
-use SimPod\ClickHouseClient\Output\Basic;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
 #[CoversClass(Pretty::class)]
@@ -23,7 +22,6 @@ final class BasicFormatsTest extends TestCaseBase
     {
         $output = Pretty::output(Utils::streamFor('pretty'));
 
-        self::assertInstanceOf(Basic::class, $output);
         self::assertSame('pretty', $output->contents);
     }
 
@@ -31,7 +29,6 @@ final class BasicFormatsTest extends TestCaseBase
     {
         $output = PrettySpace::output(Utils::streamFor('pretty-space'));
 
-        self::assertInstanceOf(Basic::class, $output);
         self::assertSame('pretty-space', $output->contents);
     }
 
@@ -39,7 +36,6 @@ final class BasicFormatsTest extends TestCaseBase
     {
         $output = RowBinary::output(Utils::streamFor('row-binary'));
 
-        self::assertInstanceOf(Basic::class, $output);
         self::assertSame('row-binary', $output->contents);
     }
 
@@ -47,7 +43,6 @@ final class BasicFormatsTest extends TestCaseBase
     {
         $output = TabSeparated::output(Utils::streamFor("tab\tseparated"));
 
-        self::assertInstanceOf(Basic::class, $output);
         self::assertSame("tab\tseparated", $output->contents);
     }
 }

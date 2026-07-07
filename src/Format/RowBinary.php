@@ -16,6 +16,8 @@ final readonly class RowBinary implements Format
 {
     public static function output(string|StreamInterface $contents): Output
     {
+        $contents = $contents instanceof StreamInterface ? $contents->__toString() : $contents;
+
         /** @var Basic<T> $output */
         $output = new Basic($contents);
 

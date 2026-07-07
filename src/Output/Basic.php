@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace SimPod\ClickHouseClient\Output;
 
-use Psr\Http\Message\StreamInterface;
-
 /**
  * @phpstan-immutable
  * @template T
@@ -13,10 +11,7 @@ use Psr\Http\Message\StreamInterface;
  */
 final readonly class Basic implements Output
 {
-    public string $contents;
-
-    public function __construct(string|StreamInterface $contents)
+    public function __construct(public string $contents)
     {
-        $this->contents = $contents instanceof StreamInterface ? $contents->__toString() : $contents;
     }
 }

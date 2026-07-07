@@ -17,6 +17,8 @@ final readonly class Json implements Format
     /** @throws JsonException */
     public static function output(string|StreamInterface $contents): Output
     {
+        $contents = $contents instanceof StreamInterface ? $contents->__toString() : $contents;
+
         /** @var \SimPod\ClickHouseClient\Output\Json<T> $output */
         $output = new \SimPod\ClickHouseClient\Output\Json($contents);
 

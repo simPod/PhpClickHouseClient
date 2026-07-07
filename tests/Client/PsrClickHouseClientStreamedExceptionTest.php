@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
@@ -189,11 +190,19 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame(self::streamedExceptionBody(), $stream->__toString());
     }
 
-    public function testInsertPayloadDoesNotPreScanResponseBody(): void
+    public function testInsertPayloadDrainsResponseBodyWithoutPreScanningIt(): void
     {
         $psr17Factory = new Psr17Factory();
-        $response     = $psr17Factory->createResponse(200)
-            ->withBody(new NoSeekStream($psr17Factory->createStream('')));
+
+        $body = $this->createMock(StreamInterface::class);
+        $body->expects(self::never())
+            ->method('isSeekable');
+        $body->expects(self::once())
+            ->method('__toString')
+            ->willReturn('');
+
+        $response = $psr17Factory->createResponse(200)
+            ->withBody($body);
 
         $httpClient = new class ($response) implements ClientInterface {
             public int $requestCount = 0;

@@ -306,7 +306,7 @@ class PsrClickHouseClient implements ClickHouseClient
             absurd();
         }
 
-        $this->sendHttpRequest($request, $sql);
+        $this->sendHttpRequest($request, $sql, detectStreamedException: false);
     }
 
     /**

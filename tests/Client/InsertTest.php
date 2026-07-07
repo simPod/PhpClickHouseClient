@@ -18,6 +18,7 @@ use SimPod\ClickHouseClient\Format\Json;
 use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\RowBinary;
+use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
@@ -163,6 +164,10 @@ CLICKHOUSE,
                 $buffer->reset(),
             ),
             ['PageViews', 'UserID', 'Duration', 'Sign'],
+            new ArraySettingsProvider([
+                'async_insert' => 1,
+                'wait_for_async_insert' => 1,
+            ]),
         );
 
         $output = self::$client->select(

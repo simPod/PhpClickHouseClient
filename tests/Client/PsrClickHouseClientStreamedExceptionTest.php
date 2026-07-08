@@ -218,6 +218,90 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         $client->executeQuery('OPTIMIZE TABLE events');
     }
 
+    public function testExecuteQueryClosesNonOkResponseBody(): void
+    {
+        $psr17Factory = new Psr17Factory();
+
+        $body = $this->createMock(StreamInterface::class);
+        $body->expects(self::once())
+            ->method('__toString')
+            ->willReturn('Code: 60. DB::Exception: Table events does not exist. (UNKNOWN_TABLE)');
+        $body->expects(self::once())
+            ->method('close');
+
+        $response = $psr17Factory->createResponse(404)
+            ->withBody($body);
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $this->expectException(ServerError::class);
+
+        $client->executeQuery('OPTIMIZE TABLE events');
+    }
+
+    public function testSelectClosesResponseBodyWhenOkResponseContainsStreamedException(): void
+    {
+        $psr17Factory = new Psr17Factory();
+
+        $body = $this->createMock(StreamInterface::class);
+        $body->expects(self::once())
+            ->method('isSeekable')
+            ->willReturn(true);
+        $body->expects(self::once())
+            ->method('__toString')
+            ->willReturn(self::streamedExceptionBody());
+        $body->expects(self::once())
+            ->method('close');
+
+        $response = $psr17Factory->createResponse(200)
+            ->withHeader('X-ClickHouse-Exception-Tag', 'abcdefghijklmnop')
+            ->withBody($body);
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $this->expectException(ServerError::class);
+
+        $client->select('SELECT throwIf(number = 2) FROM numbers(5)', new TabSeparated());
+    }
+
     public function testSelectThrowsWhenStreamedExceptionInspectionWouldConsumeNonSeekableBody(): void
     {
         $psr17Factory = new Psr17Factory();

@@ -381,7 +381,13 @@ class PsrClickHouseClient implements ClickHouseClient
         }
 
         if ($response->getStatusCode() !== 200) {
-            throw ServerError::fromResponse($response);
+            $body = $response->getBody();
+
+            try {
+                throw ServerError::fromResponse($response);
+            } finally {
+                $body->close();
+            }
         }
 
         if (! $detectStreamedException) {
@@ -390,9 +396,13 @@ class PsrClickHouseClient implements ClickHouseClient
 
         $body = $response->getBody();
         if (! $body->isSeekable()) {
-            throw new RuntimeException(
-                'Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.',
-            );
+            try {
+                throw new RuntimeException(
+                    'Cannot inspect streamed ClickHouse exceptions on a non-seekable response body.',
+                );
+            } finally {
+                $body->close();
+            }
         }
 
         $bodyContent = $body->__toString();
@@ -402,7 +412,11 @@ class PsrClickHouseClient implements ClickHouseClient
                 $response->getHeaderLine('X-ClickHouse-Exception-Tag'),
             )
         ) {
-            throw ServerError::fromResponse($response);
+            try {
+                throw ServerError::fromResponseContent($bodyContent, $response->getStatusCode());
+            } finally {
+                $body->close();
+            }
         }
 
         Message::rewindBody($response);

@@ -308,7 +308,7 @@ class PsrClickHouseClient implements ClickHouseClient
 
         $this->sendHttpRequest($request, $sql, detectStreamedException: false)
             ->getBody()
-            ->__toString();
+            ->close();
     }
 
     /**

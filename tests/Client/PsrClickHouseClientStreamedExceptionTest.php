@@ -190,7 +190,7 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame(self::streamedExceptionBody(), $stream->__toString());
     }
 
-    public function testInsertPayloadDrainsResponseBodyWithoutPreScanningIt(): void
+    public function testInsertPayloadClosesResponseBodyWithoutPreScanningIt(): void
     {
         $psr17Factory = new Psr17Factory();
 
@@ -198,8 +198,7 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         $body->expects(self::never())
             ->method('isSeekable');
         $body->expects(self::once())
-            ->method('__toString')
-            ->willReturn('');
+            ->method('close');
 
         $response = $psr17Factory->createResponse(200)
             ->withBody($body);

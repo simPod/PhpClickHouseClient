@@ -59,7 +59,7 @@ class PsrClickHouseClient implements ClickHouseClient
     public function executeQuery(string $query, SettingsProvider $settings = new EmptySettingsProvider()): void
     {
         try {
-            $this->executeRequest($query, params: [], settings: $settings);
+            $this->executeRequestAndClose($query, params: [], settings: $settings);
         } catch (UnsupportedParamType) {
             absurd();
         }
@@ -70,7 +70,7 @@ class PsrClickHouseClient implements ClickHouseClient
         array $params,
         SettingsProvider $settings = new EmptySettingsProvider(),
     ): void {
-        $this->executeRequest(
+        $this->executeRequestAndClose(
             $this->sqlFactory->createWithParameters($query, $params),
             params: $params,
             settings: $settings,
@@ -108,7 +108,13 @@ class PsrClickHouseClient implements ClickHouseClient
             settings: $settings,
         );
 
-        return $outputFormat::output($response->getBody()->__toString());
+        $body = $response->getBody();
+
+        try {
+            return $outputFormat::output($body->__toString());
+        } finally {
+            $body->close();
+        }
     }
 
     public function selectStream(
@@ -191,7 +197,7 @@ class PsrClickHouseClient implements ClickHouseClient
                 ),
             );
 
-            $this->executeRequest(
+            $this->executeRequestAndClose(
                 <<<CLICKHOUSE
                 INSERT INTO $tableName
                 $columnsSql
@@ -226,7 +232,7 @@ class PsrClickHouseClient implements ClickHouseClient
         );
 
         try {
-            $this->executeRequest(
+            $this->executeRequestAndClose(
                 <<<CLICKHOUSE
                 INSERT INTO $tableName
                 $columnsSql
@@ -255,7 +261,7 @@ class PsrClickHouseClient implements ClickHouseClient
         $tableName = $table->fullName();
 
         try {
-            $this->executeRequest(
+            $this->executeRequestAndClose(
                 <<<CLICKHOUSE
                 INSERT INTO $tableName $formatSql $data
                 CLICKHOUSE,
@@ -336,6 +342,24 @@ class PsrClickHouseClient implements ClickHouseClient
         );
 
         return $this->sendHttpRequest($request, $sql, $detectStreamedException);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @throws ServerError
+     * @throws ClientExceptionInterface
+     * @throws UnsupportedParamType
+     */
+    private function executeRequestAndClose(
+        string $sql,
+        array $params,
+        SettingsProvider $settings,
+        bool $detectStreamedException = true,
+    ): void {
+        $this->executeRequest($sql, $params, $settings, $detectStreamedException)
+            ->getBody()
+            ->close();
     }
 
     /**

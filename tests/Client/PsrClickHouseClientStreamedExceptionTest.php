@@ -124,6 +124,100 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame("1\n", $output->contents);
     }
 
+    public function testSelectClosesResponseBodyAfterParsingIt(): void
+    {
+        $psr17Factory = new Psr17Factory();
+
+        $body = $this->createMock(StreamInterface::class);
+        $body->expects(self::once())
+            ->method('isSeekable')
+            ->willReturn(true);
+        $body->expects(self::exactly(2))
+            ->method('__toString')
+            ->willReturn("1\n");
+        $body->expects(self::once())
+            ->method('tell')
+            ->willReturn(1);
+        $body->expects(self::once())
+            ->method('rewind');
+        $body->expects(self::once())
+            ->method('close');
+
+        $response = $psr17Factory->createResponse(200)
+            ->withBody($body);
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $output = $client->select('SELECT 1', new TabSeparated());
+
+        self::assertSame("1\n", $output->contents);
+    }
+
+    public function testExecuteQueryClosesInspectedResponseBody(): void
+    {
+        $psr17Factory = new Psr17Factory();
+
+        $body = $this->createMock(StreamInterface::class);
+        $body->expects(self::once())
+            ->method('isSeekable')
+            ->willReturn(true);
+        $body->expects(self::once())
+            ->method('__toString')
+            ->willReturn('');
+        $body->expects(self::once())
+            ->method('tell')
+            ->willReturn(1);
+        $body->expects(self::once())
+            ->method('rewind');
+        $body->expects(self::once())
+            ->method('close');
+
+        $response = $psr17Factory->createResponse(200)
+            ->withBody($body);
+
+        $httpClient = new class ($response) implements ClientInterface {
+            public function __construct(private ResponseInterface $response)
+            {
+            }
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return $this->response;
+            }
+        };
+
+        $client = new PsrClickHouseClient(
+            $httpClient,
+            new RequestFactory(
+                new ParamValueConverterRegistry(),
+                $psr17Factory,
+                $psr17Factory,
+                $psr17Factory,
+            ),
+        );
+
+        $client->executeQuery('OPTIMIZE TABLE events');
+    }
+
     public function testSelectThrowsWhenStreamedExceptionInspectionWouldConsumeNonSeekableBody(): void
     {
         $psr17Factory = new Psr17Factory();

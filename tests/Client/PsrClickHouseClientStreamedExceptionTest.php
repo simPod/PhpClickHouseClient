@@ -129,16 +129,14 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         $psr17Factory = new Psr17Factory();
 
         $body = $this->createMock(StreamInterface::class);
+        $body->expects(self::never())
+            ->method('isSeekable');
         $body->expects(self::once())
-            ->method('isSeekable')
-            ->willReturn(true);
-        $body->expects(self::exactly(2))
             ->method('__toString')
             ->willReturn("1\n");
-        $body->expects(self::once())
-            ->method('tell')
-            ->willReturn(1);
-        $body->expects(self::once())
+        $body->expects(self::never())
+            ->method('tell');
+        $body->expects(self::never())
             ->method('rewind');
         $body->expects(self::once())
             ->method('close');
@@ -172,21 +170,18 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
         self::assertSame("1\n", $output->contents);
     }
 
-    public function testExecuteQueryClosesInspectedResponseBody(): void
+    public function testExecuteQueryClosesOkResponseBodyWithoutPreScanningIt(): void
     {
         $psr17Factory = new Psr17Factory();
 
         $body = $this->createMock(StreamInterface::class);
-        $body->expects(self::once())
-            ->method('isSeekable')
-            ->willReturn(true);
-        $body->expects(self::once())
-            ->method('__toString')
-            ->willReturn('');
-        $body->expects(self::once())
-            ->method('tell')
-            ->willReturn(1);
-        $body->expects(self::once())
+        $body->expects(self::never())
+            ->method('isSeekable');
+        $body->expects(self::never())
+            ->method('__toString');
+        $body->expects(self::never())
+            ->method('tell');
+        $body->expects(self::never())
             ->method('rewind');
         $body->expects(self::once())
             ->method('close');
@@ -306,6 +301,7 @@ final class PsrClickHouseClientStreamedExceptionTest extends TestCaseBase
     {
         $psr17Factory = new Psr17Factory();
         $response     = $psr17Factory->createResponse(200)
+            ->withHeader('X-ClickHouse-Exception-Tag', 'abcdefghijklmnop')
             ->withBody(new NoSeekStream($psr17Factory->createStream("1\n")));
 
         $httpClient = new class ($response) implements ClientInterface {

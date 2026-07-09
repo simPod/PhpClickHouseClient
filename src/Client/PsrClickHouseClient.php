@@ -394,6 +394,11 @@ class PsrClickHouseClient implements ClickHouseClient
             return $response;
         }
 
+        $exceptionTag = $response->getHeaderLine('X-ClickHouse-Exception-Tag');
+        if ($exceptionTag === '') {
+            return $response;
+        }
+
         $body = $response->getBody();
         if (! $body->isSeekable()) {
             try {
@@ -409,7 +414,7 @@ class PsrClickHouseClient implements ClickHouseClient
         if (
             ServerError::bodyContainsStreamedException(
                 $bodyContent,
-                $response->getHeaderLine('X-ClickHouse-Exception-Tag'),
+                $exceptionTag,
             )
         ) {
             try {

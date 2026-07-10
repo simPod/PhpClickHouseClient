@@ -7,8 +7,10 @@ namespace SimPod\ClickHouseClient\Output;
 use Generator;
 use JsonException;
 use Psr\Http\Message\StreamInterface;
+use SimPod\ClickHouseClient\Exception\ServerError;
 
 use function explode;
+use function implode;
 use function json_decode;
 use function strpos;
 use function substr;
@@ -24,7 +26,7 @@ final readonly class JsonEachRow implements Output
     /** @phpstan-var Generator<int, T> */
     public Generator $data;
 
-    /** @throws JsonException */
+    /** @throws JsonException|ServerError */
     public function __construct(string|StreamInterface $contentsJson)
     {
         $lines = $contentsJson instanceof StreamInterface
@@ -40,12 +42,26 @@ final readonly class JsonEachRow implements Output
      *
      * @return Generator<int, T>
      *
-     * @throws JsonException
+     * @throws JsonException|ServerError
      */
     private static function decodeLines(iterable $lines): Generator
     {
+        $streamedExceptionLines = [];
+
         foreach ($lines as $line) {
+            if ($streamedExceptionLines !== []) {
+                $streamedExceptionLines[] = $line;
+
+                continue;
+            }
+
             if ($line === '') {
+                continue;
+            }
+
+            if ($line === '__exception__') {
+                $streamedExceptionLines[] = $line;
+
                 continue;
             }
 
@@ -53,6 +69,10 @@ final readonly class JsonEachRow implements Output
             $row = json_decode($line, true, flags: JSON_THROW_ON_ERROR);
 
             yield $row;
+        }
+
+        if ($streamedExceptionLines !== []) {
+            throw ServerError::fromResponseContent(implode("\n", $streamedExceptionLines), 200);
         }
     }
 

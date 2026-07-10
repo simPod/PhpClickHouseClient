@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Tests\Output;
 
 use GuzzleHttp\Psr7\Utils;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\StreamInterface;
@@ -77,7 +78,11 @@ JSON,
         iterator_to_array($format->data, preserve_keys: false);
     }
 
-    /** @return iterable<array{string|StreamInterface}> */
+    /**
+     * @return iterable<array{string|StreamInterface}>
+     *
+     * @throws InvalidArgumentException
+     */
     public static function provideStreamedExceptionContents(): iterable
     {
         $contents = <<<'JSON'

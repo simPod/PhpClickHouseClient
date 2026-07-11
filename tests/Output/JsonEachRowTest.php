@@ -15,6 +15,7 @@ use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
 use function iterator_to_array;
 use function str_repeat;
+use function str_replace;
 
 #[CoversClass(JsonEachRow::class)]
 final class JsonEachRowTest extends TestCaseBase
@@ -94,5 +95,7 @@ JSON;
 
         yield 'string' => [$contents];
         yield 'stream' => [Utils::streamFor($contents)];
+        yield 'CRLF string' => [str_replace("\n", "\r\n", $contents)];
+        yield 'CRLF stream' => [Utils::streamFor(str_replace("\n", "\r\n", $contents))];
     }
 }

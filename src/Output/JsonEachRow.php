@@ -12,6 +12,7 @@ use SimPod\ClickHouseClient\Exception\ServerError;
 use function explode;
 use function implode;
 use function json_decode;
+use function rtrim;
 use function strpos;
 use function substr;
 
@@ -49,6 +50,8 @@ final readonly class JsonEachRow implements Output
         $streamedExceptionLines = [];
 
         foreach ($lines as $line) {
+            $line = rtrim($line, "\r");
+
             if ($streamedExceptionLines !== []) {
                 $streamedExceptionLines[] = $line;
 

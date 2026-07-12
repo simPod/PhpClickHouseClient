@@ -12,7 +12,7 @@ That said everything is as much transparent as possible and so object-oriented A
 Naming used here is the same as in ClickHouse docs. 
 
 - Works with any HTTP Client implementation ([PSR-18 compliant](https://www.php-fig.org/psr/psr-18/))
-- All [ClickHouse Formats](https://clickhouse.yandex/docs/en/interfaces/formats/) support
+- All [ClickHouse Formats](https://clickhouse.com/docs/en/interfaces/formats/) support
 - Logging ([PSR-3 compliant](https://www.php-fig.org/psr/psr-3/))
 - SQL Factory for [parameters "binding"](#parameters-binding)
 - [Native query parameters](#native-query-parameters) support
@@ -28,41 +28,76 @@ Naming used here is the same as in ClickHouse docs.
   - [Insert](#insert)
 - [Async API](#async-api)
   - [Select](#select-1)
+- [Parameters "binding"](#parameters-binding)
 - [Native Query Parameters](#native-query-parameters)
+  - [Custom Query Parameter Value Conversion](#custom-query-parameter-value-conversion)
+  - [Expression](#expression)
 - [Snippets](#snippets)
 
 ## Setup
 
 ```sh
-composer require simpod/clickhouse-client  
+composer require simpod/clickhouse-client
 ```
 
-1. Read about ClickHouse [Http Interface](https://clickhouse.com/docs/en/interfaces/http/). _It's short and useful for concept understanding._
-2. Create a new instance of ClickHouse client and pass PSR factories.
-   1. Symfony HttpClient is recommended (performance, less bugs, maintenance)
-   2. The plot twist is there's no endpoint/credentials etc. config in this library, provide it via client
+1. Read about ClickHouse [HTTP Interface](https://clickhouse.com/docs/en/interfaces/http/). _It's short and useful for concept understanding._
+2. Create a new instance of ClickHouse client and pass a PSR-18 HTTP client plus PSR-17 factories.
+   1. Symfony HttpClient is recommended for the PSR-18 client.
+   2. The plot twist is there's no endpoint/credentials etc. config in this library, provide it via client.
 3. See tests
 
 ```php
 <?php
 
-use Http\Client\Curl\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\Psr18Client;
 
 $psr17Factory = new Psr17Factory;
 
 $clickHouseClient = new PsrClickHouseClient(
-    new Client(),
+    new Psr18Client(
+        HttpClient::create([
+            'base_uri' => 'http://localhost:8123',
+            'headers' => [
+                'X-ClickHouse-User' => 'default',
+                'X-ClickHouse-Key' => '',
+            ],
+            'query' => ['database' => 'default'],
+        ]),
+    ),
     new RequestFactory(
         new ParamValueConverterRegistry(),
         $psr17Factory,
+        $psr17Factory,
         $psr17Factory
     ),
-    new LoggerChain(),
-    [],
+);
+```
+
+### Logging
+
+Pass a `SqlLogger` implementation as the third `PsrClickHouseClient` constructor argument. The library provides a PSR-3 adapter:
+
+```php
+<?php
+
+use Psr\Http\Client\ClientInterface;
+use Psr\Log\LoggerInterface;
+use SimPod\ClickHouseClient\Client\Http\RequestFactory;
+use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
+use SimPod\ClickHouseClient\Logger\PsrLogger;
+
+/** @var ClientInterface $psr18Client */
+/** @var RequestFactory $requestFactory */
+/** @var LoggerInterface $logger */
+$clickHouseClient = new PsrClickHouseClient(
+    $psr18Client,
+    $requestFactory,
+    new PsrLogger($logger),
 );
 ```
 
@@ -87,11 +122,11 @@ framework:
 
 ### PSR Factories who?
 
-_The library does not implement it's own HTTP. 
+_The library does not implement its own HTTP.
 That has already been done via [PSR-7, PSR-17 and PSR-18](https://www.php-fig.org/psr/). 
-This library respects it and allows you to plug your own implementation (eg. HTTPPlug or Guzzle)._
+This library respects it and allows you to plug your own implementation (eg. Symfony HttpClient or Guzzle)._
 
-_Recommended are `composer require nyholm/psr7` for PSR-17 and `composer require php-http/curl-client` for Curl PSR-18 implementation (used in example above)._
+_Recommended are `composer require nyholm/psr7` for PSR-17 and `composer require symfony/http-client` for PSR-18 (used in the example above)._
 
 ## Sync API
 
@@ -108,13 +143,14 @@ Appends `FORMAT` to the query and returns response in selected output format:
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Output;
+use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 
 /** @var ClickHouseClient $client */
 /** @var Output\JsonEachRow $output */
 $output = $client->select(
     'SELECT * FROM table',
     new JsonEachRow(),
-    ['force_primary_key' => 1]
+    new ArraySettingsProvider(['force_primary_key' => 1])
 );
 ```
 
@@ -130,14 +166,15 @@ Same as `ClickHouseClient::select()` except it also allows [parameter binding](#
 use SimPod\ClickHouseClient\Client\ClickHouseClient;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Output;
+use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 
 /** @var ClickHouseClient $client */
 /** @var Output\JsonEachRow $output */
 $output = $client->selectWithParams(
-    'SELECT * FROM :table',
-    ['table' => 'table_name'],
+    'SELECT * FROM table WHERE name = :name',
+    ['name' => 'Alice'],
     new JsonEachRow(),
-    ['force_primary_key' => 1]
+    new ArraySettingsProvider(['force_primary_key' => 1])
 );
 ```
 
@@ -156,7 +193,7 @@ $client->insert('table', $data, $columnNames);
 
 If `$columnNames` is provided and is key->value array column names are generated based on it and values are passed as parameters:
 
-`$client->insert( 'table', [[1,2]], ['a' => 'Int8, 'b' => 'String'] );` generates `INSERT INTO table (a,b) VALUES ({p1:Int8},{p2:String})` and values are passed along the query.
+`$client->insert( 'table', [[1,2]], ['a' => 'Int8', 'b' => 'String'] );` generates `INSERT INTO table (a,b) VALUES ({p1:Int8},{p2:String})` and values are passed along the query.
 
 If `$columnNames` is provided column names are generated based on it:
 
@@ -178,6 +215,40 @@ If not provided they're not passed either:
 
 ### Select
 
+`ClickHouseAsyncClient::select()` returns an Amp `Future`:
+
+```php
+<?php
+
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\Http\Client\Psr7\PsrAdapter;
+use Nyholm\Psr7\Factory\Psr17Factory;
+use SimPod\ClickHouseClient\Client\Http\RequestFactory;
+use SimPod\ClickHouseClient\Client\PsrClickHouseAsyncClient;
+use SimPod\ClickHouseClient\Format\JsonEachRow;
+use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
+
+$psr17Factory = new Psr17Factory();
+
+$client = new PsrClickHouseAsyncClient(
+    HttpClientBuilder::buildDefault(),
+    new RequestFactory(
+        new ParamValueConverterRegistry(),
+        $psr17Factory,
+        $psr17Factory,
+        $psr17Factory,
+        'http://localhost:8123?database=default',
+    ),
+    new PsrAdapter($psr17Factory, $psr17Factory),
+    [
+        'X-ClickHouse-User' => 'default',
+        'X-ClickHouse-Key' => '',
+    ],
+);
+
+$output = $client->select('SELECT 1 AS data', new JsonEachRow())->await();
+```
+
 ## Parameters "binding"
 
 ```php
@@ -197,6 +268,9 @@ This produces `SELECT 'value'` and it can be passed to `ClickHouseClient::select
 
 Supported types are:
 - scalars
+- null
+- arrays, including `IN (:list)` values and tuple arrays
+- backed enums
 - DateTimeInterface
 - [Expression](#expression)
 - objects implementing `__toString()`
@@ -210,17 +284,19 @@ Supported types are:
 <?php
 
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
+use SimPod\ClickHouseClient\Format\JsonEachRow;
 
 $client = new PsrClickHouseClient(...);
 
 $output = $client->selectWithParams(
     'SELECT {p1:String}',
-    ['param' => 'value']
+    ['p1' => 'value'],
+    new JsonEachRow(),
 );
 ```
 
 All types are supported (except `AggregateFunction`, `SimpleAggregateFunction` and `Nothing` by design).
-You can also pass `DateTimeInterface` into `Date*` types or native array into `Array`, `Tuple`, `Native` and `Geo` types
+You can also pass `DateTimeInterface` into `Date*` types or native array into `Array`, `Tuple`, `Nested` and Geo types (`Point`, `Polygon`, `Geometry` etc.).
 
 ### Custom Query Parameter Value Conversion
 
@@ -235,15 +311,18 @@ use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\PsrClickHouseClient;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamValue;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
+use DateTimeInterface;
 
 $paramValueConverterRegistry = new ParamValueConverterRegistry([
-    'datetime' => static fn (mixed $v) => $v instanceof DateTimeInterface ? $v->format('c') : throw UnsupportedParamValue::type($value)
+    'datetime' => static fn (mixed $v, mixed ...$unused) => $v instanceof DateTimeInterface
+        ? $v->format('c')
+        : throw UnsupportedParamValue::type($v),
 ]);
 
 $client = new PsrClickHouseClient(..., new RequestFactory($paramValueConverterRegistry, ...));
 ```
 
-Be aware that the library can not ensure that passed values have a certain type. They are passed as-is and closures must accept `mixed` values.
+Be aware that the library cannot ensure that passed values have a certain type. They are passed as-is and closures must accept `mixed` values.
 
 Throw an exception of type `UnsupportedParamValue` if your converter does not support the passed value type.
 

@@ -314,7 +314,7 @@ use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use DateTimeInterface;
 
 $paramValueConverterRegistry = new ParamValueConverterRegistry([
-    'datetime' => static fn (mixed $v) => $v instanceof DateTimeInterface
+    'datetime' => static fn (mixed $v, mixed ...$unused) => $v instanceof DateTimeInterface
         ? $v->format('c')
         : throw UnsupportedParamValue::type($v),
 ]);

@@ -37,7 +37,7 @@ Naming used here is the same as in ClickHouse docs.
 ## Setup
 
 ```sh
-composer require simpod/clickhouse-client symfony/http-client nyholm/psr7
+composer require simpod/clickhouse-client
 ```
 
 1. Read about ClickHouse [HTTP Interface](https://clickhouse.com/docs/en/interfaces/http/). _It's short and useful for concept understanding._

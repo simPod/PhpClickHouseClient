@@ -103,7 +103,6 @@ final class RequestFactoryTest extends TestCaseBase
                 "\r\n",
                 [
                     'Content-Disposition: form-data; name="param_p_2"',
-                    'Content-Length: 10',
                     '',
                     $now->getTimestamp(),
                 ],

@@ -111,4 +111,31 @@ final class RequestFactoryTest extends TestCaseBase
             $body,
         );
     }
+
+    public function testMultipleNestedParamsParsed(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {serverIds:Array(UUID)},{sensorIds:Array(Array(UUID))}',
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(
+                [
+                    'serverIds' => ['c8965e35-e785-4b05-a675-000000000000'],
+                    'sensorIds' => [['c8965e35-e785-4b05-a675-111111111111']],
+                ],
+            ),
+        );
+
+        $body = $request->getBody()->__toString();
+        self::assertStringContainsString('param_serverIds', $body);
+        self::assertStringContainsString('param_sensorIds', $body);
+    }
 }

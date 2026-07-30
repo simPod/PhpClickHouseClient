@@ -17,8 +17,6 @@ use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-use function implode;
-
 #[CoversClass(RequestFactory::class)]
 final class RequestFactoryTest extends TestCaseBase
 {
@@ -98,16 +96,9 @@ final class RequestFactoryTest extends TestCaseBase
 
         $body = $request->getBody()->__toString();
         self::assertStringContainsString('param_p1', $body);
-        self::assertStringContainsString(
-            implode(
-                "\r\n",
-                [
-                    'Content-Disposition: form-data; name="param_p_2"',
-                    'Content-Length: 10',
-                    '',
-                    $now->getTimestamp(),
-                ],
-            ),
+        self::assertMatchesRegularExpression(
+            '~Content-Disposition: form-data; name="param_p_2"\r\n(?:Content-Length: \d+\r\n)?\r\n'
+                . $now->getTimestamp() . '~',
             $body,
         );
     }

@@ -129,4 +129,92 @@ final class RequestFactoryTest extends TestCaseBase
         self::assertStringContainsString('param_serverIds', $body);
         self::assertStringContainsString('param_sensorIds', $body);
     }
+
+    public function testNestedDateTime64ParamIsQuoted(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {inputs:Array(Tuple(DateTime64(6), UUID))}',
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(
+                [
+                    'inputs' => [
+                        [
+                            new DateTimeImmutable('2026-07-30 12:00:00.123456'),
+                            'c8965e35-e785-4b05-a675-000000000000',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        self::assertStringContainsString(
+            "('2026-07-30 12:00:00.123456','c8965e35-e785-4b05-a675-000000000000')",
+            $request->getBody()->__toString(),
+        );
+    }
+
+    public function testTopLevelDateTime64ParamRemainsNumeric(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {value:DateTime64(6)}',
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(
+                [
+                    'value' => new DateTimeImmutable('2026-07-30 12:00:00.123456'),
+                ],
+            ),
+        );
+
+        self::assertStringContainsString('1785412800.123456', $request->getBody()->__toString());
+    }
+
+    public function testWrappedNestedDateTime64ParamIsQuoted(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {inputs:Array(Tuple(Nullable(DateTime64(6)), LowCardinality(DateTime64(6))))}',
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(
+                [
+                    'inputs' => [
+                        [
+                            new DateTimeImmutable('2026-07-30 12:00:00.123456'),
+                            new DateTimeImmutable('2026-07-30 12:01:00.123456'),
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        self::assertStringContainsString(
+            "('2026-07-30 12:00:00.123456','2026-07-30 12:01:00.123456')",
+            $request->getBody()->__toString(),
+        );
+    }
 }

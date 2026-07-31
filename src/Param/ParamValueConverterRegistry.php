@@ -87,8 +87,16 @@ final readonly class ParamValueConverterRegistry
 
             'UUID' => self::stringConverter(),
 
-            'Nullable' => fn (mixed $v, Type $type) => $this->get($type->params)($v, null, false),
-            'LowCardinality' => fn (mixed $v, Type $type) => $this->get($type->params)($v, null, false),
+            'Nullable' => fn (
+                mixed $v,
+                Type $type,
+                bool $nested = false,
+            ) => $this->convertWrappedValue($v, $type, $nested),
+            'LowCardinality' => fn (
+                mixed $v,
+                Type $type,
+                bool $nested = false,
+            ) => $this->convertWrappedValue($v, $type, $nested),
 
             'decimal' => self::decimalConverter(),
             'decimal32' => self::decimalConverter(),
@@ -102,13 +110,17 @@ final readonly class ParamValueConverterRegistry
             'date32' => self::dateConverter(),
             'datetime' => self::dateTimeConverter(),
             'datetime32' => self::dateTimeConverter(),
-            'datetime64' => static function (mixed $value) {
+            'datetime64' => static function (mixed $value, Type|string|null $type = null, bool $nested = false) {
                 if ($value instanceof DateTimeInterface) {
-                    return $value->format('U.u');
+                    $value = $nested
+                        ? $value->format('Y-m-d H:i:s.u')
+                        : $value->format('U.u');
                 }
 
                 if (is_string($value) || is_float($value) || is_int($value)) {
-                    return $value;
+                    return $nested
+                        ? "'" . Escaper::escape((string) $value) . "'"
+                        : $value;
                 }
 
                 throw UnsupportedParamValue::type($value);
@@ -236,7 +248,7 @@ final readonly class ParamValueConverterRegistry
                 return '(' . $innerExpression . ')';
             },
         ];
-        $this->registry  = array_merge($defaultRegistry, $registry);
+        $this->registry = array_merge($defaultRegistry, $registry);
     }
 
     /**
@@ -358,5 +370,13 @@ final readonly class ParamValueConverterRegistry
         }
 
         return $result;
+    }
+
+    /** @throws UnsupportedParamType */
+    private function convertWrappedValue(mixed $value, Type $type, bool $nested): mixed
+    {
+        $innerType = Type::fromString($type->params);
+
+        return $this->get($innerType)($value, $innerType, $nested);
     }
 }

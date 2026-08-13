@@ -84,7 +84,7 @@ class PsrClickHouseClient implements ClickHouseClient
     ): Output {
         try {
             return $this->selectWithParams($query, params: [], outputFormat: $outputFormat, settings: $settings);
-        } catch (UnsupportedParamValue | UnsupportedParamType) {
+        } catch (UnsupportedParamType | UnsupportedParamValue) {
             absurd();
         }
     }
@@ -124,7 +124,7 @@ class PsrClickHouseClient implements ClickHouseClient
     ): StreamInterface {
         try {
             return $this->selectStreamWithParams($query, params: [], outputFormat: $outputFormat, settings: $settings);
-        } catch (UnsupportedParamValue | UnsupportedParamType) {
+        } catch (UnsupportedParamType | UnsupportedParamValue) {
             absurd();
         }
     }

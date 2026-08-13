@@ -18,7 +18,7 @@ final class SqlFactoryTest extends TestCaseBase
     #[DataProvider('providerCreateWithParameters')]
     public function testCreateWithParameters(string $expectedSql, string $sqlWithPlaceholders, array $parameters): void
     {
-        $sql = (new SqlFactory(new ValueFormatter()))->createWithParameters($sqlWithPlaceholders, $parameters);
+        $sql = new SqlFactory(new ValueFormatter())->createWithParameters($sqlWithPlaceholders, $parameters);
 
         self::assertSame($expectedSql, $sql);
     }

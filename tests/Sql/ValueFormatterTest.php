@@ -28,7 +28,7 @@ final class ValueFormatterTest extends TestCaseBase
     ): void {
         self::assertSame(
             $expectedValue,
-            (new ValueFormatter())->format($value, $paramName, $sql),
+            new ValueFormatter()->format($value, $paramName, $sql),
         );
     }
 
@@ -117,7 +117,7 @@ final class ValueFormatterTest extends TestCaseBase
     #[DataProvider('providerMapFormat')]
     public function testMapFormat(array $expectedValues, array $values): void
     {
-        self::assertSame($expectedValues, (new ValueFormatter())->mapFormat($values));
+        self::assertSame($expectedValues, new ValueFormatter()->mapFormat($values));
     }
 
     /** @return iterable<string, array<array<mixed>>> */
@@ -130,13 +130,13 @@ final class ValueFormatterTest extends TestCaseBase
     {
         $this->expectException(UnsupportedParamValue::class);
 
-        (new ValueFormatter())->format(new stdClass());
+        new ValueFormatter()->format(new stdClass());
     }
 
     public function testUnsupportedValueThrows(): void
     {
         $this->expectException(UnsupportedParamValue::class);
 
-        (new ValueFormatter())->format([], 'list', 'SELECT * FROM table WHERE a IN (:list)');
+        new ValueFormatter()->format([], 'list', 'SELECT * FROM table WHERE a IN (:list)');
     }
 }

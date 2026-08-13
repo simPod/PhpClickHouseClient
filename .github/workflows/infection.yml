@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CLICKHOUSE_SKIP_USER_SETUP: 1
-      CLICKHOUSE_VERSION: "22.10"
+      CLICKHOUSE_VERSION: "24.3"
 
     steps:
       - uses: actions/checkout@v7

@@ -117,6 +117,7 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
     {
         yield 'Array' => ['Array(String)', "['foo','bar']", "['foo','bar']"];
         yield 'Array LC' => ['Array(LowCardinality(String))', "['foo','bar']", "['foo','bar']"];
+        yield 'Array LC (array)' => ['Array(LowCardinality(String))', ['foo', 'bar'], "['foo','bar']"];
         yield 'Array (array)' => ['Array(String)', ['foo', 'bar', "baz'"], "['foo','bar','baz\\'']"];
         yield 'Array Tuple' => ['Array(Tuple(String, String))', [['foo', 'bar']], "[('foo','bar')]"];
         yield 'Array Tuple Complex' => [
@@ -156,6 +157,13 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 
         yield 'UUID' => ['UUID', 'de90cd12-7100-436e-bfb8-f77e4c7a224f', 'de90cd12-7100-436e-bfb8-f77e4c7a224f'];
 
+        yield 'Array IPv4' => ['Array(IPv4)', ['192.0.2.1', '198.51.100.1'], "['192.0.2.1','198.51.100.1']"];
+        yield 'Array IPv6' => [
+            'Array(IPv6)',
+            ['::ffff:192.0.2.1', '2001:db8::1'],
+            "['::ffff:192.0.2.1','2001:db8::1']",
+        ];
+
         yield 'Date' => ['Date', '2023-02-01', '2023-02-01'];
         yield 'Date (datetime)' => ['Date', new DateTimeImmutable('2023-02-01'), '2023-02-01'];
         yield 'Date32' => ['Date32', new DateTimeImmutable('2023-02-01'), '2023-02-01'];
@@ -192,6 +200,30 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
             'DateTime64(9)',
             new DateTimeImmutable('2023-02-01 01:02:03.123456789'),
             '2023-02-01 01:02:03.123456000',
+        ];
+
+        yield 'Array DateTime64(9) (integer)' => [
+            "Array(DateTime64(9, 'UTC'))",
+            [1675213323123456789],
+            "['2023-02-01 01:02:03.123456789']",
+        ];
+
+        yield 'Array DateTime64(9) (float)' => [
+            "Array(DateTime64(9, 'UTC'))",
+            [1675213323.1235],
+            "['2023-02-01 01:02:03.123500000']",
+        ];
+
+        yield 'Array DateTime64(9) (string)' => [
+            "Array(DateTime64(9, 'UTC'))",
+            ['1675213323.123456789'],
+            "['2023-02-01 01:02:03.123456789']",
+        ];
+
+        yield 'Array DateTime64(6) (DateTime with timezone)' => [
+            "Array(DateTime64(6, 'UTC'))",
+            [new DateTimeImmutable('2023-02-01 03:02:03.123456+02:00')],
+            "['2023-02-01 01:02:03.123456']",
         ];
 
         yield 'Bool' => ['Bool', true, 'true'];

@@ -20,6 +20,19 @@ jobs:
       - name: Build the docker compose stack
         run: docker compose -f tests/docker-compose.yaml up -d
 
+      - name: Wait for ClickHouse
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:28123/ping; then
+              exit 0
+            fi
+
+            sleep 1
+          done
+
+          docker compose -f tests/docker-compose.yaml logs
+          exit 1
+
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:

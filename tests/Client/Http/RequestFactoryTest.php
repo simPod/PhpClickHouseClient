@@ -17,6 +17,8 @@ use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
+use function sprintf;
+
 #[CoversClass(RequestFactory::class)]
 final class RequestFactoryTest extends TestCaseBase
 {
@@ -128,5 +130,121 @@ final class RequestFactoryTest extends TestCaseBase
         $body = $request->getBody()->__toString();
         self::assertStringContainsString('param_serverIds', $body);
         self::assertStringContainsString('param_sensorIds', $body);
+    }
+
+    public function testNestedDateTime64ParamIsQuoted(): void
+    {
+        $dateTime = new DateTimeImmutable('2026-07-30 12:00:00.123456+02:00');
+
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {inputs:Array(Tuple(DateTime64(6), UUID))}',
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(
+                [
+                    'inputs' => [
+                        [
+                            $dateTime,
+                            'c8965e35-e785-4b05-a675-000000000000',
+                        ],
+                    ],
+                ],
+            ),
+        );
+
+        self::assertStringContainsString(
+            "('" . $dateTime->format('U.u') . "','c8965e35-e785-4b05-a675-000000000000')",
+            $request->getBody()->__toString(),
+        );
+    }
+
+    public function testTopLevelDateTime64ParamRemainsNumeric(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {value:DateTime64(6)}',
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(
+                [
+                    'value' => new DateTimeImmutable('2026-07-30 12:00:00.123456'),
+                ],
+            ),
+        );
+
+        self::assertStringContainsString('1785412800.123456', $request->getBody()->__toString());
+    }
+
+    public function testNullableNestedDateTime64ParamIsQuoted(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            'SELECT {inputs:Array(Nullable(DateTime64(6)))}',
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(
+                [
+                    'inputs' => [
+                        new DateTimeImmutable('2026-07-30 12:00:00.123456'),
+                    ],
+                ],
+            ),
+        );
+
+        self::assertStringContainsString(
+            "['1785412800.123456']",
+            $request->getBody()->__toString(),
+        );
+    }
+
+    /** @param list<string> $values */
+    #[DataProvider('provideNestedIpParameters')]
+    public function testNestedIpParametersAreQuoted(string $type, array $values, string $expected): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            sprintf('SELECT {inputs:Array(%s)}', $type),
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(['inputs' => $values]),
+        );
+
+        self::assertStringContainsString($expected, $request->getBody()->__toString());
+    }
+
+    /** @return Generator<string, array{string, list<string>, string}> */
+    public static function provideNestedIpParameters(): Generator
+    {
+        yield 'IPv4' => ['IPv4', ['192.0.2.1', '198.51.100.1'], "['192.0.2.1','198.51.100.1']"];
+        yield 'IPv6' => ['IPv6', ['::ffff:192.0.2.1', '2001:db8::1'], "['::ffff:192.0.2.1','2001:db8::1']"];
     }
 }

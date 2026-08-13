@@ -25,7 +25,7 @@ final readonly class ClickHouseVersion
     {
         $versionString = getenv(self::EnvName);
         if ($versionString === false) {
-            $versionString = '23.12';
+            $versionString = '24.3';
         }
 
         if (strpos($versionString, '.') === false) {

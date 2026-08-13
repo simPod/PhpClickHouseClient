@@ -158,11 +158,14 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
         yield 'UUID' => ['UUID', 'de90cd12-7100-436e-bfb8-f77e4c7a224f', 'de90cd12-7100-436e-bfb8-f77e4c7a224f'];
 
         yield 'Array IPv4' => ['Array(IPv4)', ['192.0.2.1', '198.51.100.1'], "['192.0.2.1','198.51.100.1']"];
-        yield 'Array IPv6' => [
-            'Array(IPv6)',
-            ['::ffff:192.0.2.1', '2001:db8::1'],
-            "['::ffff:192.0.2.1','2001:db8::1']",
-        ];
+
+        if (ClickHouseVersion::get() >= self::VersionIntervalJson) {
+            yield 'Array IPv6' => [
+                'Array(IPv6)',
+                ['::ffff:192.0.2.1', '2001:db8::1'],
+                "['::ffff:192.0.2.1','2001:db8::1']",
+            ];
+        }
 
         yield 'Date' => ['Date', '2023-02-01', '2023-02-01'];
         yield 'Date (datetime)' => ['Date', new DateTimeImmutable('2023-02-01'), '2023-02-01'];

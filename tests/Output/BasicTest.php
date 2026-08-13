@@ -17,6 +17,6 @@ final class BasicTest extends TestCaseBase
 1
 
 TEXT;
-        self::assertSame($contents, (new Basic($contents))->contents);
+        self::assertSame($contents, new Basic($contents)->contents);
     }
 }

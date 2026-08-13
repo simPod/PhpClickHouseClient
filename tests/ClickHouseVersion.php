@@ -6,9 +6,8 @@ namespace SimPod\ClickHouseClient\Tests;
 
 use RuntimeException;
 
-use function assert;
 use function explode;
-use function is_string;
+use function getenv;
 use function sprintf;
 use function str_pad;
 use function strpos;
@@ -24,8 +23,10 @@ final readonly class ClickHouseVersion
     /** @throws RuntimeException */
     public static function get(): int
     {
-        $versionString = $_ENV[self::EnvName] ?? '23.12';
-        assert(is_string($versionString));
+        $versionString = getenv(self::EnvName);
+        if ($versionString === false) {
+            $versionString = '23.12';
+        }
 
         if (strpos($versionString, '.') === false) {
             throw new RuntimeException(sprintf('Specify also a ClickHouse minor version. "%s" given.', $versionString));

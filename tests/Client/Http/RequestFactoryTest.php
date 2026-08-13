@@ -17,6 +17,8 @@ use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
+use function sprintf;
+
 #[CoversClass(RequestFactory::class)]
 final class RequestFactoryTest extends TestCaseBase
 {
@@ -132,6 +134,8 @@ final class RequestFactoryTest extends TestCaseBase
 
     public function testNestedDateTime64ParamIsQuoted(): void
     {
+        $dateTime = new DateTimeImmutable('2026-07-30 12:00:00.123456+02:00');
+
         $requestFactory = new RequestFactory(
             new ParamValueConverterRegistry(),
             new Psr17Factory(),
@@ -148,7 +152,7 @@ final class RequestFactoryTest extends TestCaseBase
                 [
                     'inputs' => [
                         [
-                            new DateTimeImmutable('2026-07-30 12:00:00.123456'),
+                            $dateTime,
                             'c8965e35-e785-4b05-a675-000000000000',
                         ],
                     ],
@@ -157,7 +161,7 @@ final class RequestFactoryTest extends TestCaseBase
         );
 
         self::assertStringContainsString(
-            "('2026-07-30 12:00:00.123456','c8965e35-e785-4b05-a675-000000000000')",
+            "('" . $dateTime->format('U.u') . "','c8965e35-e785-4b05-a675-000000000000')",
             $request->getBody()->__toString(),
         );
     }
@@ -186,7 +190,7 @@ final class RequestFactoryTest extends TestCaseBase
         self::assertStringContainsString('1785412800.123456', $request->getBody()->__toString());
     }
 
-    public function testWrappedNestedDateTime64ParamIsQuoted(): void
+    public function testNullableNestedDateTime64ParamIsQuoted(): void
     {
         $requestFactory = new RequestFactory(
             new ParamValueConverterRegistry(),
@@ -195,7 +199,7 @@ final class RequestFactoryTest extends TestCaseBase
         );
 
         $request = $requestFactory->prepareSqlRequest(
-            'SELECT {inputs:Array(Tuple(Nullable(DateTime64(6)), LowCardinality(DateTime64(6))))}',
+            'SELECT {inputs:Array(Nullable(DateTime64(6)))}',
             new RequestSettings(
                 new EmptySettingsProvider(),
                 new EmptySettingsProvider(),
@@ -203,18 +207,43 @@ final class RequestFactoryTest extends TestCaseBase
             new RequestOptions(
                 [
                     'inputs' => [
-                        [
-                            new DateTimeImmutable('2026-07-30 12:00:00.123456'),
-                            new DateTimeImmutable('2026-07-30 12:01:00.123456'),
-                        ],
+                        new DateTimeImmutable('2026-07-30 12:00:00.123456'),
                     ],
                 ],
             ),
         );
 
         self::assertStringContainsString(
-            "('2026-07-30 12:00:00.123456','2026-07-30 12:01:00.123456')",
+            "['1785412800.123456']",
             $request->getBody()->__toString(),
         );
+    }
+
+    #[DataProvider('provideNestedIpParameters')]
+    public function testNestedIpParametersAreQuoted(string $type, array $values, string $expected): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $request = $requestFactory->prepareSqlRequest(
+            sprintf('SELECT {inputs:Array(%s)}', $type),
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(['inputs' => $values]),
+        );
+
+        self::assertStringContainsString($expected, $request->getBody()->__toString());
+    }
+
+    /** @return Generator<string, array{string, list<string>, string}> */
+    public static function provideNestedIpParameters(): Generator
+    {
+        yield 'IPv4' => ['IPv4', ['192.0.2.1', '198.51.100.1'], "['192.0.2.1','198.51.100.1']"];
+        yield 'IPv6' => ['IPv6', ['::ffff:192.0.2.1', '2001:db8::1'], "['::ffff:192.0.2.1','2001:db8::1']"];
     }
 }

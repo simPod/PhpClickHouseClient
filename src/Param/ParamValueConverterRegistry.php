@@ -112,9 +112,7 @@ final readonly class ParamValueConverterRegistry
             'datetime32' => self::dateTimeConverter(),
             'datetime64' => static function (mixed $value, Type|string|null $type = null, bool $nested = false) {
                 if ($value instanceof DateTimeInterface) {
-                    $value = $nested
-                        ? $value->format('Y-m-d H:i:s.u')
-                        : $value->format('U.u');
+                    $value = $value->format('U.u');
                 }
 
                 if (is_string($value) || is_float($value) || is_int($value)) {
@@ -135,8 +133,8 @@ final readonly class ParamValueConverterRegistry
             'Dynamic' => self::noopConverter(),
             'Variant' => self::noopConverter(),
 
-            'IPv4' => self::noopConverter(),
-            'IPv6' => self::noopConverter(),
+            'IPv4' => self::stringConverter(),
+            'IPv6' => self::stringConverter(),
 
             'enum' => self::noopConverter(),
             'Enum8' => self::noopConverter(),

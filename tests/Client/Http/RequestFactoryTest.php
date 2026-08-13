@@ -219,6 +219,7 @@ final class RequestFactoryTest extends TestCaseBase
         );
     }
 
+    /** @param list<string> $values */
     #[DataProvider('provideNestedIpParameters')]
     public function testNestedIpParametersAreQuoted(string $type, array $values, string $expected): void
     {

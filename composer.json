@@ -43,7 +43,6 @@
         "infection/infection": "^0.34.0",
         "kafkiansky/phpclick": "^0.3.0",
         "nyholm/psr7": "^1.2",
-        "php-http/message-factory": "^1.1",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^2.0.0",
         "phpstan/phpstan-phpunit": "^2.0.0",

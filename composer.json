@@ -40,7 +40,7 @@
     },
     "require-dev": {
         "cdn77/coding-standard": "^7.0",
-        "infection/infection": "^0.34.0",
+        "infection/infection": "^0.35.0",
         "kafkiansky/phpclick": "^0.3.0",
         "nyholm/psr7": "^1.2",
         "phpstan/extension-installer": "^1.1",

@@ -16,6 +16,7 @@ jobs:
         php-version:
           - "8.4"
           - "8.5"
+          - "8.6"
         dependency-versions:
           - "highest"
         include:
@@ -67,6 +68,7 @@ jobs:
         php-version:
           - "8.4"
           - "8.5"
+          - "8.6"
         clickhouse-version:
           - "24.3"
           - "24.8"

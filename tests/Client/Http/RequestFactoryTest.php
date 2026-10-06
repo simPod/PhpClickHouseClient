@@ -83,7 +83,7 @@ final class RequestFactoryTest extends TestCaseBase
         $now = new DateTimeImmutable();
 
         $request = $requestFactory->prepareSqlRequest(
-            'SELECT {p1:String}, {p_2:DateTime}',
+            "SELECT {p1:String}, {p_2:DateTime('UTC')}",
             new RequestSettings(
                 new EmptySettingsProvider(),
                 new EmptySettingsProvider(),
@@ -103,6 +103,27 @@ final class RequestFactoryTest extends TestCaseBase
                 . $now->getTimestamp() . '~',
             $body,
         );
+    }
+
+    public function testQuotedPlaceholderUsesPlainSqlBody(): void
+    {
+        $requestFactory = new RequestFactory(
+            new ParamValueConverterRegistry(),
+            new Psr17Factory(),
+            new Psr17Factory(),
+        );
+
+        $sql     = "SELECT '{context:UnknownType}'";
+        $request = $requestFactory->prepareSqlRequest(
+            $sql,
+            new RequestSettings(
+                new EmptySettingsProvider(),
+                new EmptySettingsProvider(),
+            ),
+            new RequestOptions(['context' => '{context:UnknownType}']),
+        );
+
+        self::assertSame($sql, $request->getBody()->__toString());
     }
 
     public function testMultipleNestedParamsParsed(): void

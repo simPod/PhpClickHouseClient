@@ -13,13 +13,10 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use SimPod\ClickHouseClient\Exception\UnsupportedParamType;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
-use SimPod\ClickHouseClient\Sql\Type;
+use SimPod\ClickHouseClient\Sql\NativeParameterParser;
 
-use function array_keys;
-use function array_reduce;
 use function http_build_query;
 use function is_string;
-use function preg_match_all;
 use function SimPod\ClickHouseClient\absurd;
 
 use const PHP_QUERY_RFC3986;
@@ -83,8 +80,8 @@ final readonly class RequestFactory
     ): RequestInterface {
         $request = $this->initRequest($requestSettings);
 
-        preg_match_all('~\{([a-zA-Z\d_]+)\s*:\s*([a-zA-Z\d ]+(?:\([^{}]*\))*)\s*}~', $sql, $matches);
-        if ($matches[0] === []) {
+        $paramToType = NativeParameterParser::parse($sql);
+        if ($paramToType === []) {
             $body = $this->streamFactory->createStream($sql);
             try {
                 return $request->withBody($body);
@@ -92,17 +89,6 @@ final readonly class RequestFactory
                 absurd();
             }
         }
-
-        /** @var array<string, Type> $paramToType */
-        $paramToType = array_reduce(
-            array_keys($matches[1]),
-            static function (array $acc, string|int $k) use ($matches) {
-                $acc[$matches[1][$k]] = Type::fromString($matches[2][$k]);
-
-                return $acc;
-            },
-            [],
-        );
 
         $streamElements = [['name' => 'query', 'contents' => $sql]];
         foreach ($requestOptions->params as $name => $value) {

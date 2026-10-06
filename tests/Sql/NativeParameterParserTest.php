@@ -66,7 +66,9 @@ final class NativeParameterParserTest extends TestCaseBase
         yield 'hash comment' => ["SELECT 1 # 'quoted' {context:UnknownType}\n"];
         yield 'shebang comment' => ["#! {context:UnknownType}\nSELECT 1"];
         yield 'block comment' => ["SELECT 1 /* 'quoted' {context:UnknownType} */"];
+        yield 'block comment starting with slash' => ['SELECT 1 /*/ {context:UnknownType} */'];
         yield 'nested block comment' => ['SELECT 1 /* /* nested */ {context:UnknownType} */'];
+        yield 'nested comment starting with slash' => ['SELECT 1 /* /*/ nested */ {context:UnknownType} */'];
     }
 
     #[DataProvider('provideParseAroundIgnoredText')]
@@ -90,6 +92,8 @@ final class NativeParameterParserTest extends TestCaseBase
         yield 'parameter after empty line comment' => ["SELECT --\n{context:String}"];
         yield 'parameter after empty block comment' => ['SELECT /**/{context:String}'];
         yield 'parameter directly after block comment' => ['SELECT /* ignored */{context:String}'];
+        yield 'division directly after block comment' => ['SELECT 8 /* ignored *// {context:String}'];
+        yield 'adjacent nested comment delimiters' => ['SELECT /* /**/*/ {context:String}'];
         yield 'parameter after nested comment' => ['SELECT /* /* nested */ {context:UnknownType} */ {context:String}'];
 
         yield 'parameter after heredoc' => ['SELECT $sql${context:UnknownType}$sql$, {context:String}'];
@@ -99,6 +103,8 @@ final class NativeParameterParserTest extends TestCaseBase
         yield 'parameter after empty unicode string' => ['SELECT ‘’, {context:String}'];
         yield 'unicode mathematical minus' => ['SELECT 1 − 2, {context:String}'];
         yield 'dollars in bare identifiers' => ['SELECT foo$sql$, {context:String}, foo$sql$ FROM t'];
+        yield 'partial dollar tag at end of input' => ['SELECT {context:String}, $column'];
+        yield 'dollar identifier without closing dollar' => ['SELECT $column + {context:String}'];
         yield 'many distinct dollar-bearing identifiers' => [
             'SELECT ' . implode(', ', array_map(static fn (int $i) => '$column' . $i . '$', range(0, 29_999)))
                 . ', {context:String} FROM t',

@@ -83,7 +83,26 @@ final readonly class RequestFactory
     ): RequestInterface {
         $request = $this->initRequest($requestSettings);
 
-        preg_match_all('~\{([a-zA-Z\d_]+)\s*:\s*([a-zA-Z\d ]+(?:\([^{}]*\))*)\s*}~', $sql, $matches);
+        // Quoted text and comments are not parameter declarations. Keep them unchanged in the request SQL.
+        preg_match_all(
+            <<<'REGEX'
+            ~
+            (?:
+                '(?:[^'\\]++|\\.|'')*(?:'|\z)
+                | "(?:[^"\\]++|\\.|"")*(?:"|\z)
+                | `(?:[^`\\]++|\\.|``)*(?:`|\z)
+                | ‘[^’]*’
+                | “[^”]*”
+                | (?<heredoc>\$[a-zA-Z\d_]*\$).*?\k<heredoc>
+                | (?:--|//|\#[\x20!])[^\n]*
+                | (?<comment>/\*(?:[^*/]++|/(?!\*)|\*(?!/)|(?&comment))*(?:\*/|\z))
+            )(*SKIP)(*FAIL)
+            | \{(?<name>[a-zA-Z\d_]+)\s*:\s*(?<type>[a-zA-Z\d ]+(?:\([^{}]*\))*)\s*}
+            ~xs
+            REGEX,
+            $sql,
+            $matches,
+        );
         if ($matches[0] === []) {
             $body = $this->streamFactory->createStream($sql);
             try {
@@ -95,9 +114,9 @@ final readonly class RequestFactory
 
         /** @var array<string, Type> $paramToType */
         $paramToType = array_reduce(
-            array_keys($matches[1]),
+            array_keys($matches['name']),
             static function (array $acc, string|int $k) use ($matches) {
-                $acc[$matches[1][$k]] = Type::fromString($matches[2][$k]);
+                $acc[$matches['name'][$k]] = Type::fromString($matches['type'][$k]);
 
                 return $acc;
             },

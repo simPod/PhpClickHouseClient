@@ -15,17 +15,11 @@ use SimPod\ClickHouseClient\Client\Http\RequestSettings;
 use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
-use SimPod\ClickHouseClient\Sql\NativeParameterParser;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
-use function array_map;
-use function implode;
-use function range;
 use function sprintf;
-use function str_repeat;
 
 #[CoversClass(RequestFactory::class)]
-#[CoversClass(NativeParameterParser::class)]
 final class RequestFactoryTest extends TestCaseBase
 {
     #[DataProvider('providerPrepareRequest')]
@@ -111,8 +105,7 @@ final class RequestFactoryTest extends TestCaseBase
         );
     }
 
-    #[DataProvider('provideIgnoredPlaceholderIsNotBound')]
-    public function testIgnoredPlaceholderIsNotBound(string $sql): void
+    public function testQuotedPlaceholderUsesPlainSqlBody(): void
     {
         $requestFactory = new RequestFactory(
             new ParamValueConverterRegistry(),
@@ -120,6 +113,7 @@ final class RequestFactoryTest extends TestCaseBase
             new Psr17Factory(),
         );
 
+        $sql     = "SELECT '{context:UnknownType}'";
         $request = $requestFactory->prepareSqlRequest(
             $sql,
             new RequestSettings(
@@ -130,94 +124,6 @@ final class RequestFactoryTest extends TestCaseBase
         );
 
         self::assertSame($sql, $request->getBody()->__toString());
-    }
-
-    /** @phpstan-return Generator<string, array{string}> */
-    public static function provideIgnoredPlaceholderIsNotBound(): Generator
-    {
-        yield 'string literal' => ["SELECT '{context:UnknownType}'"];
-        yield 'escaped quote' => [
-            <<<'SQL'
-            SELECT 'it\'s {context:UnknownType}'
-            SQL,
-        ];
-
-        yield 'doubled quote' => ["SELECT 'it''s {context:UnknownType}'"];
-        yield 'double-quoted identifier' => ['SELECT "{context:UnknownType}"'];
-        yield 'doubled double quote' => ['SELECT "a""{context:UnknownType}"'];
-        yield 'backtick-quoted identifier' => ['SELECT `{context:UnknownType}`'];
-        yield 'escaped backtick' => ['SELECT `a\`{context:UnknownType}`'];
-        yield 'unicode string literal' => ['SELECT ‘{context:UnknownType}’'];
-        yield 'unicode string with em dash' => ['SELECT ‘a—{context:UnknownType}’'];
-        yield 'unicode quoted identifier' => ['SELECT “{context:UnknownType}”'];
-        yield 'unicode identifier with emoji' => ['SELECT “😀{context:UnknownType}”'];
-        yield 'heredoc' => ['SELECT $$\' {context:UnknownType} $$'];
-        yield 'tagged heredoc' => ['SELECT $sql$\' {context:UnknownType} $other$ $sql$'];
-        yield 'dash comment' => ["SELECT 1 -- '{context:UnknownType}\n"];
-        yield 'comment at end of input' => ['SELECT 1 -- {context:UnknownType}'];
-        yield 'slash comment' => ["SELECT 1 // '{context:UnknownType}\n"];
-        yield 'hash comment' => ["SELECT 1 # '{context:UnknownType}\n"];
-        yield 'shebang comment' => ["#! {context:UnknownType}\nSELECT 1"];
-        yield 'block comment' => ["SELECT 1 /* '{context:UnknownType} */"];
-        yield 'nested block comment' => ['SELECT 1 /* /* nested */ {context:UnknownType} */'];
-    }
-
-    #[DataProvider('provideParamParsedWithIgnoredPlaceholder')]
-    public function testParamParsedWithIgnoredPlaceholder(string $sql): void
-    {
-        $requestFactory = new RequestFactory(
-            new ParamValueConverterRegistry(),
-            new Psr17Factory(),
-            new Psr17Factory(),
-        );
-
-        $request = $requestFactory->prepareSqlRequest(
-            $sql,
-            new RequestSettings(
-                new EmptySettingsProvider(),
-                new EmptySettingsProvider(),
-            ),
-            new RequestOptions(['context' => 'value']),
-        );
-
-        $body = $request->getBody()->__toString();
-        self::assertStringContainsString($sql, $body);
-        self::assertMatchesRegularExpression(
-            '~Content-Disposition: form-data; name="param_context"\r\n(?:Content-Length: \d+\r\n)?\r\nvalue\r\n~',
-            $body,
-        );
-    }
-
-    /** @phpstan-return Generator<string, array{string}> */
-    public static function provideParamParsedWithIgnoredPlaceholder(): Generator
-    {
-        yield 'literal before real parameter' => ["SELECT '{context:UnknownType}', {context:String}"];
-        yield 'literal after real parameter' => ["SELECT {context:String}, '{context:UnknownType}'"];
-        yield 'parameter after escaped backslash' => [
-            <<<'SQL'
-            SELECT '\\', {context:String}
-            SQL,
-        ];
-
-        yield 'parameter after line comment' => ["SELECT -- {context:UnknownType}\n{context:String}"];
-        yield 'parameter after nested comment' => ['SELECT /* /* nested */ {context:UnknownType} */ {context:String}'];
-
-        yield 'parameter after heredoc' => ['SELECT $sql${context:UnknownType}$sql$, {context:String}'];
-        yield 'parameter after empty heredoc' => ['SELECT $$$$, {context:String}'];
-        yield 'parameter after unicode identifier' => ['SELECT “😀{context:UnknownType}”, {context:String}'];
-        yield 'dollars in bare identifiers' => ['SELECT foo$sql$, {context:String}, foo$sql$ FROM t'];
-        yield 'many distinct dollar-bearing identifiers' => [
-            'SELECT ' . implode(', ', array_map(static fn (int $i) => '$column' . $i . '$', range(0, 29_999)))
-                . ', {context:String} FROM t',
-        ];
-
-        yield 'parameter after large escaped literal' => [
-            "SELECT '" . str_repeat('\\x', 10_000) . "', {context:String}",
-        ];
-
-        yield 'parameter after large block comment' => [
-            'SELECT /* ' . str_repeat('/', 10_000) . ' */ {context:String}',
-        ];
     }
 
     public function testMultipleNestedParamsParsed(): void

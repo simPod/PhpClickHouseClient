@@ -298,6 +298,9 @@ $output = $client->selectWithParams(
 All types are supported (except `AggregateFunction`, `SimpleAggregateFunction` and `Nothing` by design).
 You can also pass `DateTimeInterface` into `Date*` types or native array into `Array`, `Tuple`, `Nested` and Geo types (`Point`, `Polygon`, `Geometry` etc.).
 
+Pass raw strings to native `String` and `FixedString` parameters. The client escapes backslashes and control characters
+for ClickHouse; do not escape these values yourself. This also applies to `Nullable` and `LowCardinality` string wrappers.
+
 ### Custom Query Parameter Value Conversion
 
 Query parameters passed to `selectWithParams()` are converted into an HTTP-API-compatible format. To overwrite an existing value converter or

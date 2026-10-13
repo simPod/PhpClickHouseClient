@@ -14,15 +14,22 @@ use SimPod\ClickHouseClient\Format\JsonCompact;
 use SimPod\ClickHouseClient\Format\JsonEachRow;
 use SimPod\ClickHouseClient\Format\Null_;
 use SimPod\ClickHouseClient\Format\TabSeparated;
+use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use SimPod\ClickHouseClient\Settings\ArraySettingsProvider;
 use SimPod\ClickHouseClient\Tests\ClickHouseVersion;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 use SimPod\ClickHouseClient\Tests\WithClient;
 
+use function bin2hex;
+use function implode;
 use function iterator_to_array;
+use function sprintf;
+use function strlen;
+use function strtoupper;
 
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(PsrClickHouseClient::class)]
+#[CoversClass(ParamValueConverterRegistry::class)]
 #[CoversClass(ServerError::class)]
 #[CoversClass(Json::class)]
 #[CoversClass(\SimPod\ClickHouseClient\Output\Json::class)]
@@ -38,10 +45,41 @@ final class SelectTest extends TestCaseBase
 
     public function testSelectWithParams(): void
     {
-        $client = self::$client;
-        $output = $client->selectWithParams('SELECT {p1:UInt8} AS data', ['p1' => 3], new TabSeparated());
+        $value  = "actual\n\t\r\0\x08\x0C literal\\n \\N \\x41 'quoted' `identifier` trailing\\";
+        $hex    = strtoupper(bin2hex($value));
+        $sql    = sprintf(
+            <<<'CLICKHOUSE'
+SELECT
+    {number:UInt8},
+    hex({string:String}),
+    hex({fixed:FixedString(%d)}),
+    hex({nullable:Nullable(String)}),
+    hex({low_cardinality:LowCardinality(String)}),
+    hex({nested:Array(Tuple(String, UInt8))}[1].1),
+    hex({literal_null:Nullable(String)}),
+    hex(:legacy)
+CLICKHOUSE,
+            strlen($value),
+        );
+        $output = self::$client->selectWithParams(
+            $sql,
+            [
+                'number' => 3,
+                'string' => $value,
+                'fixed' => $value,
+                'nullable' => $value,
+                'low_cardinality' => $value,
+                'nested' => [[$value, 1]],
+                'literal_null' => '\\N',
+                'legacy' => $value,
+            ],
+            new TabSeparated(),
+        );
 
-        self::assertSame("3\n", $output->contents);
+        self::assertSame(
+            implode("\t", ['3', $hex, $hex, $hex, $hex, $hex, '5C4E', $hex]) . "\n",
+            $output->contents,
+        );
     }
 
     #[DataProvider('providerJson')]

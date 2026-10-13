@@ -26,6 +26,7 @@ use function json_encode;
 use function sprintf;
 use function strlen;
 use function strtolower;
+use function strtr;
 use function trim;
 
 /**
@@ -279,7 +280,16 @@ final readonly class ParamValueConverterRegistry
             string $value,
             Type|string|null $type = null,
             bool $nested = false,
-        ) => $nested ? "'" . Escaper::escape($value) . "'" : $value;
+        ) => $nested ? "'" . Escaper::escape($value) . "'" : strtr($value, [
+            // Native scalar strings use escaped text; nested strings use quoted literals.
+            '\\' => '\\\\',
+            "\n" => '\\n',
+            "\t" => '\\t',
+            "\r" => '\\r',
+            "\0" => '\\0',
+            "\x08" => '\\b',
+            "\x0C" => '\\f',
+        ]);
     }
 
     private static function noopConverter(): Closure

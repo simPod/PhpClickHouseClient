@@ -45,9 +45,9 @@ final class SelectTest extends TestCaseBase
 
     public function testSelectWithParams(): void
     {
-        $value = "actual\n\t\r\0\x08\x0C literal\\n \\N \\x41 'quoted' `identifier` trailing\\";
-        $hex   = strtoupper(bin2hex($value));
-        $sql   = sprintf(
+        $value  = "actual\n\t\r\0\x08\x0C literal\\n \\N \\x41 'quoted' `identifier` trailing\\";
+        $hex    = strtoupper(bin2hex($value));
+        $sql    = sprintf(
             <<<'CLICKHOUSE'
 SELECT
     {number:UInt8},

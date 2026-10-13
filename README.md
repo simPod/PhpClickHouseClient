@@ -16,6 +16,7 @@ Naming used here is the same as in ClickHouse docs.
 - Logging ([PSR-3 compliant](https://www.php-fig.org/psr/psr-3/))
 - SQL Factory for [parameters "binding"](#parameters-binding)
 - [Native query parameters](#native-query-parameters) support
+- Native TCP alongside HTTP, with typed binary results and row inserts
 
 ## Contents
 
@@ -28,6 +29,7 @@ Naming used here is the same as in ClickHouse docs.
   - [Insert](#insert)
 - [Async API](#async-api)
   - [Select](#select-1)
+- [Native TCP](#native-tcp)
 - [Parameters "binding"](#parameters-binding)
 - [Native Query Parameters](#native-query-parameters)
   - [Custom Query Parameter Value Conversion](#custom-query-parameter-value-conversion)
@@ -248,6 +250,49 @@ $client = new PsrClickHouseAsyncClient(
 
 $output = $client->select('SELECT 1 AS data', new JsonEachRow())->await();
 ```
+
+## Native TCP
+
+Native TCP is a separate, synchronous client. Existing HTTP clients and their format-based interfaces are unchanged.
+It uses the actual ClickHouse TCP protocol, not `FORMAT Native` over HTTP.
+
+```php
+<?php
+
+use SimPod\ClickHouseClient\Client\Native\ConnectionConfig;
+use SimPod\ClickHouseClient\Client\NativeClickHouseClient;
+
+$client = new NativeClickHouseClient(new ConnectionConfig(
+    host: 'localhost',
+    database: 'default',
+    user: 'default',
+    password: '',
+));
+
+try {
+    $result = $client->selectWithParams(
+        'SELECT {name:String} AS name, toUInt32(42) AS count',
+        ['name' => 'Alice'],
+    );
+
+    // Column metadata: $result->columns[0]->name and ->type.
+    // Positional rows in column order: [['Alice', 42]].
+    $rows = $result->rows;
+
+    // Binary column blocks; the server supplies the column types.
+    $client->insert('events', [[42, 'Alice']], ['id', 'name']);
+} finally {
+    $client->close();
+}
+```
+
+For remote connections, enable verified TLS with `tls: true` (default port `9440`).
+Without TLS, port `9000` is used and credentials travel unencrypted. Use plaintext only on a trusted network.
+Custom ports, connection/I/O timeouts, a CA file, and a TLS server name are supported.
+
+This first version has buffered results, bounded insert batches, no compression, and no async TCP or arbitrary format streams.
+It is not a drop-in implementation of the HTTP `ClickHouseClient` interface.
+See [native TCP capabilities and value mappings](docs/native-tcp.md) before migrating queries.
 
 ## Parameters "binding"
 

@@ -249,6 +249,43 @@ $client = new PsrClickHouseAsyncClient(
 $output = $client->select('SELECT 1 AS data', new JsonEachRow())->await();
 ```
 
+### Cancellation
+
+All four async select methods accept a trailing optional `Amp\Cancellation` argument.
+Omitting it keeps the operation uncancelled:
+
+```php
+use Amp\DeferredCancellation;
+use SimPod\ClickHouseClient\Format\TabSeparated;
+
+$cancellation = new DeferredCancellation();
+$future = $client->selectStream(
+    'SELECT number FROM system.numbers',
+    new TabSeparated(),
+    cancellation: $cancellation->getCancellation(),
+);
+
+$payload = $future->await();
+
+try {
+    $chunk = $payload->read();
+    $cancellation->cancel();
+    $payload->read(); // Throws Amp\CancelledException, without needing another read token.
+} finally {
+    $payload->close();
+}
+```
+
+The operation token applies to the HTTP request, buffered response bodies, and later reads or buffering of a
+returned payload. A token passed directly to `read()` or `buffer()` is combined with the operation token.
+Cancellation is reported through the future or payload as `Amp\CancelledException`.
+Pipeline 1.2.1 or later is required to avoid a pending-read cancellation defect in earlier versions.
+Close a streamed payload when it is no longer needed. Client I/O cancellation does not guarantee that ClickHouse
+has stopped executing the query.
+
+Existing calls do not need to change. Implementations of `ClickHouseAsyncClient` and subclasses overriding its
+methods must add the trailing `Cancellation|null $cancellation = null` parameter and forward it when delegating.
+
 ## Parameters "binding"
 
 ```php

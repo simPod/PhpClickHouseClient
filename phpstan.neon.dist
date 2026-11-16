@@ -12,6 +12,12 @@ parameters:
             - RuntimeException
 
     ignoreErrors:
+        # JsonEachRow<T> explicitly implements Format<Output\JsonEachRow<T>>; PHPStan 2.3.6 rejects nested mixed.
+        - message: '~^Parameter #3 \$outputFormat of method SimPod\\ClickHouseClient\\Client\\ClickHouseClient::selectWithParams\(\) expects SimPod\\ClickHouseClient\\Format\\Format<SimPod\\ClickHouseClient\\Output\\JsonEachRow<array<string, mixed>>>, SimPod\\ClickHouseClient\\Format\\JsonEachRow<array<string, mixed>> given\.$~'
+          identifier: argument.type
+          path: src/Snippet/Parts.php
+          count: 1
+
         # There's no other way to test-pass without assertions while counting it towards coverage https://github.com/sebastianbergmann/phpunit/issues/3016
         - '~Call to static method PHPUnit\\Framework\\Assert::assertTrue\(\) with true will always evaluate to true~'
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use Amp\ByteStream\Payload;
+use Amp\Cancellation;
 use Amp\Future;
 use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\Psr7\PsrAdapter;
@@ -12,6 +13,7 @@ use Amp\Http\Client\Request as AmpRequest;
 use Error;
 use Exception;
 use Psr\Http\Message\RequestInterface;
+use SimPod\ClickHouseClient\Client\Http\CancellationStream;
 use SimPod\ClickHouseClient\Client\Http\RequestFactory;
 use SimPod\ClickHouseClient\Client\Http\RequestOptions;
 use SimPod\ClickHouseClient\Client\Http\RequestSettings;
@@ -23,6 +25,7 @@ use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 use SimPod\ClickHouseClient\Sql\SqlFactory;
 use SimPod\ClickHouseClient\Sql\ValueFormatter;
+use Throwable;
 
 use function Amp\async;
 use function uniqid;
@@ -53,8 +56,9 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         string $query,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future {
-        return $this->selectWithParams($query, [], $outputFormat, $settings);
+        return $this->selectWithParams($query, [], $outputFormat, $settings, $cancellation);
     }
 
     /**
@@ -68,6 +72,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         array $params,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future {
         $formatClause = $outputFormat::toSql();
 
@@ -81,6 +86,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             params: $params,
             settings: $settings,
             processResponse: static fn (string $body) => $outputFormat::output($body),
+            cancellation: $cancellation,
         );
     }
 
@@ -96,8 +102,9 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         string $query,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future {
-        return $this->selectStreamWithParams($query, [], $outputFormat, $settings);
+        return $this->selectStreamWithParams($query, [], $outputFormat, $settings, $cancellation);
     }
 
     /**
@@ -114,6 +121,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         array $params,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future {
         $formatClause = $outputFormat::toSql();
 
@@ -126,6 +134,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
             CLICKHOUSE,
             params: $params,
             settings: $settings,
+            cancellation: $cancellation,
         );
     }
 
@@ -145,6 +154,7 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         array $params,
         SettingsProvider $settings,
         callable $processResponse,
+        Cancellation|null $cancellation,
     ): Future {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,
@@ -158,13 +168,22 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         );
 
         /** @var Future<T> $future */
-        $future = async(function () use ($processResponse, $request, $sql): mixed {
+        $future = async(function () use ($processResponse, $request, $sql, $cancellation): mixed {
             $id = uniqid('', true);
             $this->sqlLogger?->startQuery($id, $sql);
 
             try {
-                $response = $this->client->request($this->toAmpRequest($request));
-                $body     = $response->getBody()->buffer();
+                $cancellation?->throwIfRequested();
+                $response = $this->client->request($this->toAmpRequest($request), $cancellation);
+                $payload  = $response->getBody();
+
+                try {
+                    $cancellation?->throwIfRequested();
+                    $body = $payload->buffer($cancellation);
+                    $cancellation?->throwIfRequested();
+                } finally {
+                    $payload->close();
+                }
 
                 if (
                     $response->getStatus() !== 200
@@ -193,8 +212,12 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
      * @throws Error
      * @throws Exception
      */
-    private function executeStreamRequest(string $sql, array $params, SettingsProvider $settings): Future
-    {
+    private function executeStreamRequest(
+        string $sql,
+        array $params,
+        SettingsProvider $settings,
+        Cancellation|null $cancellation,
+    ): Future {
         $request = $this->requestFactory->prepareSqlRequest(
             $sql,
             new RequestSettings(
@@ -207,21 +230,33 @@ class PsrClickHouseAsyncClient implements ClickHouseAsyncClient
         );
 
         /** @var Future<Payload> $future */
-        $future = async(function () use ($request, $sql): Payload {
+        $future = async(function () use ($request, $sql, $cancellation): Payload {
             $id = uniqid('', true);
             $this->sqlLogger?->startQuery($id, $sql);
 
             try {
-                $response = $this->client->request($this->toAmpRequest($request));
+                $cancellation?->throwIfRequested();
+                $response = $this->client->request($this->toAmpRequest($request), $cancellation);
+                $body     = $response->getBody();
 
-                if ($response->getStatus() !== 200) {
-                    throw ServerError::fromResponseContent(
-                        $response->getBody()->buffer(),
-                        $response->getStatus(),
-                    );
+                try {
+                    $cancellation?->throwIfRequested();
+
+                    if ($response->getStatus() !== 200) {
+                        $content = $body->buffer($cancellation);
+                        $cancellation?->throwIfRequested();
+
+                        throw ServerError::fromResponseContent($content, $response->getStatus());
+                    }
+
+                    return $cancellation === null
+                        ? $body
+                        : new Payload(new CancellationStream($body, $cancellation));
+                } catch (Throwable $exception) {
+                    $body->close();
+
+                    throw $exception;
                 }
-
-                return $response->getBody();
             } finally {
                 $this->sqlLogger?->stopQuery($id);
             }

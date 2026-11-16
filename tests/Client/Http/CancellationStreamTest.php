@@ -60,11 +60,11 @@ final class CancellationStreamTest extends TestCaseBase
     public function testReadCancellation(bool $cancelOperation): void
     {
         /** @var Queue<string> $queue */
-        $queue        = new Queue();
-        $source       = new ReadableIterableStream($queue->iterate());
-        $operation    = new DeferredCancellation();
-        $read         = new DeferredCancellation();
-        $payload      = new Payload(new CancellationStream($source, $operation->getCancellation()));
+        $queue     = new Queue();
+        $source    = new ReadableIterableStream($queue->iterate());
+        $operation = new DeferredCancellation();
+        $read      = new DeferredCancellation();
+        $payload   = new Payload(new CancellationStream($source, $operation->getCancellation()));
         /** @var DeferredFuture<null> $started */
         $started = new DeferredFuture();
         $future  = async(static function () use ($started, $payload, $read): string|null {
@@ -118,9 +118,21 @@ final class CancellationStreamTest extends TestCaseBase
         $payload->read();
     }
 
+    public function testAbandonedStreamReleasesItsSourceAndSubscription(): void
+    {
+        $source       = new ReadableIterableStream(["1\n"]);
+        $cancellation = new TrackedCancellation();
+        $stream       = new CancellationStream($source, $cancellation);
+
+        unset($stream);
+
+        self::assertTrue($source->isClosed());
+        self::assertSame(0, $cancellation->countSubscriptions());
+    }
+
     /** @param 'close'|'eof'|'failure' $ending */
-    #[DataProvider('provideSubscriptionCleanup')]
-    public function testSubscriptionCleanup(string $ending): void
+    #[DataProvider('provideStreamLifecycle')]
+    public function testStreamLifecycle(string $ending): void
     {
         $source = new ReadableIterableStream((static function () use ($ending): Generator {
             yield "1\n";
@@ -131,32 +143,39 @@ final class CancellationStreamTest extends TestCaseBase
         })());
 
         $cancellation = new TrackedCancellation();
-        $payload      = new Payload(new CancellationStream($source, $cancellation));
-        self::assertSame("1\n", $payload->read());
+        $stream       = new CancellationStream($source, $cancellation);
+        /** @var DeferredFuture<null> $closed */
+        $closed = new DeferredFuture();
+        $stream->onClose($closed->complete(...));
+
+        self::assertTrue($stream->isReadable());
+        self::assertSame("1\n", $stream->read());
         self::assertGreaterThan(0, $cancellation->countSubscriptions());
 
         if ($ending === 'close') {
-            $payload->close();
-            $payload->close();
+            $stream->close();
+            $stream->close();
         } elseif ($ending === 'eof') {
-            self::assertNull($payload->read());
+            self::assertNull($stream->read());
         } else {
             try {
-                $payload->read();
+                $stream->read();
                 self::fail('The response body failure was not propagated.');
             } catch (StreamException $exception) {
                 self::assertSame('Response body failed.', $exception->getMessage());
             }
         }
 
+        $closed->getFuture()->await();
+        self::assertTrue($stream->isClosed());
         self::assertTrue($source->isClosed());
         self::assertSame(0, $cancellation->countSubscriptions());
         $cancellation->cancel();
-        self::assertNull($payload->read());
+        self::assertNull($stream->read());
     }
 
     /** @phpstan-return Generator<string, array{'close'|'eof'|'failure'}> */
-    public static function provideSubscriptionCleanup(): Generator
+    public static function provideStreamLifecycle(): Generator
     {
         yield 'explicit close is idempotent' => ['close'];
         yield 'EOF without an onClose notification' => ['eof'];

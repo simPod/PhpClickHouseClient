@@ -18,6 +18,7 @@ use Amp\Http\Client\Response;
 use Amp\Http\InvalidHeaderException;
 use Amp\Pipeline\Queue;
 use Generator;
+use InvalidArgumentException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -30,14 +31,13 @@ use SimPod\ClickHouseClient\Param\ParamValueConverterRegistry;
 use SimPod\ClickHouseClient\Tests\TestCaseBase;
 
 use function Amp\async;
+use function SimPod\ClickHouseClient\absurd;
 
 #[CoversClass(PsrClickHouseAsyncClient::class)]
 #[CoversClass(CancellationStream::class)]
 final class PsrClickHouseAsyncClientCancellationTest extends TestCaseBase
 {
-    /**
-     * @param 'select'|'selectWithParams'|'selectStream'|'selectStreamWithParams' $method
-     */
+    /** @param 'select'|'selectWithParams'|'selectStream'|'selectStreamWithParams' $method */
     #[DataProvider('provideRequestCancellation')]
     public function testRequestCancellation(string $method): void
     {
@@ -198,6 +198,9 @@ final class PsrClickHouseAsyncClientCancellationTest extends TestCaseBase
     private static function respondWith(ReadableStream|string $body, int $status = 200): DelegateHttpClient
     {
         return new class ($body, $status) implements DelegateHttpClient {
+            // Keep the payload alive so its destructor cannot satisfy explicit body-cleanup assertions.
+            private Response $response;
+
             public function __construct(private ReadableStream|string $body, private int $status)
             {
             }
@@ -205,7 +208,9 @@ final class PsrClickHouseAsyncClientCancellationTest extends TestCaseBase
             /** @throws InvalidHeaderException */
             public function request(Request $request, Cancellation $cancellation): Response
             {
-                return new Response('1.1', $this->status, null, [], $this->body, $request);
+                $this->response = new Response('1.1', $this->status, null, [], $this->body, $request);
+
+                return $this->response;
             }
         };
     }
@@ -216,15 +221,21 @@ final class PsrClickHouseAsyncClientCancellationTest extends TestCaseBase
     ): PsrClickHouseAsyncClient {
         $psr17Factory = new Psr17Factory();
 
-        return new PsrClickHouseAsyncClient(
-            new HttpClient($delegate, []),
-            new RequestFactory(
+        try {
+            $requestFactory = new RequestFactory(
                 new ParamValueConverterRegistry(),
                 $psr17Factory,
                 $psr17Factory,
                 $psr17Factory,
                 'https://clickhouse.example',
-            ),
+            );
+        } catch (InvalidArgumentException) {
+            absurd();
+        }
+
+        return new PsrClickHouseAsyncClient(
+            new HttpClient($delegate, []),
+            $requestFactory,
             new PsrAdapter($psr17Factory, $psr17Factory),
             sqlLogger: $logger,
         );

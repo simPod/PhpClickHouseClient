@@ -40,23 +40,8 @@ final class CancellationStream implements ReadableStream, IteratorAggregate
     ) {
         $this->source  = $source;
         $this->onClose = new DeferredFuture();
-        $reference     = WeakReference::create($this);
 
-        $subscription = $cancellation->subscribe(
-            static function (CancelledException $exception) use ($reference): void {
-                $reference->get()?->cancel($exception);
-            },
-        );
-
-        // A Cancellation implementation may invoke its callback before subscribe() returns.
-        if ($this->source === null) {
-            $cancellation->unsubscribe($subscription);
-        } else {
-            $this->subscription = $subscription;
-            $this->source->onClose(static function () use ($reference): void {
-                $reference->get()?->close();
-            });
-        }
+        $this->subscribe();
     }
 
     public function __destruct()
@@ -94,7 +79,7 @@ final class CancellationStream implements ReadableStream, IteratorAggregate
             // Closing a pending source read can produce a stream error or EOF instead of cancellation.
             $this->throwIfCancelled();
 
-            if (! $exception instanceof CancelledException || ! $cancellation?->isRequested()) {
+            if (! $exception instanceof CancelledException || $cancellation?->isRequested() !== true) {
                 $this->close();
             }
 
@@ -143,6 +128,27 @@ final class CancellationStream implements ReadableStream, IteratorAggregate
     public function onClose(Closure $onClose): void
     {
         $this->onClose->getFuture()->finally($onClose);
+    }
+
+    private function subscribe(): void
+    {
+        $reference = WeakReference::create($this);
+
+        $subscription = $this->cancellation->subscribe(
+            static function (CancelledException $exception) use ($reference): void {
+                $reference->get()?->cancel($exception);
+            },
+        );
+
+        // A Cancellation implementation may invoke its callback before subscribe() returns.
+        if ($this->source === null) {
+            $this->cancellation->unsubscribe($subscription);
+        } else {
+            $this->subscription = $subscription;
+            $this->source->onClose(static function () use ($reference): void {
+                $reference->get()?->close();
+            });
+        }
     }
 
     private function cancel(CancelledException $exception): void

@@ -33,6 +33,7 @@
         "amphp/byte-stream": "^2.0",
         "amphp/http-client": "^5.3",
         "amphp/http-client-psr7": "^1.1",
+        "amphp/pipeline": "^1.2.1",
         "guzzlehttp/psr7": "^2.6 || ^3.0",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",

@@ -73,6 +73,7 @@ jobs:
           - "25.3"
           - "25.8"
           - "26.3"
+          - "26.8"
         dependency-versions:
           - "highest"
     env:

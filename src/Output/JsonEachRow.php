@@ -19,7 +19,7 @@ use function substr;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @template T
+ * @template-covariant T
  * @implements Output<T>
  */
 final readonly class JsonEachRow implements Output

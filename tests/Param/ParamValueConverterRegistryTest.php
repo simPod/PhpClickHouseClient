@@ -35,6 +35,7 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 
     private const int VersionIntervalJson = 2301;
     private const int VersionLineString   = 2408;
+    private const int VersionMultiPoint   = 2608;
     private const int VersionVariant      = 2403;
 
     /** @var array<string> */
@@ -291,6 +292,11 @@ final class ParamValueConverterRegistryTest extends TestCaseBase
 
         yield 'Point' => ['Point', '(1,2)', '(1,2)'];
         yield 'Point (array)' => ['Point', [1, 2], '(1,2)'];
+
+        if (ClickHouseVersion::get() >= self::VersionMultiPoint) {
+            yield 'MultiPoint (array)' => ['MultiPoint', [[1.5, -2], [3, 4]], '[(1.5,-2),(3,4)]'];
+        }
+
         yield 'Ring' => ['Ring', '[(1,2),(3,4)]', '[(1,2),(3,4)]'];
         yield 'Ring (array)' => ['Ring', [[1, 2], [3, 4]], '[(1,2),(3,4)]'];
 

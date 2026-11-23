@@ -65,7 +65,7 @@ final readonly class ParamValueConverterRegistry
             return sprintf('(%s)', implode(',', $point));
         };
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
-        $formatRingOrLineString = static function (array $v) use ($formatPoint) {
+        $formatPoints = static function (array $v) use ($formatPoint) {
             /** @phpstan-var array<array<string>> $v */
             return sprintf('[%s]', implode(
                 ',',
@@ -73,13 +73,15 @@ final readonly class ParamValueConverterRegistry
             ));
         };
         // phpcs:ignore SlevomatCodingStandard.Functions.RequireArrowFunction.RequiredArrowFunction
-        $formatPolygonOrMultiLineString = static function (array $v) use ($formatRingOrLineString) {
+        $formatPolygonOrMultiLineString = static function (array $v) use ($formatPoints) {
             /** @phpstan-var array<array<string>> $v */
             return sprintf('[%s]', implode(
                 ',',
-                array_map($formatRingOrLineString, $v),
+                array_map($formatPoints, $v),
             ));
         };
+
+        $convertPoints = static fn (string|array $v) => is_string($v) ? $v : $formatPoints($v);
 
         /** @phpstan-var ConverterRegistry $defaultRegistry */
         $defaultRegistry = [
@@ -194,12 +196,9 @@ final readonly class ParamValueConverterRegistry
             'Point' => static fn (string|array $v) => is_string($v)
                 ? $v
                 : $formatPoint($v),
-            'Ring' => static fn (string|array $v) => is_string($v)
-                    ? $v
-                    : $formatRingOrLineString($v),
-            'LineString' => static fn (string|array $v) => is_string($v)
-                    ? $v
-                    : $formatRingOrLineString($v),
+            'MultiPoint' => $convertPoints,
+            'Ring' => $convertPoints,
+            'LineString' => $convertPoints,
             'MultiLineString' => static fn (string|array $v) => is_string($v)
                     ? $v
                     : $formatPolygonOrMultiLineString($v),

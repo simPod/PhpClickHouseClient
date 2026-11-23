@@ -36,6 +36,8 @@ Naming used here is the same as in ClickHouse docs.
 
 ## Setup
 
+Requires PHP 8.5 or later.
+
 ```sh
 composer require simpod/clickhouse-client
 ```

@@ -39,7 +39,7 @@ final readonly class Json implements Output
          *     meta: array<mixed>,
          *     rows: int,
          *     rows_before_limit_at_least?: int,
-         *     statistics: array{elapsed: float, rows_read: int, bytes_read: int}
+         *     statistics: array{elapsed: float, rows_read: int, bytes_read: int},
          *  } $contents
          */
         $contents                     = json_decode($contentsJson, true, flags: JSON_THROW_ON_ERROR);

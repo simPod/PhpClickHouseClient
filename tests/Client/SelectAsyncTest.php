@@ -44,7 +44,7 @@ CLICKHOUSE;
         /**
          * @var array{
          *     \SimPod\ClickHouseClient\Output\Json<array{number: int|string}>,
-         *     \SimPod\ClickHouseClient\Output\Json<array{number: int|string}>
+         *     \SimPod\ClickHouseClient\Output\Json<array{number: int|string}>,
          * } $jsonOutputs
          */
         $jsonOutputs = await($futures);

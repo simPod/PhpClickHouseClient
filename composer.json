@@ -7,7 +7,8 @@
         "client",
         "php",
         "http",
-        "HTTP client"
+        "HTTP client",
+        "tcp"
     ],
     "homepage": "https://github.com/simPod/ClickHouseClient",
     "license": "MIT",
@@ -49,6 +50,9 @@
         "phpstan/phpstan-strict-rules": "^2.0.0",
         "phpunit/phpunit": "^13.0",
         "symfony/http-client": "^8.0"
+    },
+    "suggest": {
+        "ext-openssl": "Required for verified TLS connections with the native TCP client."
     },
     "autoload": {
         "psr-4": {

@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace SimPod\ClickHouseClient\Client;
 
 use Amp\ByteStream\Payload;
+use Amp\Cancellation;
 use Amp\Future;
 use SimPod\ClickHouseClient\Format\Format;
 use SimPod\ClickHouseClient\Output\Output;
 use SimPod\ClickHouseClient\Settings\EmptySettingsProvider;
 use SimPod\ClickHouseClient\Settings\SettingsProvider;
 
+/**
+ * Cancellation applies to the HTTP request and response consumption, including later reads of a returned payload.
+ * Cancelled operations fail with Amp\CancelledException through their future or returned payload.
+ */
 interface ClickHouseAsyncClient
 {
     /**
@@ -24,6 +29,7 @@ interface ClickHouseAsyncClient
         string $query,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future;
 
     /**
@@ -39,6 +45,7 @@ interface ClickHouseAsyncClient
         array $params,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future;
 
     /**
@@ -50,6 +57,7 @@ interface ClickHouseAsyncClient
         string $query,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future;
 
     /**
@@ -63,5 +71,6 @@ interface ClickHouseAsyncClient
         array $params,
         Format $outputFormat,
         SettingsProvider $settings = new EmptySettingsProvider(),
+        Cancellation|null $cancellation = null,
     ): Future;
 }
